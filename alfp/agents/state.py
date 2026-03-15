@@ -51,3 +51,7 @@ class ALFPState(TypedDict, total=False):
     # ── 공통 로그 ─────────────────────────────────────────
     messages: list                 # 에이전트별 실행 로그
     errors: list                   # 오류 로그
+
+    # ── Dashboard Agent 단계 로깅 (run_pipeline에서만 설정) ──
+    _logging_ctx: dict             # { run_id, stage_order, db_path }
+    _agent_step_order: int         # 다음 노드의 step_order

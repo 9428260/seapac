@@ -4,6 +4,7 @@ SQLite DB for pipeline run and stage results.
 Schema:
   - pipeline_run: one row per full pipeline execution
   - pipeline_stage: one row per architecture step (ALFP, MESA, Step2, ...)
+  - alfp_agent_step: per-agent step log within ALFP stage (Langchain DeepAgent 단계)
 """
 
 from __future__ import annotations
@@ -61,6 +62,21 @@ def init_db(db_path: Path | None = None) -> None:
             );
             CREATE INDEX IF NOT EXISTS ix_stage_run_id ON pipeline_stage(run_id);
             CREATE INDEX IF NOT EXISTS ix_run_created ON pipeline_run(created_at DESC);
+            CREATE TABLE IF NOT EXISTS alfp_agent_step (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                run_id INTEGER NOT NULL,
+                stage_order INTEGER NOT NULL,
+                agent_name TEXT NOT NULL,
+                step_order INTEGER NOT NULL,
+                started_at TEXT NOT NULL,
+                finished_at TEXT,
+                elapsed_sec REAL,
+                ok INTEGER NOT NULL DEFAULT 1,
+                summary_json TEXT,
+                error_text TEXT,
+                FOREIGN KEY (run_id) REFERENCES pipeline_run(id)
+            );
+            CREATE INDEX IF NOT EXISTS ix_alfp_agent_run_stage ON alfp_agent_step(run_id, stage_order);
         """)
         try:
             conn.execute("ALTER TABLE pipeline_run ADD COLUMN measure_date TEXT")
@@ -145,6 +161,84 @@ def add_stage(
             (run_id, stage_order, stage_name, 1 if ok else 0, elapsed_sec, summary_json, error_text),
         )
         conn.commit()
+    finally:
+        conn.close()
+
+
+def add_agent_step(
+    run_id: int,
+    stage_order: int,
+    agent_name: str,
+    step_order: int,
+    started_at: str,
+    finished_at: str | None = None,
+    elapsed_sec: float | None = None,
+    ok: bool = True,
+    summary: dict[str, Any] | None = None,
+    error_text: str | None = None,
+    db_path: Path | None = None,
+) -> None:
+    """Append one ALFP agent (Langchain DeepAgent) step log. stage_order=1 for ALFP stage."""
+    path = db_path or get_db_path()
+    conn = _connect(path)
+    try:
+        summary_json = json.dumps(summary or {}, ensure_ascii=False) if summary else None
+        conn.execute(
+            """INSERT INTO alfp_agent_step
+               (run_id, stage_order, agent_name, step_order, started_at, finished_at, elapsed_sec, ok, summary_json, error_text)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (
+                run_id,
+                stage_order,
+                agent_name,
+                step_order,
+                started_at,
+                finished_at,
+                elapsed_sec,
+                1 if ok else 0,
+                summary_json,
+                error_text,
+            ),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def get_alfp_agent_steps(
+    run_id: int,
+    stage_order: int = 1,
+    db_path: Path | None = None,
+) -> list[dict[str, Any]]:
+    """Return ALFP agent steps for a run (stage_order=1 for ALFP), ordered by step_order."""
+    path = db_path or get_db_path()
+    if not path.exists():
+        return []
+    conn = _connect(path)
+    try:
+        rows = conn.execute(
+            """SELECT id, run_id, stage_order, agent_name, step_order, started_at, finished_at,
+                      elapsed_sec, ok, summary_json, error_text
+               FROM alfp_agent_step WHERE run_id = ? AND stage_order = ?
+               ORDER BY step_order, id""",
+            (run_id, stage_order),
+        ).fetchall()
+        return [
+            {
+                "id": r["id"],
+                "run_id": r["run_id"],
+                "stage_order": r["stage_order"],
+                "agent_name": r["agent_name"],
+                "step_order": r["step_order"],
+                "started_at": r["started_at"],
+                "finished_at": r["finished_at"],
+                "elapsed_sec": r["elapsed_sec"],
+                "ok": bool(r["ok"]),
+                "summary": json.loads(r["summary_json"]) if r["summary_json"] else {},
+                "error_text": r["error_text"],
+            }
+            for r in rows
+        ]
     finally:
         conn.close()
 

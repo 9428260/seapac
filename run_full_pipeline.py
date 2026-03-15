@@ -57,6 +57,11 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+# 서브프로세스(Dashboard 기동)에서도 pipeline_dashboard 임포트 성공하도록 프로젝트 루트를 path에 추가
+_SCRIPT_ROOT = str(Path(__file__).resolve().parent)
+if _SCRIPT_ROOT not in sys.path:
+    sys.path.insert(0, _SCRIPT_ROOT)
+
 try:
     from pipeline_dashboard.db import (
         get_db_path,
@@ -66,9 +71,10 @@ try:
         finish_run,
     )
     _DASHBOARD_AVAILABLE = True
-except ImportError:
+except ImportError as e:
     get_db_path = init_db = create_run = add_stage = finish_run = None  # type: ignore[misc, assignment]
     _DASHBOARD_AVAILABLE = False
+    _DASHBOARD_IMPORT_ERROR = e
 
 
 # ─────────────────────────────────────────────────────────────────
@@ -211,8 +217,12 @@ def _parse_args() -> argparse.Namespace:
 # 파이프라인 단계 구현
 # ─────────────────────────────────────────────────────────────────
 
-def stage_alfp(args: argparse.Namespace) -> tuple[StageResult, dict]:
-    """[ALFP decision] — LangGraph 부하 예측 및 운영 의사결정."""
+def stage_alfp(
+    args: argparse.Namespace,
+    run_id: int | None = None,
+    db_path: Path | None = None,
+) -> tuple[StageResult, dict]:
+    """[ALFP decision] — LangGraph 부하 예측 및 운영 의사결정. run_id/db_path 있으면 Agent별 단계를 DB에 기록."""
     label = "[ALFP] 부하 예측 및 운영 의사결정"
     t0 = _stage_start(label)
     try:
@@ -227,6 +237,8 @@ def stage_alfp(args: argparse.Namespace) -> tuple[StageResult, dict]:
             data_path=args.data_path,
             forecast_horizon=args.steps,
             verbose=args.verbose,
+            run_id=run_id,
+            db_path=str(db_path) if db_path else None,
         )
 
         decisions: dict = alfp_result.get("decisions", {})
@@ -987,7 +999,12 @@ def main() -> None:
     alfp_decisions: dict = {}
 
     if not args.skip_alfp:
-        stage_r, alfp_decisions = stage_alfp(args)
+        # run_id/db_path 가 있으면 ALFP 실행 시 Agent별 Langchain DeepAgent 단계가 DB(alfp_agent_step)에 기록됨
+        if run_id is not None and db_path is not None:
+            log.info("  ALFP Agent 단계 로깅 활성화 run_id=%s  db_path=%s", run_id, db_path)
+        else:
+            log.warning("  ALFP Agent 단계 로깅 비활성화 (run_id=%s, db_path=%s) — Dashboard에서 실행 시에만 기록됨", run_id, db_path)
+        stage_r, alfp_decisions = stage_alfp(args, run_id=run_id, db_path=db_path)
         pipeline.add(stage_r)
         stage_order += 1
         _record_stage(run_id, stage_order, stage_r, db_path)

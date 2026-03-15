@@ -118,6 +118,8 @@ def run(
     data_path: str = "data/train_2026_seoul.pkl",
     forecast_horizon: int = 96,
     verbose: bool = True,
+    run_id: int | None = None,
+    db_path: str | None = None,
 ):
     """
     ALFP 파이프라인 실행.
@@ -127,6 +129,8 @@ def run(
         data_path: 학습 데이터 경로
         forecast_horizon: 예측 horizon (스텝 수, 15분 단위)
         verbose: 상세 로그 출력 여부
+        run_id: Dashboard run_id (지정 시 Agent별 단계를 DB에 기록)
+        db_path: Dashboard DB 경로 (run_id와 함께 사용)
     """
     print_section("Agentic Load Forecast Platform (ALFP)")
     print(f"  데이터: {data_path}")
@@ -135,11 +139,16 @@ def run(
 
     start = time.time()
 
-    # 파이프라인 실행
+    # 파이프라인 실행 (run_id/db_path 있으면 Agent별 Langchain DeepAgent 단계를 DB에 기록)
+    if run_id is not None and db_path:
+        import logging
+        logging.getLogger("alfp").debug("Agent step DB logging enabled run_id=%s db_path=%s", run_id, db_path)
     result = run_pipeline(
         prosumer_id=prosumer_id,
         data_path=data_path,
         forecast_horizon=forecast_horizon,
+        run_id=run_id,
+        db_path=db_path,
     )
 
     elapsed = time.time() - start

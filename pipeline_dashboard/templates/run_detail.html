@@ -78,6 +78,56 @@
   .stage-summary ul { margin: 0; padding-left: 1.25rem; }
   .run-meta { color: var(--muted); font-size: 0.9rem; margin-bottom: 1rem; }
   .no-content { color: var(--muted); font-style: italic; padding: 1rem 0; }
+  .agent-steps-title { font-size: 1rem; margin: 1.5rem 0 0.5rem; color: var(--text); }
+  .alfp-agent-steps { margin-top: 0.5rem; }
+  .agent-step {
+    background: var(--card);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+    border-left: 3px solid rgba(63, 185, 80, 0.5);
+  }
+  .agent-step.agent-step-fail { border-left-color: var(--fail); }
+  .agent-step-header {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+  }
+  .agent-step-order {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5rem;
+    height: 1.5rem;
+    background: rgba(88, 166, 255, 0.25);
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.8rem;
+  }
+  .agent-step-name { font-weight: 600; }
+  .agent-step-time { color: var(--muted); font-size: 0.85rem; margin-left: auto; }
+  .agent-step-error { color: var(--fail); font-size: 0.85rem; margin: 0.35rem 0 0 1.75rem; }
+  .agent-step-summary { margin: 0.35rem 0 0 1.75rem; padding-left: 1rem; font-size: 0.85rem; color: var(--muted); }
+  /* ALFP_AGENT_STEP_LOGGING.md UI: Langchain DeepAgent 단계 테이블 */
+  .alfp-agent-steps-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 0.75rem; }
+  .alfp-agent-steps-table th, .alfp-agent-steps-table td {
+    padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid rgba(139, 148, 158, 0.2);
+  }
+  .alfp-agent-steps-table th { color: var(--muted); font-weight: 600; }
+  .alfp-agent-steps-table tr:hover { background: rgba(88, 166, 255, 0.06); }
+  .agent-steps-doc-ref { font-size: 0.8rem; color: var(--muted); margin-top: 0.25rem; }
+  /* Tab1 서브탭: Summary / 단계 / 결과 */
+  .sub-tabs { display: flex; gap: 0.25rem; margin-bottom: 1rem; border-bottom: 1px solid rgba(139, 148, 158, 0.2); }
+  .sub-tabs a.sub-tab {
+    padding: 0.5rem 1rem; font-size: 0.9rem; color: var(--muted); text-decoration: none; border-radius: 6px 6px 0 0;
+    border: 1px solid transparent; border-bottom: none; margin-bottom: -1px; cursor: pointer;
+  }
+  .sub-tabs a.sub-tab:hover { color: var(--text); background: rgba(88, 166, 255, 0.08); }
+  .sub-tabs a.sub-tab.active { color: var(--accent); background: var(--bg); border-color: rgba(139, 148, 158, 0.3); border-bottom: 1px solid var(--bg); margin-bottom: -2px; padding-bottom: calc(0.5rem + 1px); }
+  .sub-panel { display: none; padding-top: 0.5rem; }
+  .sub-panel.active { display: block; }
 {% endblock %}
 {% block content %}
   <h1>Run #{{ run.id }}</h1>
@@ -115,20 +165,109 @@
     <a href="#" data-tab="tab-6" class="detail-tab {% if _ct == '6' %}active{% endif %}">6. Evaluation</a>
   </div>
 
-  {# Tab 1: [ALFP] 부하 예측 및 운영 의사결정 #}
+  {# Tab 1: [ALFP] 부하 예측 및 운영 의사결정 — Summary / 단계 / 결과 서브탭 #}
   <div id="tab-1" class="detail-panel {% if _ct == '1' %}active{% endif %}">
-    {% for s in (tab1_stages or []) %}
-    <div class="stage">
-      <div class="stage-name">{{ s.stage_name }} {% if s.ok %}<span class="badge badge-success">✓</span>{% else %}<span class="badge badge-failure">✗</span>{% endif %}</div>
-      <div class="stage-meta">소요: {{ "%.2f"|format(s.elapsed_sec) }}s</div>
-      {% if s.error_text %}<p style="color: var(--fail); font-size: 0.9rem;">{{ s.error_text }}</p>{% endif %}
-      {% if s.summary %}
-      <div class="stage-summary"><ul>{% for key, val in s.summary.items() %}<li><strong>{{ key }}</strong>: {{ val }}</li>{% endfor %}</ul></div>
+    <div class="sub-tabs" role="tablist">
+      <a href="#" class="sub-tab active" data-subtab="sub-summary" role="tab" aria-selected="true">Summary</a>
+      <a href="#" class="sub-tab" data-subtab="sub-steps" role="tab" aria-selected="false">단계</a>
+      <a href="#" class="sub-tab" data-subtab="sub-result" role="tab" aria-selected="false">결과</a>
+    </div>
+
+    {# 서브탭 Summary: 단계별 summary #}
+    <div id="sub-summary" class="sub-panel active" role="tabpanel">
+      {% if (alfp_agent_steps or []) %}
+      <div class="alfp-agent-steps">
+        {% for step in (alfp_agent_steps or []) %}
+        <div class="agent-step {% if not step.ok %}agent-step-fail{% endif %}">
+          <div class="agent-step-header">
+            <span class="agent-step-order">{{ step.step_order }}</span>
+            <span class="agent-step-name">{{ step.agent_name }}</span>
+            {% if step.ok %}<span class="badge badge-success">✓</span>{% else %}<span class="badge badge-failure">✗</span>{% endif %}
+            <span class="agent-step-time">시작 {{ step.started_at }}{% if step.finished_at %} · 종료 {{ step.finished_at }}{% endif %}{% if step.elapsed_sec is not none %} · {{ "%.2f"|format(step.elapsed_sec) }}s{% endif %}</span>
+          </div>
+          {% if step.error_text %}<p class="agent-step-error">{{ step.error_text }}</p>{% endif %}
+          {% if step.summary and step.summary.items() %}
+          <ul class="agent-step-summary">{% for key, val in step.summary.items() %}<li><strong>{{ key }}</strong>: {{ val }}</li>{% endfor %}</ul>
+          {% else %}
+          <p class="agent-step-summary" style="margin: 0.35rem 0 0 1.75rem; color: var(--muted);">summary 없음</p>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="no-content">기록된 Agent 단계가 없습니다.</p>
       {% endif %}
     </div>
-    {% else %}
-    <p class="no-content">해당 단계 결과가 없습니다.</p>
-    {% endfor %}
+
+    {# 서브탭 단계: Langchain DeepAgent 단계 테이블 #}
+    <div id="sub-steps" class="sub-panel" role="tabpanel">
+      <h3 class="agent-steps-title">Langchain DeepAgent 단계</h3>
+      {% if (alfp_agent_steps or []) %}
+      <table class="alfp-agent-steps-table" role="grid">
+        <thead>
+          <tr>
+            <th scope="col">순서</th>
+            <th scope="col">Agent명</th>
+            <th scope="col">상태</th>
+            <th scope="col">시작 시각</th>
+            <th scope="col">종료 시각</th>
+            <th scope="col">소요 시간</th>
+            <th scope="col">오류 메시지</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for step in (alfp_agent_steps or []) %}
+          <tr>
+            <td>{{ step.step_order }}</td>
+            <td><span class="agent-step-name">{{ step.agent_name }}</span></td>
+            <td>{% if step.ok %}<span class="badge badge-success">성공</span>{% else %}<span class="badge badge-failure">실패</span>{% endif %}</td>
+            <td>{{ step.started_at }}</td>
+            <td>{{ step.finished_at or '—' }}</td>
+            <td>{% if step.elapsed_sec is not none %}{{ "%.2f"|format(step.elapsed_sec) }}s{% else %}—{% endif %}</td>
+            <td>{% if step.error_text %}<span class="agent-step-error">{{ step.error_text }}</span>{% else %}—{% endif %}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p class="no-content">기록된 Agent 단계가 없습니다.</p>
+      {% endif %}
+    </div>
+
+    {# 서브탭 결과: 단계별 결과 영역 #}
+    <div id="sub-result" class="sub-panel" role="tabpanel">
+      {% for s in (tab1_stages or []) %}
+      <div class="stage">
+        <div class="stage-name">{{ s.stage_name }} {% if s.ok %}<span class="badge badge-success">✓</span>{% else %}<span class="badge badge-failure">✗</span>{% endif %}</div>
+        <div class="stage-meta">소요: {{ "%.2f"|format(s.elapsed_sec) }}s</div>
+        {% if s.error_text %}<p style="color: var(--fail); font-size: 0.9rem;">{{ s.error_text }}</p>{% endif %}
+        {% if s.summary %}
+        <div class="stage-summary"><ul>{% for key, val in s.summary.items() %}<li><strong>{{ key }}</strong>: {{ val }}</li>{% endfor %}</ul></div>
+        {% endif %}
+      </div>
+      {% else %}
+      <p class="no-content">해당 단계 결과가 없습니다.</p>
+      {% endfor %}
+    </div>
+
+    <script>
+    (function() {
+      var tab1 = document.getElementById('tab-1');
+      if (!tab1) return;
+      tab1.querySelectorAll('.sub-tab').forEach(function(a) {
+        a.addEventListener('click', function(e) {
+          e.preventDefault();
+          var id = this.getAttribute('data-subtab');
+          tab1.querySelectorAll('.sub-tab').forEach(function(x) { x.classList.remove('active'); x.setAttribute('aria-selected', 'false'); });
+          tab1.querySelectorAll('.sub-panel').forEach(function(x) { x.classList.remove('active'); });
+          this.classList.add('active');
+          this.setAttribute('aria-selected', 'true');
+          var panel = document.getElementById(id);
+          if (panel) panel.classList.add('active');
+        });
+      });
+    })();
+    </script>
   </div>
 
   {# Tab 2: [MESA] 시뮬레이션 실행 #}
