@@ -60,6 +60,19 @@ log = logging.getLogger("pipeline_dashboard")
 app = Flask(__name__, template_folder=Path(__file__).parent / "templates")
 
 
+def _format_thousands(value) -> str:
+    """Jinja filter: format number with thousands separator (e.g. 1213867 → 1,213,867)."""
+    if value is None:
+        return "0"
+    try:
+        return "{:,.0f}".format(float(value))
+    except (TypeError, ValueError):
+        return str(value)
+
+
+app.jinja_env.filters["int_fmt"] = _format_thousands
+
+
 @app.before_request
 def _log_request():
     """요청 시작 시 로그 (실행 로그 확인용)."""
@@ -151,10 +164,10 @@ def index():
 @app.route("/api/prosumers")
 def api_prosumers():
     """
-    GET ?data_path=data/test_2026may_seoul.pkl
+    GET ?data_path=data/test_5days.pkl
     Load the pkl and return list of prosumer_id. Returns [] if file missing or invalid.
     """
-    data_path = (request.args.get("data_path") or "data/test_2026may_seoul.pkl").strip()
+    data_path = (request.args.get("data_path") or "data/test_5days.pkl").strip()
     path = PROJECT_ROOT / data_path
     if not path.is_file():
         return jsonify({"prosumers": []})
@@ -176,8 +189,8 @@ def api_run():
     """
     out_dir = _output_dir()
     data = request.get_json(force=True, silent=True) or {}
-    data_path = data.get("data_path", "data/test_2026may_seoul.pkl")
-    steps = int(data.get("steps", 96))
+    data_path = data.get("data_path", "data/test_5days.pkl")
+    steps = int(data.get("steps", 96))  # 96 고정 (화면에서 제거됨)
     # Support multiple: prosumers (list) or single prosumer (string)
     prosumers_raw = data.get("prosumers")
     if isinstance(prosumers_raw, list) and len(prosumers_raw) > 0:
@@ -185,7 +198,7 @@ def api_run():
     else:
         single = (data.get("prosumer") or "bus_48_Commercial").strip()
         prosumers = [single] if single else ["bus_48_Commercial"]
-    use_parallel = bool(data.get("use_parallel", False))
+    use_parallel = bool(data.get("use_parallel", True))  # 기본 사용 (화면에서 제거됨)
     phase = int(data.get("phase", 4))
     skip_alfp = bool(data.get("skip_alfp", False))
     measure_date = (data.get("measure_date") or "").strip() or None
@@ -193,9 +206,9 @@ def api_run():
     today = datetime.utcnow().strftime("%Y-%m-%d")
     if not run_date:
         run_date = today
-    # 기준일자: 폼에서 설정하지 않으면 5월 4일 기본값 (해당 날짜 데이터로 파이프라인 실행)
+    # 기준일자: 폼에서 설정하지 않으면 5월 5일 기본값 (해당 날짜 데이터로 파이프라인 실행)
     if not measure_date:
-        measure_date = "2026-05-04"
+        measure_date = "2026-05-05"
 
     init_db(_db_path())
     out_dir_abs = str(PROJECT_ROOT / out_dir)
@@ -410,6 +423,65 @@ def run_detail(run_id: int):
             cda_strategy_logs = summary["strategy_reasoning_logs"]
         if summary.get("negotiation_logs"):
             cda_negotiation_logs = summary["negotiation_logs"]
+
+    # AgentScope Step3 — 실행된 5개 에이전트 요약 (seapac_agents/decision.py 기준)
+    agentscope_agent_summary = []
+    agentscope_step3_stage = None
+    for s in stages:
+        if "Step3  AgentScope" in s.get("stage_name", ""):
+            agentscope_step3_stage = s
+            summary = s.get("summary") or {}
+            agentscope_agent_summary = [
+                {
+                    "name": "Policy-Agent",
+                    "role": "제약 조건 강제 (ESS·거래·DR 검증 및 클램핑)",
+                    "result": "제약 검증 완료",
+                },
+                {
+                    "name": "SmartSeller-Agent",
+                    "role": "잉여 에너지 판매 (bid_price, bid_quantity 결정)",
+                    "result": summary.get("거래 권고", "—"),
+                },
+                {
+                    "name": "StorageMaster-Agent",
+                    "role": "ESS 운영 최적화 (charge/discharge/idle)",
+                    "result": summary.get("ESS 스케줄", "—"),
+                },
+                {
+                    "name": "EcoSaver-Agent",
+                    "role": "수요반응 DR (demand response 권고)",
+                    "result": summary.get("DR 이벤트", "—"),
+                },
+                {
+                    "name": "MarketCoordinator-Agent",
+                    "role": "협상 조율 및 충돌 해결, 최종 decisions 생성",
+                    "result": (summary.get("결정 모드") or "—") + " · 최종 조율 완료",
+                },
+            ]
+            break
+
+    # Evaluation 탭(6): run별 평가 보고서 JSON 로드 (run_{id}_ 우선, 없으면 공통 evaluation_report.json)
+    evaluation_report = None
+    out_dir = PROJECT_ROOT / _output_dir()
+    for candidate in (out_dir / f"run_{run_id}_evaluation_report.json", out_dir / "evaluation_report.json"):
+        if candidate.is_file():
+            try:
+                with open(candidate, "r", encoding="utf-8") as f:
+                    evaluation_report = json.load(f)
+                break
+            except Exception as e:
+                log.warning("evaluation_report read error path=%s: %s", candidate, e)
+
+    # CDA 탭(4) 실행 서브탭: Order Book, Matching, Buyer, Settlement (run_{id}_cda_execution.json)
+    cda_execution = None
+    cda_exec_path = out_dir / f"run_{run_id}_cda_execution.json"
+    if cda_exec_path.is_file():
+        try:
+            with open(cda_exec_path, "r", encoding="utf-8") as f:
+                cda_execution = json.load(f)
+        except Exception as e:
+            log.warning("cda_execution read error path=%s: %s", cda_exec_path, e)
+
     prosumer_options = _prosumer_options(_db_path())
     search_run_date = (run.get("created_at") or "")[:10]
     search_prosumer = (run.get("args") or {}).get("prosumer") or ""
@@ -429,6 +501,10 @@ def run_detail(run_id: int):
         alfp_domain_steps=alfp_domain_steps,
         cda_strategy_logs=cda_strategy_logs,
         cda_negotiation_logs=cda_negotiation_logs,
+        agentscope_agent_summary=agentscope_agent_summary,
+        agentscope_step3_stage=agentscope_step3_stage,
+        evaluation_report=evaluation_report,
+        cda_execution=cda_execution,
         **tabs,
     )
 

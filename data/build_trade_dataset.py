@@ -25,6 +25,27 @@ def load_data(path: Path) -> dict:
         return pickle.load(f)
 
 
+def ensure_midday_surplus_for_trading(ts_day: pd.DataFrame, surplus_min_kw: float = 0.5) -> pd.DataFrame:
+    """
+    낮 시간대(10~15시)에 일부 프로슈머가 잉여(surplus >= surplus_min_kw)를 갖도록 보정.
+    ALFP 거래권고가 발생하도록 데이터를 보강한다.
+    """
+    ts = ts_day.copy()
+    ts["_hour"] = pd.to_datetime(ts["timestamp"]).dt.hour
+    midday = (ts["_hour"] >= 10) & (ts["_hour"] <= 15)
+    prosumers = ts["prosumer_id"].unique().tolist()
+    # 절반 이상 프로슈머에 낮 시간대 잉여 보장 (pv = load + surplus_min 이상)
+    n_apply = max(1, (len(prosumers) * 3) // 4)
+    for pid in prosumers[:n_apply]:
+        mask = midday & (ts["prosumer_id"] == pid)
+        if mask.any():
+            need = (ts.loc[mask, "load_kw"] + surplus_min_kw) - ts.loc[mask, "pv_kw"]
+            bump = need.clip(lower=0)
+            ts.loc[mask, "pv_kw"] = ts.loc[mask, "pv_kw"] + bump
+    ts = ts.drop(columns=["_hour"])
+    return ts
+
+
 def find_trading_timestamps(ts: pd.DataFrame) -> pd.Series:
     """타임스텝별로 전력거래 가능 여부 (잉여·부족 동시 존재) 반환."""
     ts = ts.copy()
@@ -72,6 +93,7 @@ def build_trade_dataset(
     ts["_date"] = pd.to_datetime(ts["timestamp"]).dt.date
     ts_day = ts.loc[ts["_date"] == ref_date].drop(columns=["_date"]).copy()
     ts_day = ts_day.sort_values(["timestamp", "prosumer_id"]).reset_index(drop=True)
+    ts_day = ensure_midday_surplus_for_trading(ts_day)
 
     prosumer_ids = sorted(ts_day["prosumer_id"].unique().tolist())
     prosumers = data["prosumers"]

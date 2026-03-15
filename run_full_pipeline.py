@@ -204,7 +204,8 @@ def _parse_args() -> argparse.Namespace:
     # 실행 옵션
     p.add_argument("--skip-alfp",   action="store_true", help="ALFP 단계를 건너뜀 (MESA→Step2~5 만 실행)")
     p.add_argument("--use-parallel", action="store_true", help="Step3.5 Parallel Agents 활성화")
-    p.add_argument("--use-cda",     action="store_true", help="Step3 CDA 시장 모드 사용")
+    p.add_argument("--use-cda",     action="store_true", default=True, help="Step3 CDA 시장 모드 사용 (기본값)")
+    p.add_argument("--no-cda",      action="store_false", dest="use_cda", help="Step3 AgentScope 페르소나 모드 사용 (CDA 비활성화)")
     p.add_argument("--use-cda-negotiation", action="store_true", help="Step3 CDA + Strategy Agent(LLM) + Negotiation Layer 사용 (--use-cda 필요)")
     # 출력
     p.add_argument("--output-dir",  default=None, help="결과 저장 디렉토리")
@@ -345,7 +346,8 @@ def stage_alfp_multi(
                 )
                 return prosumer_id, dec, True
             except Exception as e:
-                log.error("   [ALFP/%s] 오류: %s", prosumer_id, e)
+                log.error("   [ALFP/%s] 오류: %s (%s)", prosumer_id, e, type(e).__name__)
+                log.exception("   [ALFP/%s] 상세:", prosumer_id)
                 return prosumer_id, {}, False
 
         # 프로슈머별 ALFP 병렬 실행
@@ -1023,8 +1025,11 @@ def _save_outputs(
     exec_result: Any,
     eval_report: Any,
     pipeline_result: PipelineResult,
+    run_id: int | None = None,
 ) -> None:
     out_dir = Path(args.output_dir or "output")
+    if not out_dir.is_absolute():
+        out_dir = Path.cwd() / out_dir
     out_dir.mkdir(parents=True, exist_ok=True)
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
 
@@ -1054,9 +1059,41 @@ def _save_outputs(
         # Decisions
         _write_json(out_dir / "multi_agent_decisions.json", decisions)
 
-        # Evaluation report
+        # Evaluation report (공통 파일 + run별 파일로 Dashboard에서 run_id로 조회 가능)
         if eval_report is not None:
             _write_json(out_dir / "evaluation_report.json", eval_report.to_dict())
+            if run_id is not None:
+                _write_json(out_dir / f"run_{run_id}_evaluation_report.json", eval_report.to_dict())
+
+        # CDA 실행 탭용 스냅샷 (Order Book, Matching, Buyer, Settlement)
+        if run_id is not None and (decisions.get("cda_trades") is not None or decisions.get("cda_snapshot")):
+            snapshot = decisions.get("cda_snapshot") or {}
+            cda_execution = {
+                "order_book": {
+                    "bids": snapshot.get("bids", []),
+                    "asks": snapshot.get("asks", []),
+                    "snapshot_time": snapshot.get("time", ""),
+                },
+                "matching": {
+                    "trades": decisions.get("cda_trades", []),
+                    "total_trades": len(decisions.get("cda_trades", [])),
+                    "total_quantity_kw": round(
+                        sum(float(t.get("quantity_kw", 0)) for t in (decisions.get("cda_trades") or [])), 2
+                    ),
+                },
+                "buyer": {
+                    "bids": snapshot.get("bids", []),
+                    "description": "Deficit / Market Price / Peak Risk 기반 구매 입찰 (CommunityBuyer 등)",
+                },
+                "settlement": None,
+            }
+            if exec_result is not None:
+                cda_execution["settlement"] = {
+                    "approved": getattr(exec_result, "approved", True),
+                    "validation_errors": getattr(exec_result, "validation_errors", []) or [],
+                    "summary": getattr(exec_result, "summary", None) or {},
+                }
+            _write_json(out_dir / f"run_{run_id}_cda_execution.json", cda_execution)
 
     # Timeseries CSV
     if exec_result is not None and exec_result.dataframe is not None:
@@ -1267,6 +1304,7 @@ def main() -> None:
         _save_outputs(
             args, alfp_result, state_json_list,
             decisions, exec_result, eval_report, pipeline,
+            run_id=run_id,
         )
 
     # ── 최종 요약 ─────────────────────────────────────────────────

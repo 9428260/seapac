@@ -19,6 +19,7 @@ def _trading_recommendation(
     nl_df: pd.DataFrame,
     load_df: pd.DataFrame | None = None,
     pv_df: pd.DataFrame | None = None,
+    log: list | None = None,
 ) -> list:
     """
     예측된 net_load(부하 - PV)에서 잉여(surplus = -net_load > 0)가 발생하는 스텝을
@@ -26,34 +27,96 @@ def _trading_recommendation(
 
     net_load_forecast를 우선 사용합니다. 이 값은 ALFP ML 모델이 직접 예측한
     값으로 load_forecast - pv_forecast보다 정확하며, PV 과소평가 문제가 없습니다.
-    fallback으로 load_df / pv_df를 병합하여 계산합니다.
+    primary 경로에서 권고가 0건이면 load_df/pv_df 기반 surplus로 fallback합니다.
     """
     cfg = get_skills_config().get("decision_agent", {}).get("trading", {})
     surplus_min = cfg.get("surplus_kw_min", 0.5)
-    # 1일(96스텝) 전체에서 추천을 생성할 수 있도록 상한을 충분히 늘림
     max_recs = cfg.get("max_recommendations", 96)
 
+    def _append_stats(msg_list: list | None, df_work: pd.DataFrame, label: str) -> None:
+        if msg_list is None or df_work.empty:
+            return
+        s = df_work["surplus_kw"]
+        msg_list.append(
+            f"  [거래권고] {label}: surplus_kw min={s.min():.3f} max={s.max():.3f} "
+            f"count_gt_min={int((s > surplus_min).sum())} (임계값={surplus_min})"
+        )
+
+    df_work = None
+    source = "none"
     if nl_df is not None and "predicted_net_load_kw" in nl_df.columns:
-        # net_load < 0  →  PV > load  →  잉여 전력 발생
         surplus = (-nl_df["predicted_net_load_kw"]).clip(lower=0)
         df_work = nl_df[["timestamp"]].copy()
         df_work["surplus_kw"] = surplus
-    elif load_df is not None and pv_df is not None:
-        # fallback: load / pv 예측값 병합
+        source = "net_load"
+    if (df_work is None or df_work.empty) and load_df is not None and pv_df is not None:
         merged = pd.merge(
             load_df[["timestamp", "predicted_load_kw"]],
             pv_df[["timestamp", "predicted_pv_kw"]], on="timestamp")
         merged["surplus_kw"] = (merged["predicted_pv_kw"] - merged["predicted_load_kw"]).clip(lower=0)
         df_work = merged[["timestamp", "surplus_kw"]]
-    else:
+        source = "load_pv_fallback" if source == "none" else "load_pv_fallback(primary_0)"
+
+    if df_work is None or df_work.empty:
+        if log:
+            log.append("  [거래권고] net_load/load·pv 데이터 없음 → 0건")
         return []
 
+    _append_stats(log, df_work, source)
     recs = []
     for _, row in df_work[df_work["surplus_kw"] > surplus_min].iterrows():
         recs.append({"timestamp": str(row["timestamp"]),
                      "surplus_kw": round(float(row["surplus_kw"]), 2),
                      "action": "sell_p2p"})
-    return recs[:max_recs]
+    recs = recs[:max_recs]
+
+    # primary(net_load)에서 0건이면 load/pv 잉여로 한 번 더 시도 (동일 타임스탬프 기준)
+    if len(recs) == 0 and source == "net_load" and load_df is not None and pv_df is not None:
+        merged = pd.merge(
+            load_df[["timestamp", "predicted_load_kw"]],
+            pv_df[["timestamp", "predicted_pv_kw"]], on="timestamp")
+        merged["surplus_kw"] = (merged["predicted_pv_kw"] - merged["predicted_load_kw"]).clip(lower=0)
+        _append_stats(log, merged[["timestamp", "surplus_kw"]], "load_pv_fallback")
+        for _, row in merged[merged["surplus_kw"] > surplus_min].iterrows():
+            recs.append({"timestamp": str(row["timestamp"]),
+                         "surplus_kw": round(float(row["surplus_kw"]), 2),
+                         "action": "sell_p2p"})
+        recs = recs[:max_recs]
+        if log and recs:
+            log.append(f"  [거래권고] net_load 경로 0건 → load/pv fallback으로 {len(recs)}건 생성")
+
+    # 잉여가 있으나 모두 surplus_min 이하인 경우: 임계값 0으로 잉여 있는 스텝만 상위 N건 권고 (거래권고 0건 방지)
+    if len(recs) == 0 and df_work is not None and not df_work.empty:
+        positive = df_work[df_work["surplus_kw"] > 0]
+        if not positive.empty:
+            for _, row in positive.iterrows():
+                recs.append({"timestamp": str(row["timestamp"]),
+                             "surplus_kw": round(float(row["surplus_kw"]), 2),
+                             "action": "sell_p2p"})
+            recs = sorted(recs, key=lambda x: x["surplus_kw"], reverse=True)[:max_recs]
+            if log and recs:
+                log.append(
+                    f"  [거래권고] surplus 모두 임계값({surplus_min} kW) 이하 → 잉여>0 스텝만 사용하여 {len(recs)}건 생성 (max surplus={positive['surplus_kw'].max():.3f} kW)"
+                )
+
+    # 예측 잉여가 전혀 없을 때: 실제(actual) load/pv 기반 잉여로 권고 (검증 구간 실제 데이터 fallback)
+    if len(recs) == 0 and load_df is not None and pv_df is not None and "load_kw" in load_df.columns and "pv_kw" in pv_df.columns:
+        actual_merged = pd.merge(
+            load_df[["timestamp", "load_kw"]],
+            pv_df[["timestamp", "pv_kw"]], on="timestamp"
+        )
+        actual_merged["surplus_kw"] = (actual_merged["pv_kw"] - actual_merged["load_kw"]).clip(lower=0)
+        above = actual_merged[actual_merged["surplus_kw"] > surplus_min]
+        if not above.empty:
+            for _, row in above.iterrows():
+                recs.append({"timestamp": str(row["timestamp"]),
+                             "surplus_kw": round(float(row["surplus_kw"]), 2),
+                             "action": "sell_p2p"})
+            recs = recs[:max_recs]
+            if log and recs:
+                log.append(f"  [거래권고] 예측 잉여 0건 → 실제(actual) 잉여로 {len(recs)}건 생성")
+
+    return recs
 
 
 def _demand_response(net_load: pd.Series, timestamps: pd.Series, peak_threshold: float) -> list:
@@ -74,6 +137,11 @@ def decision_agent(state: ALFPState) -> ALFPState:
     log = state.get("messages", [])
     errors = state.get("errors", [])
     log.append("[DecisionAgent] LLM 기반 운영 의사결정 생성 시작")
+
+    ess_schedule = []
+    trading_recs = []
+    dr_events = []
+    cost_saving = {"base_cost_krw": 0, "adjusted_cost_krw": 0, "saving_krw": 0, "saving_pct": 0.0}
 
     try:
         nl_df = state["net_load_forecast"]
@@ -104,7 +172,7 @@ def decision_agent(state: ALFPState) -> ALFPState:
         n_discharge = ess_summary_skill["discharge_steps"]
         n_idle = ess_summary_skill["idle_steps"]
 
-        trading_recs = _trading_recommendation(nl_df, load_df, pv_df)
+        trading_recs = _trading_recommendation(nl_df, load_df, pv_df, log=log)
         dr_events = _demand_response(net_load_series, timestamps, peak_threshold)
 
         # ── TariffAnalysisSkill: TOU 분석 및 ESS 절감 시뮬레이션 ──────

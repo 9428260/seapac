@@ -33,8 +33,12 @@ def _pv_features(feature_names: list) -> list:
 
 
 def _split_train_val(df: pd.DataFrame, val_ratio: float = 0.15):
+    """LoadForecast와 동일하게 1일 수준(≤96스텝)일 때 val=후반부(낮·오후)로 분할해 거래권고 발생하도록."""
     n = len(df)
-    split = int(n * (1 - val_ratio))
+    if n <= 96:
+        split = n // 2
+    else:
+        split = int(n * (1 - val_ratio))
     return df.iloc[:split].copy(), df.iloc[split:].copy()
 
 

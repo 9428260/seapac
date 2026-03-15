@@ -1,64 +1,64 @@
 {
-  "last_run_at": "2026-03-15T10:58:28.892328Z",
+  "last_run_at": "2026-03-15T13:01:36.663098Z",
   "last_plan": {
-    "selected_model": "lgbm",
+    "selected_model": "xgboost",
     "forecast_horizon_steps": 96,
-    "llm_reasoning": "재계획: 이전 모델 xgboost → lgbm 전환 (규칙 fallback)"
+    "llm_reasoning": "재계획: 이전 모델 lgbm → xgboost 전환 (규칙 fallback)"
   },
   "last_validation_metrics": {
     "kpi": {
       "MAPE_target": 10.0,
-      "MAPE_achieved": 3.74,
+      "MAPE_achieved": 5.62,
       "MAPE_pass": true,
       "peak_acc_target": 90.0,
-      "peak_acc_achieved": 97.97,
+      "peak_acc_achieved": 93.8,
       "peak_acc_pass": true
     },
     "load": {
-      "MAE": 2.0296,
-      "RMSE": 2.6554,
-      "MAPE": 3.74,
+      "MAE": 3.0079,
+      "RMSE": 3.6734,
+      "MAPE": 5.62,
       "peak": {
-        "true_peak_kw": 96.025,
-        "pred_peak_kw": 94.073,
-        "peak_error_pct": 2.03
+        "true_peak_kw": 74.445,
+        "pred_peak_kw": 69.829,
+        "peak_error_pct": 6.2
       },
-      "n_samples": 346,
-      "skill_mape": 3.74,
-      "skill_rmse": 2.6554
+      "n_samples": 44,
+      "skill_mape": 5.62,
+      "skill_rmse": 3.6734
     },
     "pv": {
-      "MAE": 0.6713,
-      "RMSE": 1.2427,
-      "MAPE": 3.21,
+      "MAE": 3.2083,
+      "RMSE": 3.7171,
+      "MAPE": 14.96,
       "peak": {
-        "true_peak_kw": 62.068,
-        "pred_peak_kw": 60.266,
-        "peak_error_pct": 2.9
+        "true_peak_kw": 58.684,
+        "pred_peak_kw": 68.561,
+        "peak_error_pct": 16.83
       },
-      "n_samples": 346,
-      "skill_mape": 3.21,
-      "skill_rmse": 1.2427
+      "n_samples": 44,
+      "skill_mape": 14.96,
+      "skill_rmse": 3.7171
     },
     "net_load": {
-      "MAE": 2.2401,
-      "RMSE": 2.9584,
-      "MAPE": 8.85,
+      "MAE": 4.029,
+      "RMSE": 4.9215,
+      "MAPE": 17.2,
       "peak": {
-        "true_peak_kw": 96.025,
-        "pred_peak_kw": 93.925,
-        "peak_error_pct": 2.19
+        "true_peak_kw": 64.262,
+        "pred_peak_kw": 63.32,
+        "peak_error_pct": 1.47
       },
-      "n_samples": 346,
-      "skill_mape": 8.85,
-      "skill_rmse": 2.9584
+      "n_samples": 44,
+      "skill_mape": 17.2,
+      "skill_rmse": 4.9215
     }
   },
   "last_decisions_summary": {
     "ess_summary": {
-      "charge_steps": 17,
-      "discharge_steps": 47,
-      "idle_steps": 282
+      "charge_steps": 4,
+      "discharge_steps": 7,
+      "idle_steps": 33
     },
     "tariff_saving": {
       "base_cost_krw": 0,
@@ -67,8 +67,8 @@
       "saving_pct": 0.0
     },
     "dr_summary": {
-      "peak_threshold_kw": 52.21,
-      "dr_event_count": 52
+      "peak_threshold_kw": 55.24,
+      "dr_event_count": 7
     }
   },
   "policy_gate_status": "REPLAN_REQUIRED"

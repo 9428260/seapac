@@ -157,9 +157,20 @@ def run_cda_step(
                 "buyer_agent": t.buyer_agent,
                 "quantity_kw": t.quantity_kw,
                 "trade_price": t.trade_price,
+                "bid_price": t.bid_price,
+                "ask_price": t.ask_price,
             }
             for t in trades
         ],
+        "cda_snapshot": {
+            "bids": [{"agent": b.agent, "price": b.price, "quantity": b.quantity} for b in book.bids],
+            "asks": [{"agent": a.agent, "price": a.price, "quantity": a.quantity} for a in book.asks],
+            "trades": [
+                {"seller_agent": t.seller_agent, "buyer_agent": t.buyer_agent, "quantity_kw": t.quantity_kw, "trade_price": t.trade_price, "bid_price": t.bid_price, "ask_price": t.ask_price}
+                for t in trades
+            ],
+            "time": time_str,
+        },
         "coordinator_notes": (
             f"CDA peak_risk={peak_risk}, ESS={ess_action} {ess_power}kW, "
             f"trades={len(trades)}, DR={len(validated_dr)}"
@@ -295,6 +306,8 @@ def run_cda_decision_series_with_agents_and_negotiation(
         demand_response_events = []
         strategy_logs = []
         negotiation_logs = []
+        cda_trades_all = []
+        cda_snapshot_last = None
         for state in state_json_list:
             d = await _run_cda_single_step_with_negotiation_async(
                 state,
@@ -308,6 +321,9 @@ def run_cda_decision_series_with_agents_and_negotiation(
             ess_schedule.extend(d.get("ess_schedule", []))
             trading_recommendations.extend(d.get("trading_recommendations", []))
             demand_response_events.extend(d.get("demand_response_events", []))
+            cda_trades_all.extend(d.get("cda_trades", []))
+            if d.get("cda_snapshot"):
+                cda_snapshot_last = d["cda_snapshot"]
             if d.get("strategy_reasoning_log"):
                 strategy_logs.append({"time": state.get("time"), "log": d["strategy_reasoning_log"]})
             if d.get("negotiation_log"):
@@ -324,6 +340,8 @@ def run_cda_decision_series_with_agents_and_negotiation(
                 ),
             },
             "dr_summary": {"dr_event_count": len(demand_response_events)},
+            "cda_trades": cda_trades_all,
+            "cda_snapshot": cda_snapshot_last,
             "strategy_reasoning_logs": strategy_logs,
             "negotiation_logs": negotiation_logs,
         }
@@ -351,12 +369,17 @@ def run_cda_decision_series(
     ess_schedule = []
     trading_recommendations = []
     demand_response_events = []
+    cda_trades_all = []
+    cda_snapshot_last = None
 
     for state in state_json_list:
         d = run_single_step_fn(state)
         ess_schedule.extend(d.get("ess_schedule", []))
         trading_recommendations.extend(d.get("trading_recommendations", []))
         demand_response_events.extend(d.get("demand_response_events", []))
+        cda_trades_all.extend(d.get("cda_trades", []))
+        if d.get("cda_snapshot"):
+            cda_snapshot_last = d["cda_snapshot"]
 
     return {
         "ess_schedule": ess_schedule,
@@ -370,6 +393,8 @@ def run_cda_decision_series(
             ),
         },
         "dr_summary": {"dr_event_count": len(demand_response_events)},
+        "cda_trades": cda_trades_all,
+        "cda_snapshot": cda_snapshot_last,
     }
 
 
@@ -430,6 +455,8 @@ def run_cda_decision_series_with_agents(
         ess_schedule = []
         trading_recommendations = []
         demand_response_events = []
+        cda_trades_all = []
+        cda_snapshot_last = None
         for state in state_json_list:
             d = await _run_cda_single_step_async(
                 state,
@@ -442,6 +469,9 @@ def run_cda_decision_series_with_agents(
             ess_schedule.extend(d.get("ess_schedule", []))
             trading_recommendations.extend(d.get("trading_recommendations", []))
             demand_response_events.extend(d.get("demand_response_events", []))
+            cda_trades_all.extend(d.get("cda_trades", []))
+            if d.get("cda_snapshot"):
+                cda_snapshot_last = d["cda_snapshot"]
         return {
             "ess_schedule": ess_schedule,
             "trading_recommendations": trading_recommendations,
@@ -454,6 +484,8 @@ def run_cda_decision_series_with_agents(
                 ),
             },
             "dr_summary": {"dr_event_count": len(demand_response_events)},
+            "cda_trades": cda_trades_all,
+            "cda_snapshot": cda_snapshot_last,
         }
 
     return asyncio.run(_run_all())

@@ -26,10 +26,18 @@ def data_quality_agent(state: ALFPState) -> ALFPState:
     try:
         df = get_timeseries(raw_data, prosumer_id)
         report = {}
+        if df.empty:
+            raise ValueError(
+                f"프로슈머 '{prosumer_id}'에 해당하는 timeseries가 없거나 비어 있습니다. "
+                "데이터 파일에 해당 prosumer_id가 포함된 데이터 경로를 사용하세요."
+            )
 
-        # 1. 결측값 탐지
+        # 1. 결측값 탐지 (데이터에 존재하는 컬럼만 사용 — trade 등 스키마 차이 대응)
         numeric_cols = ["load_kw", "pv_kw", "wt_kw", "bess_soc_kwh",
                         "price_buy", "price_sell", "price_p2p"]
+        numeric_cols = [c for c in numeric_cols if c in df.columns]
+        if not numeric_cols:
+            raise ValueError("timeseries에 load_kw 또는 pv_kw 등 숫자 컬럼이 없습니다.")
         missing = df[numeric_cols].isnull().sum()
         missing_pct = (missing / len(df) * 100).round(2)
         report["missing_values"] = missing[missing > 0].to_dict()

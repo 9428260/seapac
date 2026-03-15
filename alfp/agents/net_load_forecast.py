@@ -24,11 +24,13 @@ def net_load_forecast_agent(state: ALFPState) -> ALFPState:
 
         net_df = pd.merge(load_df, pv_df, on="timestamp", how="inner")
 
-        # Net Load 계산
+        # Net Load 계산 (Load - PV)
+        # actual: 과거 데이터는 관례상 0 미만을 0으로 처리
         net_df["actual_net_load_kw"] = (net_df["load_kw"] - net_df["pv_kw"]).clip(lower=0)
+        # predicted: 음수(잉여)를 유지해 DecisionAgent 거래권고(surplus = -net_load)에서 사용
         net_df["predicted_net_load_kw"] = (
             net_df["predicted_load_kw"] - net_df["predicted_pv_kw"]
-        ).clip(lower=0)
+        )
 
         # 피크 Net Load 타임스탬프
         peak_idx = net_df["predicted_net_load_kw"].idxmax()

@@ -87,9 +87,10 @@
       <form id="runForm">
         <label>데이터</label>
         <select name="data_path" id="data_path">
+          <option value="data/test_5days.pkl" selected>test_5days.pkl (2026-05-01~05, 5일)</option>
           <option value="data/trade_20260315.pkl">trade_20260315.pkl (전력거래 1일 96스텝)</option>
-          <option value="data/test_2026may_seoul.pkl">test_2026may_seoul.pkl (1일 96스텝)</option>
-          <option value="data/train_2026_seoul.pkl">train_2026_seoul.pkl (1일 96스텝)</option>
+          <option value="data/test_2026may_seoul.pkl">test_2026may_seoul.pkl (5월 1개월)</option>
+          <option value="data/train_2026_seoul.pkl">train_2026_seoul.pkl (학습용)</option>
         </select>
         <label>Prosumer ID <span class="hint">(복수 선택 가능)</span></label>
         <div class="prosumer-multi-row">
@@ -100,15 +101,8 @@
           </div>
         </div>
         <p class="hint" id="prosumer_hint">데이터를 선택하면 해당 파일의 Prosumer 목록이 로드됩니다.</p>
-        <label>Measure date <span class="hint">(미설정 시 기준일자 5월 4일)</span></label>
-        <input type="date" name="measure_date" id="measure_date" aria-label="Measure date">
-        <label>Run date</label>
-        <input type="date" name="run_date" id="run_date" aria-label="Run date">
-        <label>스텝 수 (1일 = 96)</label>
-        <input type="number" name="steps" id="steps" value="96" min="1" max="96">
-        <div class="row">
-          <label><input type="checkbox" name="use_parallel" id="use_parallel"> Parallel Agents 사용</label>
-        </div>
+        <label>Measure date <span class="hint">(미설정 시 기준일자 5월 5일)</span></label>
+        <input type="date" name="measure_date" id="measure_date" value="2026-05-05" aria-label="Measure date">
         <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
           <button type="submit" id="runBtn">전체 아키텍처 실행</button>
           <span id="p2p-badge" style="display:none;padding:0.25em 0.6em;background:rgba(88,166,255,.18);color:var(--accent);border-radius:4px;font-size:0.82rem;font-weight:600;">★ P2P 거래 모드</span>
@@ -204,14 +198,6 @@
         });
       });
 
-      (function setRunDateDefault() {
-        var runDate = document.getElementById('run_date');
-        if (runDate && !runDate.value) {
-          var d = new Date();
-          runDate.value = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-        }
-      })();
-
       function getSelectedProsumers() {
         var sel = document.getElementById('prosumer');
         var chosen = [];
@@ -290,11 +276,11 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               data_path: document.getElementById('data_path').value,
-              steps: parseInt(document.getElementById('steps').value, 10) || 96,
+              steps: 96,
               prosumers: chosen,
               measure_date: document.getElementById('measure_date').value || null,
-              run_date: document.getElementById('run_date').value || null,
-              use_parallel: document.getElementById('use_parallel').checked
+              run_date: (function(){ var d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); })(),
+              use_parallel: true
             })
           });
           var data = await res.json();

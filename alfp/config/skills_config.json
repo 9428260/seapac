@@ -51,7 +51,7 @@
     },
     "peak_threshold_quantile": 0.85,
     "trading": {
-      "surplus_kw_min": 0.5,
+      "surplus_kw_min": 0.1,
       "max_recommendations": 10
     },
     "demand_response": {

@@ -99,8 +99,13 @@ def build_features(df: pd.DataFrame) -> tuple[pd.DataFrame, list]:
                "controllable_load_kw", "cdg_kw_cap"}
     feature_names = [c for c in df.columns if c not in exclude]
 
-    # 결측행 제거 (lag으로 인한 초반 NaN)
-    df = df.dropna(subset=feature_names).reset_index(drop=True)
+    # 결측행 제거: 1일(96스텝) 등 짧은 구간에서는 lag672 등으로 전 행이 NaN이 되므로,
+    # 유효값이 충분한 컬럼만 dropna 대상으로 사용 (최소 50% 이상 비결측)
+    min_valid_ratio = 0.5
+    drop_subset = [c for c in feature_names if df[c].notna().sum() >= len(df) * min_valid_ratio]
+    if drop_subset:
+        df = df.dropna(subset=drop_subset).reset_index(drop=True)
+    # drop_subset이 비면 dropna 생략 (전부 NaN인 극단적 경우)
 
     return df, feature_names
 

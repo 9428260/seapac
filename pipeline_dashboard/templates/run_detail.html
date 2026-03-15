@@ -78,6 +78,29 @@
   .stage-summary ul { margin: 0; padding-left: 1.25rem; }
   .run-meta { color: var(--muted); font-size: 0.9rem; margin-bottom: 1rem; }
   .no-content { color: var(--muted); font-style: italic; padding: 1rem 0; }
+  /* Evaluation 탭 세부 스타일 */
+  .evaluation-panel .evaluation-heading { font-size: 1.15rem; margin: 0 0 0.25rem 0; color: var(--text); }
+  .evaluation-panel .evaluation-desc { color: var(--muted); font-size: 0.9rem; margin-bottom: 1rem; }
+  .evaluation-panel .evaluation-stage { margin-bottom: 1.25rem; }
+  .evaluation-report-section { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(139, 148, 158, 0.25); }
+  .evaluation-header { display: flex; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem; }
+  .evaluation-grade { font-weight: 700; font-size: 1.25rem; padding: 0.35rem 0.75rem; border-radius: 6px; }
+  .evaluation-grade.grade-a { background: rgba(46, 160, 67, 0.25); color: #3fb950; }
+  .evaluation-grade.grade-b { background: rgba(88, 166, 255, 0.2); color: #58a6ff; }
+  .evaluation-grade.grade-c { background: rgba(210, 153, 34, 0.2); color: #d29922; }
+  .evaluation-grade.grade-d { background: rgba(248, 81, 73, 0.2); color: #f85149; }
+  .evaluation-meta { color: var(--muted); font-size: 0.9rem; }
+  .evaluation-kpis { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+  .kpi-card { background: var(--card); border-radius: 8px; padding: 1rem 1.25rem; border: 1px solid rgba(139, 148, 158, 0.15); }
+  .kpi-title { font-size: 0.95rem; margin: 0 0 0.75rem 0; color: var(--accent); border-bottom: 1px solid rgba(139, 148, 158, 0.2); padding-bottom: 0.5rem; }
+  .kpi-table { width: 100%; font-size: 0.9rem; border-collapse: collapse; }
+  .kpi-table th { text-align: left; color: var(--muted); font-weight: 500; padding: 0.25rem 0.5rem 0.25rem 0; }
+  .kpi-table td { padding: 0.25rem 0; color: var(--text); }
+  .evaluation-summary-text { margin-top: 1rem; }
+  .evaluation-summary-text .kpi-title { margin-bottom: 0.5rem; }
+  .evaluation-pre { background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 6px; font-size: 0.85rem; overflow-x: auto; white-space: pre-wrap; word-break: break-word; margin: 0; color: var(--text); border: 1px solid rgba(139, 148, 158, 0.2); }
+  .evaluation-no-report { margin-top: 1rem; padding: 1rem; background: rgba(248, 81, 73, 0.08); border-radius: 8px; border: 1px solid rgba(248, 81, 73, 0.2); }
+  .evaluation-no-report p { margin: 0.25rem 0; }
   .agent-steps-title { font-size: 1rem; margin: 1.5rem 0 0.5rem; color: var(--text); }
   .alfp-agent-steps { margin-top: 0.5rem; }
   .agent-step {
@@ -148,6 +171,31 @@
   .cda-negotiation-steps { margin: 0.25rem 0 0 1rem; padding-left: 1rem; list-style: disc; }
   .cda-negotiation-steps li { margin-bottom: 0.2rem; }
   .cda-log-more { font-size: 0.85rem; color: var(--muted); margin-top: 0.5rem; }
+  /* CDA 실행 탭: Order Book, Matching, Buyer, Settlement */
+  .cda-exec-sections { display: flex; flex-direction: column; gap: 1.5rem; margin-top: 1rem; }
+  .cda-exec-section {
+    padding: 1rem 1.25rem; background: var(--card); border-radius: 8px; border: 1px solid rgba(139, 148, 158, 0.2);
+    border-left: 4px solid rgba(88, 166, 255, 0.6);
+  }
+  .cda-exec-heading { font-size: 1rem; margin: 0 0 0.35rem 0; color: var(--accent); }
+  .cda-exec-desc { font-size: 0.85rem; color: var(--muted); margin: 0 0 0.75rem 0; line-height: 1.45; }
+  .cda-exec-tables { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 720px) { .cda-exec-tables { grid-template-columns: 1fr; } }
+  .cda-exec-table-wrap { overflow-x: auto; }
+  .cda-exec-subtitle { font-size: 0.9rem; margin: 0 0 0.35rem 0; color: var(--text); }
+  .cda-exec-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  .cda-exec-table th, .cda-exec-table td { padding: 0.45rem 0.6rem; text-align: left; border-bottom: 1px solid rgba(139, 148, 158, 0.2); }
+  .cda-exec-table th { color: var(--muted); font-weight: 600; }
+  .cda-exec-table tr:hover { background: rgba(88, 166, 255, 0.06); }
+  .cda-exec-table-wide { max-width: 100%; }
+  .cda-exec-more { font-size: 0.8rem; color: var(--muted); margin-top: 0.35rem; }
+  .cda-exec-settlement-result { font-size: 0.9rem; }
+  .cda-exec-settlement-approved { margin: 0 0 0.5rem 0; }
+  .cda-exec-settlement-errors { margin: 0.5rem 0 0.25rem 0; }
+  .cda-exec-settlement-errors + ul { margin: 0.25rem 0 0 1rem; padding-left: 1rem; }
+  .cda-exec-settlement-summary { margin-top: 0.75rem; }
+  .cda-exec-summary-list { margin: 0.35rem 0 0 1rem; padding-left: 1rem; list-style: disc; }
+  .cda-exec-summary-list li { margin-bottom: 0.2rem; }
   /* Tab1 서브탭: Summary / 단계 / 결과 */
   .sub-tabs { display: flex; gap: 0.25rem; margin-bottom: 1rem; border-bottom: 1px solid rgba(139, 148, 158, 0.2); }
   .sub-tabs a.sub-tab {
@@ -171,6 +219,60 @@
   .mesa-grid-table tr:hover { background: rgba(88, 166, 255, 0.06); }
   .mesa-trajectory-wrap { margin-top: 1rem; max-width: 900px; height: 280px; }
   .mesa-no-data { color: var(--muted); font-size: 0.9rem; padding: 1rem; background: var(--card); border-radius: 8px; margin-top: 1rem; }
+  /* 전력거래 (P2P) — energy_trading 스타일 */
+  .mesa-trading-section { margin-top: 1.5rem; padding: 1rem 1.25rem; background: var(--card); border-radius: 8px; border: 1px solid rgba(139, 148, 158, 0.2); border-left: 4px solid #a371f7; }
+  .mesa-trading-title { font-size: 1rem; margin: 0 0 0.35rem 0; color: var(--accent); }
+  .mesa-trading-desc { font-size: 0.85rem; color: var(--muted); margin: 0 0 1rem 0; line-height: 1.5; }
+  .mesa-trading-summary { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem; }
+  .mesa-trading-card {
+    display: flex; align-items: baseline; gap: 0.35rem; padding: 0.5rem 0.9rem; background: rgba(88, 166, 255, 0.08); border-radius: 6px; border: 1px solid rgba(139, 148, 158, 0.2);
+  }
+  .mesa-trading-card-label { font-size: 0.8rem; color: var(--muted); }
+  .mesa-trading-card-value { font-size: 1.1rem; font-weight: 600; color: var(--text); }
+  .mesa-trading-card-unit { font-size: 0.8rem; color: var(--muted); }
+  .mesa-trading-chart-wrap { max-width: 900px; height: 220px; margin-top: 0.75rem; }
+  /* Tab3 AgentScope Agent 실행 요약 (seapac_agents/decision.py 기준) */
+  .agentscope-summary-section { margin-bottom: 1.5rem; padding: 1rem 1.25rem; background: var(--card); border-radius: 8px; border: 1px solid rgba(139, 148, 158, 0.2); border-left: 4px solid #a371f7; }
+  .agentscope-summary-title { font-size: 1rem; margin: 0 0 0.35rem 0; color: var(--accent); }
+  .agentscope-summary-desc { font-size: 0.85rem; color: var(--muted); margin: 0 0 1rem 0; line-height: 1.5; }
+  .agentscope-agent-list { display: flex; flex-direction: column; gap: 0.6rem; }
+  .agentscope-agent-item {
+    display: grid; grid-template-columns: 12rem 1fr auto; align-items: baseline; gap: 0.75rem;
+    padding: 0.5rem 0.75rem; background: rgba(88, 166, 255, 0.06); border-radius: 6px; border: 1px solid rgba(139, 148, 158, 0.15);
+    font-size: 0.9rem;
+  }
+  .agentscope-agent-item .agent-name { font-weight: 600; color: var(--text); }
+  .agentscope-agent-item .agent-role { color: var(--muted); font-size: 0.85rem; }
+  .agentscope-agent-item .agent-result { font-weight: 500; color: var(--accent); text-align: right; white-space: nowrap; }
+  @media (max-width: 720px) {
+    .agentscope-agent-item { grid-template-columns: 1fr; }
+    .agentscope-agent-item .agent-result { text-align: left; white-space: normal; }
+  }
+  /* Tab5 [PA] EcoSaver, Storage, Policy 전용 */
+  .pa-intro { margin-bottom: 1.5rem; padding: 1rem 1.25rem; background: var(--card); border-radius: 8px; border: 1px solid rgba(139, 148, 158, 0.2); border-left: 4px solid #2ea043; }
+  .pa-intro-title { font-size: 1.15rem; margin: 0 0 0.35rem 0; color: var(--accent); }
+  .pa-intro-desc { font-size: 0.9rem; color: var(--muted); margin: 0 0 1rem 0; line-height: 1.5; }
+  .pa-flow-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.35rem; }
+  .pa-flow-boxes { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem; }
+  .pa-flow-box { padding: 0.35rem 0.6rem; background: rgba(46, 160, 67, 0.15); border-radius: 6px; font-size: 0.8rem; color: var(--text); }
+  .pa-flow-arrow { color: var(--muted); font-size: 0.85rem; }
+  .pa-agent-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+  @media (max-width: 800px) { .pa-agent-cards { grid-template-columns: 1fr; } }
+  .pa-card { background: var(--card); border-radius: 8px; padding: 1rem 1.25rem; border: 1px solid rgba(139, 148, 158, 0.2); }
+  .pa-card.pa-card-eco { border-left: 4px solid #2ea043; }
+  .pa-card.pa-card-storage { border-left: 4px solid #58a6ff; }
+  .pa-card.pa-card-policy { border-left: 4px solid #d29922; }
+  .pa-card-title { font-size: 1rem; font-weight: 600; margin: 0 0 0.5rem 0; color: var(--text); }
+  .pa-card-role { font-size: 0.8rem; color: var(--muted); margin-bottom: 0.75rem; line-height: 1.4; }
+  .pa-card-metrics { display: flex; flex-direction: column; gap: 0.35rem; }
+  .pa-card-metric { display: flex; justify-content: space-between; align-items: baseline; font-size: 0.9rem; }
+  .pa-card-metric-label { color: var(--muted); }
+  .pa-card-metric-value { font-weight: 600; color: var(--text); }
+  .pa-card-metric-value.ok { color: var(--ok); }
+  .pa-card-metric-value.warn { color: #d29922; }
+  .pa-card-metric-value.fail { color: var(--fail); }
+  .pa-stage-section { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(139, 148, 158, 0.25); }
+  .pa-stage-section h4 { font-size: 1rem; margin: 0 0 0.75rem 0; color: var(--accent); }
 {% endblock %}
 {% block content %}
   <h1>Run #{{ run.id }}</h1>
@@ -207,19 +309,112 @@
       <a href="#" class="sub-tab {% if _sub4 == 'domain' %}active{% endif %}" data-subtab="tab4-sub-domain" data-sub4="domain" role="tab">도메인 특화</a>
     </div>
     <div id="tab4-sub-exec" class="sub-panel {% if _sub4 == 'exec' %}active{% endif %}" role="tabpanel">
-      <p class="agent-steps-doc-ref">Step 3 CDA 의사결정 · Step 4 CDA Settlement 실행 결과</p>
-      {% for s in (tab4_stages or []) %}
-      <div class="stage">
-        <div class="stage-name">{{ s.stage_name }} {% if s.ok %}<span class="badge badge-success">✓</span>{% else %}<span class="badge badge-failure">✗</span>{% endif %}</div>
-        <div class="stage-meta">소요: {{ "%.2f"|format(s.elapsed_sec) }}s</div>
-        {% if s.error_text %}<p style="color: var(--fail); font-size: 0.9rem;">{{ s.error_text }}</p>{% endif %}
-        {% if s.summary %}
-        <div class="stage-summary"><ul>{% for key, val in s.summary.items() %}<li><strong>{{ key }}</strong>: {{ val }}</li>{% endfor %}</ul></div>
-        {% endif %}
+      <p class="agent-steps-doc-ref">Step 3 CDA 의사결정 · Step 4 CDA Settlement 실행 결과입니다. Order Book → Matching → Buyer → Settlement 흐름으로 핵심 내용을 표시합니다.</p>
+      {% if cda_execution %}
+      <div class="cda-exec-sections">
+        {# 1. Order Book — Bid(가격 내림차순) · Ask(가격 오름차순) #}
+        <section class="cda-exec-section cda-exec-orderbook" aria-label="Order Book">
+          <h4 class="cda-exec-heading">Order Book</h4>
+          <p class="cda-exec-desc">Bid 테이블(가격 내림차순) · Ask 테이블(가격 오름차순). 스냅샷 시각: {{ cda_execution.order_book.snapshot_time or '—' }}</p>
+          <div class="cda-exec-tables">
+            <div class="cda-exec-table-wrap">
+              <h5 class="cda-exec-subtitle">Bids (구매 입찰)</h5>
+              <table class="cda-exec-table" role="grid">
+                <thead><tr><th>Agent</th><th>가격 (원/kWh)</th><th>수량 (kW)</th></tr></thead>
+                <tbody>
+                  {% for b in (cda_execution.order_book.bids or [])[:15] %}
+                  <tr><td>{{ b.agent }}</td><td>{{ "%.1f"|format(b.price) }}</td><td>{{ "%.2f"|format(b.quantity) }}</td></tr>
+                  {% endfor %}
+                  {% if not (cda_execution.order_book.bids or []) %}<tr><td colspan="3">입찰 없음</td></tr>{% endif %}
+                </tbody>
+              </table>
+              {% if (cda_execution.order_book.bids or [])|length > 15 %}<p class="cda-exec-more">… 상위 15건 (총 {{ cda_execution.order_book.bids|length }}건)</p>{% endif %}
+            </div>
+            <div class="cda-exec-table-wrap">
+              <h5 class="cda-exec-subtitle">Asks (판매 호가)</h5>
+              <table class="cda-exec-table" role="grid">
+                <thead><tr><th>Agent</th><th>가격 (원/kWh)</th><th>수량 (kW)</th></tr></thead>
+                <tbody>
+                  {% for a in (cda_execution.order_book.asks or [])[:15] %}
+                  <tr><td>{{ a.agent }}</td><td>{{ "%.1f"|format(a.price) }}</td><td>{{ "%.2f"|format(a.quantity) }}</td></tr>
+                  {% endfor %}
+                  {% if not (cda_execution.order_book.asks or []) %}<tr><td colspan="3">호가 없음</td></tr>{% endif %}
+                </tbody>
+              </table>
+              {% if (cda_execution.order_book.asks or [])|length > 15 %}<p class="cda-exec-more">… 상위 15건 (총 {{ cda_execution.order_book.asks|length }}건)</p>{% endif %}
+            </div>
+          </div>
+        </section>
+        {# 2. Matching — 체결 내역 (Highest Bid ≥ Lowest Ask, 거래가 = (Bid+Ask)/2) #}
+        <section class="cda-exec-section cda-exec-matching" aria-label="Matching">
+          <h4 class="cda-exec-heading">Matching</h4>
+          <p class="cda-exec-desc">Highest Bid ≥ Lowest Ask 일 때 체결, 거래가 = (Bid + Ask) / 2. 총 체결 {{ cda_execution.matching.total_trades }}건, 수량 {{ "%.2f"|format(cda_execution.matching.total_quantity_kw) }} kW.</p>
+          <table class="cda-exec-table cda-exec-table-wide" role="grid">
+            <thead>
+              <tr><th>판매자</th><th>구매자</th><th>수량 (kW)</th><th>거래가 (원/kWh)</th><th>Bid가</th><th>Ask가</th></tr>
+            </thead>
+            <tbody>
+              {% for t in (cda_execution.matching.trades or [])[:20] %}
+              <tr>
+                <td>{{ t.seller_agent }}</td><td>{{ t.buyer_agent }}</td>
+                <td>{{ "%.2f"|format(t.quantity_kw) }}</td><td>{{ "%.2f"|format(t.trade_price) }}</td>
+                <td>{{ "%.1f"|format(t.bid_price) if t.get('bid_price') is not none else '—' }}</td><td>{{ "%.1f"|format(t.ask_price) if t.get('ask_price') is not none else '—' }}</td>
+              </tr>
+              {% endfor %}
+              {% if not (cda_execution.matching.trades or []) %}<tr><td colspan="6">체결 건 없음</td></tr>{% endif %}
+            </tbody>
+          </table>
+          {% if (cda_execution.matching.trades or [])|length > 20 %}<p class="cda-exec-more">… 상위 20건 (총 {{ cda_execution.matching.trades|length }}건)</p>{% endif %}
+        </section>
+        {# 3. Buyer — 구매 입찰 요약 #}
+        <section class="cda-exec-section cda-exec-buyer" aria-label="Buyer">
+          <h4 class="cda-exec-heading">Buyer</h4>
+          <p class="cda-exec-desc">{{ cda_execution.buyer.description or 'Deficit / Market Price / Peak Risk 기반 구매 입찰 생성.' }}</p>
+          <table class="cda-exec-table" role="grid">
+            <thead><tr><th>Agent</th><th>가격 (원/kWh)</th><th>수량 (kW)</th></tr></thead>
+            <tbody>
+              {% for b in (cda_execution.buyer.bids or [])[:15] %}
+              <tr><td>{{ b.agent }}</td><td>{{ "%.1f"|format(b.price) }}</td><td>{{ "%.2f"|format(b.quantity) }}</td></tr>
+              {% endfor %}
+              {% if not (cda_execution.buyer.bids or []) %}<tr><td colspan="3">구매 입찰 없음</td></tr>{% endif %}
+            </tbody>
+          </table>
+        </section>
+        {# 4. Settlement — 거래 기록 반영, 정책 검증, Mesa 업데이트 결과 #}
+        <section class="cda-exec-section cda-exec-settlement" aria-label="Settlement">
+          <h4 class="cda-exec-heading">Settlement</h4>
+          <p class="cda-exec-desc">거래 기록 반영, 정책 검증, Mesa 시뮬레이션 업데이트.</p>
+          {% if cda_execution.settlement %}
+          <div class="cda-exec-settlement-result">
+            <p class="cda-exec-settlement-approved"><strong>승인:</strong> {{ '승인됨' if cda_execution.settlement.approved else '거부/검증 실패' }}</p>
+            {% if cda_execution.settlement.validation_errors %}
+            <p class="cda-exec-settlement-errors"><strong>검증 오류:</strong></p>
+            <ul>
+              {% for err in cda_execution.settlement.validation_errors[:10] %}
+              <li>{{ err }}</li>
+              {% endfor %}
+              {% if cda_execution.settlement.validation_errors|length > 10 %}<li>… 외 {{ cda_execution.settlement.validation_errors|length - 10 }}건</li>{% endif %}
+            </ul>
+            {% endif %}
+            {% if cda_execution.settlement.summary %}
+            <details class="cda-exec-settlement-summary">
+              <summary>실행 요약</summary>
+              <ul class="cda-exec-summary-list">
+                {% for k, v in (cda_execution.settlement.summary or {})|dictsort %}
+                <li><strong>{{ k }}:</strong> {{ v }}</li>
+                {% endfor %}
+              </ul>
+            </details>
+            {% endif %}
+          </div>
+          {% else %}
+          <p class="no-content">이번 Run의 Settlement 결과가 없습니다. (Step4 CDA Settlement 실행 후 저장됩니다)</p>
+          {% endif %}
+        </section>
       </div>
       {% else %}
-      <p class="no-content">해당 단계 결과가 없습니다.</p>
-      {% endfor %}
+      <p class="no-content">이번 Run에는 CDA 실행 스냅샷이 없습니다. CDA 모드(--use-cda)로 파이프라인을 실행하면 Order Book, Matching, Buyer, Settlement 데이터가 여기에 표시됩니다.</p>
+      {% endif %}
     </div>
     <div id="tab4-sub-domain" class="sub-panel {% if _sub4 == 'domain' %}active{% endif %}" role="tabpanel">
       <p class="agent-steps-doc-ref">PRD: cda_strategy_negotiation_prd.md — Strategy Agent (LLM) · Negotiation Layer 실행 내용</p>
@@ -291,7 +486,8 @@
   </div>
   {% endif %}
 
-  {# 하단: 단계별 결과 영역 (탭4일 때는 CDA 상단 블록 아래에 표시) #}
+  {# 하단: 단계별 결과 영역 (탭4 [CDA] 선택 시에는 표시하지 않음) #}
+  {% if _ct != '4' %}
   <section class="step-results-section" aria-label="단계별 결과">
   <h2 style="font-size: 1.1rem; margin: 1.25rem 0 0.5rem 0;">단계별 결과</h2>
   <div class="detail-tabs">
@@ -449,6 +645,22 @@
       <h3>MESA 그리드 및 궤적</h3>
       <p class="run-meta" style="margin-bottom: 0.5rem;">스텝별 지표 그리드와 시계열 궤적 (Dashboard에서 실행한 Run에만 표시)</p>
       <div id="mesa-no-data" class="mesa-no-data" style="display: none;">궤적 데이터를 불러오는 중이거나, 이 Run은 Dashboard에서 실행된 것이 아니어서 데이터가 없습니다.</div>
+
+      {# 전력거래 (P2P) — energy_trading 스타일: 거래량·거래건수·누적 절감액 요약 및 시계열 #}
+      <div id="mesa-trading-section" class="mesa-trading-section" style="display: none;">
+        <h4 class="mesa-trading-title">전력거래 (P2P)</h4>
+        <p class="mesa-trading-desc">커뮤니티 부하·PV·Net 기반으로 잉여(판매)와 부족(구매)이 P2P 시장에서 매칭됩니다. 스텝별 매칭량(kW)과 누적 절감액(원)을 확인할 수 있습니다.</p>
+        <div class="mesa-trading-summary" id="mesa-trading-summary">
+          <div class="mesa-trading-card"><span class="mesa-trading-card-label">총 P2P 거래량</span><span class="mesa-trading-card-value" id="mesa-trading-total-kw">—</span><span class="mesa-trading-card-unit">kW</span></div>
+          <div class="mesa-trading-card"><span class="mesa-trading-card-label">거래 발생 스텝</span><span class="mesa-trading-card-value" id="mesa-trading-step-count">—</span><span class="mesa-trading-card-unit">스텝</span></div>
+          <div class="mesa-trading-card"><span class="mesa-trading-card-label">누적 절감액</span><span class="mesa-trading-card-value" id="mesa-trading-saving-krw">—</span><span class="mesa-trading-card-unit">원</span></div>
+        </div>
+        <div class="mesa-trading-chart-wrap" id="mesa-trading-chart-wrap" style="display: none;">
+          <h5 style="font-size: 0.9rem; margin: 0 0 0.5rem 0; color: var(--muted);">스텝별 P2P 거래량 · 누적 절감액</h5>
+          <canvas id="mesa-trading-chart" width="900" height="220"></canvas>
+        </div>
+      </div>
+
       <div id="mesa-grid-container" style="display: none;">
         <h4 style="font-size: 0.95rem; margin: 0 0 0.5rem 0;">그리드 (스텝 × 지표)</h4>
         <div class="mesa-grid-wrap">
@@ -482,6 +694,29 @@
 
   {# Tab 3: State Translator, AgentScope Multi-Agent Decision, Step3.5+4 병합 #}
   <div id="tab-3" class="detail-panel {% if _ct == '3' %}active{% endif %}">
+    {# Agent 실행 요약 — seapac_agents/decision.py 5개 에이전트 #}
+    {% if agentscope_agent_summary %}
+    <div class="agentscope-summary-section">
+      <h4 class="agentscope-summary-title">Agent 실행 요약</h4>
+      <p class="agentscope-summary-desc">Step3 Multi-Agent Decision에서 실행된 AgentScope 5개 에이전트와 각 출력 요약입니다. (Policy → Seller/Storage/EcoSaver 제안 → MarketCoordinator 조율 → decisions)</p>
+      {% if agentscope_step3_stage %}<p class="run-meta" style="margin: 0 0 0.5rem 0;">Step3 소요: {{ "%.2f"|format(agentscope_step3_stage.elapsed_sec or 0) }}s {% if agentscope_step3_stage.ok %}<span class="badge badge-success">성공</span>{% else %}<span class="badge badge-failure">실패</span>{% endif %}</p>{% endif %}
+      <div class="agentscope-agent-list">
+        {% for a in agentscope_agent_summary %}
+        <div class="agentscope-agent-item">
+          <span class="agent-name">{{ a.name }}</span>
+          <span class="agent-role">{{ a.role }}</span>
+          <span class="agent-result">{{ a.result }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% else %}
+    <div class="agentscope-summary-section">
+      <h4 class="agentscope-summary-title">Agent 실행 요약</h4>
+      <p class="agentscope-summary-desc">이 Run에는 Step3 AgentScope Multi-Agent Decision 단계가 없습니다. 파이프라인 실행 시 State Translator → Step3(5개 에이전트) → Step3.5 병합 순으로 실행되며, 여기서 Policy-Agent, SmartSeller-Agent, StorageMaster-Agent, EcoSaver-Agent, MarketCoordinator-Agent 실행 요약이 표시됩니다.</p>
+    </div>
+    {% endif %}
+
     {% for s in (tab3_stages or []) %}
     <div class="stage">
       <div class="stage-name">{{ s.stage_name }} {% if s.ok %}<span class="badge badge-success">✓</span>{% else %}<span class="badge badge-failure">✗</span>{% endif %}</div>
@@ -501,39 +736,160 @@
     <p class="no-content">CDA 전력거래 실행 및 도메인 특화 내용은 상단 영역(실행 / 도메인 특화 탭)에서 확인하세요.</p>
   </div>
 
-  {# Tab 5: EcoSaver, Storage Master, Policy #}
+  {# Tab 5: [PA] EcoSaver, Storage, Policy — 병렬 에이전트 실행 결과 #}
   <div id="tab-5" class="detail-panel {% if _ct == '5' %}active{% endif %}">
-    {% for s in (tab5_stages or []) %}
-    <div class="stage">
-      <div class="stage-name">{{ s.stage_name }} {% if s.ok %}<span class="badge badge-success">✓</span>{% else %}<span class="badge badge-failure">✗</span>{% endif %}</div>
-      <div class="stage-meta">소요: {{ "%.2f"|format(s.elapsed_sec) }}s</div>
-      {% if s.error_text %}<p style="color: var(--fail); font-size: 0.9rem;">{{ s.error_text }}</p>{% endif %}
-      {% if s.summary %}
-      <div class="stage-summary"><ul>{% for key, val in s.summary.items() %}<li><strong>{{ key }}</strong>: {{ val }}</li>{% endfor %}</ul></div>
-      {% endif %}
+    <div class="pa-intro">
+      <h3 class="pa-intro-title">Parallel Agents (Policy · EcoSaver · Storage)</h3>
+      <p class="pa-intro-desc">Step3.5에서 Policy, EcoSaver, Storage 세 에이전트가 병렬로 실행됩니다. Policy는 정책·규제 검증(거부권), Storage는 ESS/PV 운영 검증(거부권), EcoSaver는 수요반응(DR) 권고만 제공합니다. 최종 승인 액션은 Policy ∩ Storage 승인 집합입니다.</p>
+      <div class="pa-flow-label">실행 흐름</div>
+      <div class="pa-flow-boxes">
+        <span class="pa-flow-box">후보 액션 (ESS·거래·DR)</span>
+        <span class="pa-flow-arrow">→</span>
+        <span class="pa-flow-box">Policy</span>
+        <span class="pa-flow-arrow">+</span>
+        <span class="pa-flow-box">EcoSaver</span>
+        <span class="pa-flow-arrow">+</span>
+        <span class="pa-flow-box">Storage</span>
+        <span class="pa-flow-arrow">→</span>
+        <span class="pa-flow-box">승인 / 거절 / 수정</span>
+      </div>
     </div>
-    {% else %}
-    <p class="no-content">해당 단계 결과가 없습니다.</p>
-    {% endfor %}
+
+    {% set _pa_summary = ((tab5_stages or [])[0].summary or {}) if ((tab5_stages or [])|length > 0) else {} %}
+    <div class="pa-agent-cards">
+      <div class="pa-card pa-card-eco">
+        <h4 class="pa-card-title">EcoSaver</h4>
+        <p class="pa-card-role">수요반응(DR) 권고만 제공. 피크 초과 시 절감 권고 생성.</p>
+        <div class="pa-card-metrics">
+          <div class="pa-card-metric">
+            <span class="pa-card-metric-label">권고 건수</span>
+            <span class="pa-card-metric-value">{{ _pa_summary.get('EcoSaver 권고', '—') }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="pa-card pa-card-storage">
+        <h4 class="pa-card-title">Storage</h4>
+        <p class="pa-card-role">ESS/PV 운영 검증. 승인·거절·수정된 액션 수로 결과 반영.</p>
+        <div class="pa-card-metrics">
+          <div class="pa-card-metric">
+            <span class="pa-card-metric-label">승인 액션</span>
+            <span class="pa-card-metric-value ok">{{ _pa_summary.get('승인 액션', '—') }}</span>
+          </div>
+          <div class="pa-card-metric">
+            <span class="pa-card-metric-label">거절 액션</span>
+            <span class="pa-card-metric-value {% if _pa_summary.get('거절 액션') and _pa_summary.get('거절 액션') != '0건' %}warn{% endif %}">{{ _pa_summary.get('거절 액션', '—') }}</span>
+          </div>
+          <div class="pa-card-metric">
+            <span class="pa-card-metric-label">수정 액션</span>
+            <span class="pa-card-metric-value">{{ _pa_summary.get('수정 액션', '—') }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="pa-card pa-card-policy">
+        <h4 class="pa-card-title">Policy</h4>
+        <p class="pa-card-role">정책·규제 검증. 위반 시 거절·클램핑, 위험 점수 산출.</p>
+        <div class="pa-card-metrics">
+          <div class="pa-card-metric">
+            <span class="pa-card-metric-label">정책 위반</span>
+            <span class="pa-card-metric-value {% if _pa_summary.get('정책 위반') and _pa_summary.get('정책 위반') != '0건' %}fail{% endif %}">{{ _pa_summary.get('정책 위반', '—') }}</span>
+          </div>
+          <div class="pa-card-metric">
+            <span class="pa-card-metric-label">위험 점수</span>
+            <span class="pa-card-metric-value">{{ _pa_summary.get('위험 점수', '—') }}</span>
+          </div>
+          {% if _pa_summary.get('실행 방식') %}
+          <div class="pa-card-metric">
+            <span class="pa-card-metric-label">실행 방식</span>
+            <span class="pa-card-metric-value">{{ _pa_summary.get('실행 방식', '') }}</span>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
   </div>
 
-  {# Tab 6: Evaluation #}
-  <div id="tab-6" class="detail-panel {% if _ct == '6' %}active{% endif %}">
-    {% for s in (tab6_stages or []) %}
-    <div class="stage">
-      <div class="stage-name">{{ s.stage_name }} {% if s.ok %}<span class="badge badge-success">✓</span>{% else %}<span class="badge badge-failure">✗</span>{% endif %}</div>
-      <div class="stage-meta">소요: {{ "%.2f"|format(s.elapsed_sec) }}s</div>
-      {% if s.error_text %}<p style="color: var(--fail); font-size: 0.9rem;">{{ s.error_text }}</p>{% endif %}
-      {% if s.summary %}
-      <div class="stage-summary"><ul>{% for key, val in s.summary.items() %}<li><strong>{{ key }}</strong>: {{ val }}</li>{% endfor %}</ul></div>
+  {# Tab 6: Evaluation — 세부 KPI 표시 #}
+  <div id="tab-6" class="detail-panel evaluation-panel {% if _ct == '6' %}active{% endif %}">
+    {% if evaluation_report %}
+    <section class="evaluation-report-section" aria-label="평가 보고서">
+      <div class="evaluation-header">
+        <span class="evaluation-grade grade-{{ evaluation_report.grade|lower }}">등급 {{ evaluation_report.grade }}</span>
+        <span class="evaluation-meta">Phase {{ evaluation_report.phase }} · {{ evaluation_report.n_steps }} 스텝</span>
+      </div>
+
+      <div class="evaluation-kpis">
+        {% set ec = evaluation_report.kpis.get('energy_cost') or {} %}
+        <div class="kpi-card">
+          <h4 class="kpi-title">Energy Cost (계통 구매 비용)</h4>
+          <table class="kpi-table">
+            <tr><th>계통 구매 총 비용</th><td>{{ (ec.get('total_grid_cost_krw') or 0)|int_fmt }} 원</td></tr>
+            <tr><th>계통 단가</th><td>{{ ec.get('grid_price_krw_per_kwh', 0) }} 원/kWh</td></tr>
+          </table>
+        </div>
+
+        {% set tp = evaluation_report.kpis.get('trading_profit') or {} %}
+        <div class="kpi-card">
+          <h4 class="kpi-title">Trading Profit (P2P 거래)</h4>
+          <table class="kpi-table">
+            <tr><th>판매자 수익</th><td>{{ (tp.get('seller_revenue_krw') or 0)|int_fmt }} 원</td></tr>
+            <tr><th>구매자 절감</th><td>{{ (tp.get('buyer_saving_krw') or 0)|int_fmt }} 원</td></tr>
+            <tr><th>커뮤니티 절감</th><td>{{ (tp.get('community_saving_krw') or 0)|int_fmt }} 원</td></tr>
+            <tr><th>총 매칭량</th><td>{{ tp.get('total_matched_kwh', 0) }} kWh</td></tr>
+            <tr><th>거래 건수</th><td>{{ tp.get('total_trades', 0) }}건</td></tr>
+          </table>
+        </div>
+
+        {% set pr = evaluation_report.kpis.get('peak_reduction') or {} %}
+        <div class="kpi-card">
+          <h4 class="kpi-title">Peak Reduction (피크 수요 감소)</h4>
+          <table class="kpi-table">
+            <tr><th>현재 피크</th><td>{{ pr.get('peak_kw', 0) }} kW</td></tr>
+            <tr><th>기준 피크</th><td>{{ pr.get('baseline_peak_kw', 0) }} kW</td></tr>
+            <tr><th>피크 감소율</th><td>{{ pr.get('peak_reduction_pct', 0) }} %</td></tr>
+            <tr><th>피크 셰이빙 횟수</th><td>{{ pr.get('peak_shaving_count', 0) }}회</td></tr>
+          </table>
+        </div>
+
+        {% set ed = evaluation_report.kpis.get('ess_degradation') or {} %}
+        <div class="kpi-card">
+          <h4 class="kpi-title">ESS Degradation (배터리 마모)</h4>
+          <table class="kpi-table">
+            <tr><th>총 방전량</th><td>{{ ed.get('total_discharged_kwh', 0) }} kWh</td></tr>
+            <tr><th>사이클 비용 단가</th><td>{{ ed.get('degradation_cost_per_kwh', 0) }} 원/kWh</td></tr>
+            <tr><th>ESS 마모 비용</th><td>{{ (ed.get('ess_degradation_cost_krw') or 0)|int_fmt }} 원</td></tr>
+          </table>
+        </div>
+
+        {% set ua = evaluation_report.kpis.get('user_acceptance') or {} %}
+        <div class="kpi-card">
+          <h4 class="kpi-title">User Acceptance (DR 수락)</h4>
+          <table class="kpi-table">
+            <tr><th>DR 이벤트 수</th><td>{{ ua.get('dr_events_total', 0) }}건</td></tr>
+            <tr><th>수락 이벤트</th><td>{{ ua.get('accepted_events', 0) }}건</td></tr>
+            <tr><th>수락율</th><td>{{ ua.get('acceptance_rate_pct', 0) }} %</td></tr>
+            {% if ua.get('note') %}<tr><th>비고</th><td>{{ ua.get('note') }}</td></tr>{% endif %}
+          </table>
+        </div>
+      </div>
+
+      {% if evaluation_report.summary_text %}
+      <div class="evaluation-summary-text">
+        <h4 class="kpi-title">요약</h4>
+        <pre class="evaluation-pre">{{ evaluation_report.summary_text }}</pre>
+      </div>
       {% endif %}
-    </div>
+    </section>
     {% else %}
-    <p class="no-content">해당 단계 결과가 없습니다.</p>
-    {% endfor %}
+    <div class="evaluation-no-report">
+      <p>이 Run에 대한 평가 보고서 파일이 없습니다. (run_{{ run.id }}_evaluation_report.json 또는 evaluation_report.json)</p>
+      <p class="no-content">파이프라인 실행 시 Step 5 완료 후 보고서가 생성됩니다.</p>
+    </div>
+    {% endif %}
   </div>
 
   </section>
+  {% endif %}
 
   {% if _ct == '4' %}
   {# [CDA] 전력거래 선택 시: CDA 시장 개요 영역을 단계별 결과 아래에 표시 #}
@@ -588,6 +944,7 @@
     (function() {
       var runId = {{ run.id }};
       var mesaChartInstance = null;
+      var mesaTradingChartInstance = null;
       var COLUMNS = [
         { key: 'step', label: '스텝' },
         { key: 'hour', label: '시' },
@@ -595,18 +952,69 @@
         { key: 'community_pv_kw', label: 'PV(kW)' },
         { key: 'community_net_kw', label: 'Net(kW)' },
         { key: 'ess_soc_pct', label: 'ESS SoC(%)' },
-        { key: 'market_matched_kw', label: 'P2P(kW)' }
+        { key: 'market_matched_kw', label: 'P2P(kW)' },
+        { key: 'market_trade_count', label: '거래건수' },
+        { key: 'cumulative_saving_krw', label: '누적절감(원)' }
       ];
       function numVal(v) { return (v != null && v !== '' && !isNaN(Number(v))) ? Number(v) : null; }
+      function updateTradingSection(tr) {
+        var section = document.getElementById('mesa-trading-section');
+        var totalKw = 0;
+        var stepCount = 0;
+        var lastSaving = 0;
+        tr.forEach(function(r) {
+          var kw = numVal(r.market_matched_kw);
+          if (kw != null && kw > 0) { totalKw += kw; stepCount += 1; }
+          var krw = numVal(r.cumulative_saving_krw);
+          if (krw != null) lastSaving = krw;
+        });
+        section.style.display = 'block';
+        document.getElementById('mesa-trading-total-kw').textContent = totalKw.toFixed(1);
+        document.getElementById('mesa-trading-step-count').textContent = stepCount;
+        document.getElementById('mesa-trading-saving-krw').textContent = lastSaving.toLocaleString('ko-KR');
+        var chartWrap = document.getElementById('mesa-trading-chart-wrap');
+        var canvas = document.getElementById('mesa-trading-chart');
+        if (tr[0].hasOwnProperty('market_matched_kw') && tr[0].hasOwnProperty('cumulative_saving_krw') && typeof Chart !== 'undefined') {
+          chartWrap.style.display = 'block';
+          if (mesaTradingChartInstance) mesaTradingChartInstance.destroy();
+          var labels = tr.map(function(r) { return r.step != null ? r.step : r.hour; });
+          mesaTradingChartInstance = new Chart(canvas.getContext('2d'), {
+            type: 'line',
+            data: {
+              labels: labels,
+              datasets: [
+                { label: 'P2P 거래량 (kW)', data: tr.map(function(r) { return numVal(r.market_matched_kw); }), borderColor: '#a371f7', backgroundColor: 'rgba(163, 113, 247, 0.2)', fill: true, yAxisID: 'y', tension: 0.2, pointRadius: 0, pointHoverRadius: 4 },
+                { label: '누적 절감액 (원)', data: tr.map(function(r) { return numVal(r.cumulative_saving_krw); }), borderColor: '#2ca02c', backgroundColor: 'rgba(44, 160, 44, 0.1)', fill: true, yAxisID: 'y1', tension: 0.2, pointRadius: 0, pointHoverRadius: 4 }
+              ]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              interaction: { mode: 'index', intersect: false },
+              plugins: { legend: { labels: { color: '#8b949e' } } },
+              scales: {
+                x: { ticks: { color: '#8b949e', maxTicksLimit: 24 } },
+                y: { type: 'linear', display: true, position: 'left', title: { display: true, text: 'P2P (kW)', color: '#8b949e' }, ticks: { color: '#8b949e' } },
+                y1: { type: 'linear', display: true, position: 'right', title: { display: true, text: '누적 절감 (원)', color: '#8b949e' }, ticks: { color: '#8b949e' }, grid: { drawOnChartArea: false } }
+              }
+            }
+          });
+        } else {
+          chartWrap.style.display = 'none';
+        }
+      }
       function loadMesaViz() {
         var noDataEl = document.getElementById('mesa-no-data');
         var gridCont = document.getElementById('mesa-grid-container');
         var trajCont = document.getElementById('mesa-trajectory-container');
+        var tradingSection = document.getElementById('mesa-trading-section');
         noDataEl.style.display = 'block';
         noDataEl.textContent = '궤적 데이터 불러오는 중…';
         gridCont.style.display = 'none';
         trajCont.style.display = 'none';
+        tradingSection.style.display = 'none';
         if (mesaChartInstance) { mesaChartInstance.destroy(); mesaChartInstance = null; }
+        if (mesaTradingChartInstance) { mesaTradingChartInstance.destroy(); mesaTradingChartInstance = null; }
         fetch('/api/runs/' + runId + '/mesa_trajectory')
           .then(function(r) {
             if (!r.ok) throw new Error('not_found');
@@ -616,6 +1024,7 @@
             var tr = (data.trajectory || []);
             if (tr.length === 0) throw new Error('empty');
             noDataEl.style.display = 'none';
+            updateTradingSection(tr);
             var thead = document.getElementById('mesa-grid-head');
             var tbody = document.getElementById('mesa-grid-body');
             thead.innerHTML = '';

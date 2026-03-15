@@ -17,7 +17,11 @@ from alfp.skills.energy_forecast import EnergyForecastSkill
 
 def _build_stats(df: pd.DataFrame, prosumer_id: str, requested_horizon: int) -> dict:
     """LLM 프롬프트용 통계 데이터를 구성합니다."""
-    prosumer_type = df["prosumer_type"].mode()[0] if "prosumer_type" in df.columns else "Unknown"
+    if "prosumer_type" not in df.columns:
+        prosumer_type = "Unknown"
+    else:
+        mode_series = df["prosumer_type"].dropna().mode()
+        prosumer_type = mode_series.iloc[0] if len(mode_series) > 0 else "Unknown"
     ts = df["timestamp"]
     data_range_days = (ts.max() - ts.min()).days + 1
 
@@ -164,16 +168,26 @@ def forecast_planner_agent(state: ALFPState) -> ALFPState:
         response = llm.invoke(messages)
         plan = parser.invoke(response.content)
         log.append("  GPT-4o 응답 수신 완료")
+        if not isinstance(plan, dict):
+            raise TypeError(f"LLM 응답이 dict가 아님: {type(plan).__name__}")
 
     except Exception as e:
         errors.append(f"[ForecastPlannerAgent] LLM 오류 → fallback 적용: {e}")
+        stats = _build_stats(df, prosumer_id, requested_horizon)
         plan = _fallback_plan(
-            _build_stats(df, prosumer_id, requested_horizon),
+            stats,
             prev_plan=state.get("forecast_plan"),
             persistent=state.get("persistent_memory"),
         )
 
-    # 결과 정리
+    # 결과 정리 (plan이 dict가 아닌 경우 방어)
+    if not isinstance(plan, dict):
+        stats = _build_stats(df, prosumer_id, requested_horizon)
+        plan = _fallback_plan(
+            stats,
+            prev_plan=state.get("forecast_plan"),
+            persistent=state.get("persistent_memory"),
+        )
     selected_model = plan.get("selected_model", "lgbm")
     model_config = plan.get("model_config", {})
     horizon = int(plan.get("forecast_horizon", requested_horizon))

@@ -33,12 +33,16 @@ def run_execution(
     n_steps: int = 96,
     phase: int = 4,
     prosumer_ids: list[str] | None = None,
+    measure_date: str | None = None,
     seed: int = 42,
     ess_capacity_kwh: float = 200.0,
     ess_peak_threshold_kw: float = 500.0,
     max_charge_kw: float = 100.0,
     max_discharge_kw: float = 100.0,
     strict_validation: bool = False,
+    max_peak_load_kw: float | None = None,
+    min_ess_soc_pct: float | None = 10.0,
+    max_ess_soc_pct: float | None = 95.0,
 ) -> ExecutionResult:
     """
     CDA Settlement: decisions(CDA 코디네이터 출력) 검증 후 Mesa 시뮬레이션 실행.
@@ -55,10 +59,14 @@ def run_execution(
         n_steps=n_steps,
         phase=phase,
         prosumer_ids=prosumer_ids,
+        measure_date=measure_date,
         seed=seed,
         ess_capacity_kwh=ess_capacity_kwh,
         ess_peak_threshold_kw=ess_peak_threshold_kw,
         max_charge_kw=max_charge_kw,
         max_discharge_kw=max_discharge_kw,
         strict_validation=strict_validation,
+        max_peak_load_kw=max_peak_load_kw,
+        min_ess_soc_pct=min_ess_soc_pct,
+        max_ess_soc_pct=max_ess_soc_pct,
     )
