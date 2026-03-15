@@ -1,57 +1,57 @@
 {
-  "last_run_at": "2026-03-15T13:01:35.107741Z",
+  "last_run_at": "2026-03-15T13:44:12.088809Z",
   "last_plan": {
-    "selected_model": "lgbm",
+    "selected_model": "xgboost",
     "forecast_horizon_steps": 96,
-    "llm_reasoning": "재계획: 이전 모델 xgboost → lgbm 전환 (규칙 fallback)"
+    "llm_reasoning": "재계획: 이전 모델 lgbm → xgboost 전환 (규칙 fallback)"
   },
   "last_validation_metrics": {
     "kpi": {
       "MAPE_target": 10.0,
-      "MAPE_achieved": 18.71,
+      "MAPE_achieved": 14.69,
       "MAPE_pass": false,
       "peak_acc_target": 90.0,
-      "peak_acc_achieved": 95.56,
+      "peak_acc_achieved": 98.99,
       "peak_acc_pass": true
     },
     "load": {
-      "MAE": 3.9059,
-      "RMSE": 5.3114,
-      "MAPE": 18.71,
+      "MAE": 3.2593,
+      "RMSE": 4.8097,
+      "MAPE": 14.69,
       "peak": {
         "true_peak_kw": 51.593,
-        "pred_peak_kw": 49.301,
-        "peak_error_pct": 4.44
+        "pred_peak_kw": 52.112,
+        "peak_error_pct": 1.01
       },
       "n_samples": 44,
-      "skill_mape": 18.71,
-      "skill_rmse": 5.3114
+      "skill_mape": 14.69,
+      "skill_rmse": 4.8097
     },
     "pv": {
-      "MAE": 1.0183,
-      "RMSE": 1.3418,
-      "MAPE": 11.56,
+      "MAE": 1.3788,
+      "RMSE": 1.7573,
+      "MAPE": 14.05,
       "peak": {
         "true_peak_kw": 29.099,
-        "pred_peak_kw": 31.66,
-        "peak_error_pct": 8.8
+        "pred_peak_kw": 35.062,
+        "peak_error_pct": 20.49
       },
       "n_samples": 44,
-      "skill_mape": 11.56,
-      "skill_rmse": 1.3418
+      "skill_mape": 14.05,
+      "skill_rmse": 1.7573
     },
     "net_load": {
-      "MAE": 3.9417,
-      "RMSE": 5.1653,
-      "MAPE": 19.94,
+      "MAE": 3.4105,
+      "RMSE": 4.7504,
+      "MAPE": 16.38,
       "peak": {
         "true_peak_kw": 32.739,
-        "pred_peak_kw": 33.544,
-        "peak_error_pct": 2.46
+        "pred_peak_kw": 31.837,
+        "peak_error_pct": 2.75
       },
       "n_samples": 44,
-      "skill_mape": 19.94,
-      "skill_rmse": 5.1653
+      "skill_mape": 16.38,
+      "skill_rmse": 4.7504
     }
   },
   "last_decisions_summary": {
@@ -67,7 +67,7 @@
       "saving_pct": 0.0
     },
     "dr_summary": {
-      "peak_threshold_kw": 30.75,
+      "peak_threshold_kw": 28.9,
       "dr_event_count": 7
     }
   },

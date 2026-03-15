@@ -38,6 +38,29 @@ def _parse_args() -> argparse.Namespace:
     p.add_argument("--use-cda-negotiation", action="store_true", help="CDA + Strategy Agent(LLM) + Negotiation Layer 사용 (cda_strategy_negotiation_prd.md). --use-cda 필요")
     p.add_argument("--use-parallel", action="store_true", help="Final Parallel Execution Layer 사용 (Policy/Eco/Storage 에이전트 병렬 평가 후 실행)")
     p.add_argument("--audit-log", default=None, help="병렬 레이어 감사 로그 파일 경로 (--use-parallel 시 append)")
+    p.add_argument(
+        "--use-agent-plan",
+        action="store_true",
+        default=True,
+        help="LLM 에이전트 계획(AgentPlan) 실행 (기본값): LLM이 Policy/Storage/EcoSaver 실행 순서와 파라미터를 계획하고 전력거래 decisions를 수립합니다.",
+    )
+    p.add_argument(
+        "--no-agent-plan",
+        action="store_false",
+        dest="use_agent_plan",
+        help="AgentPlan 비활성화 (Step 3-P 건너뜀)",
+    )
+    p.add_argument(
+        "--agent-plan-no-llm",
+        action="store_true",
+        help="--use-agent-plan 시 규칙 기반 기본 계획 사용 (LLM 미사용)",
+    )
+    p.add_argument(
+        "--agent-plan-max-revisions",
+        type=int,
+        default=1,
+        help="AgentPlan 시뮬레이션 실패 시 LLM 재수립 최대 횟수 (기본 1)",
+    )
     return p.parse_args()
 
 
@@ -151,6 +174,44 @@ def main() -> None:
         sample = decisions["ess_schedule"][0]
         print(f"  ESS 샘플: {sample}")
 
+    # ── Step 3-P: LLM Agent Plan (전력거래 에이전트 계획 수립·실행) ─────
+    if args.use_agent_plan:
+        use_llm_plan = not args.agent_plan_no_llm
+        mode_str = "LLM 계획 수립" if use_llm_plan else "규칙 기반 기본 계획"
+        print(f"\n[Step 3-P] LLM Agent Plan 실행 ({mode_str})...")
+        print("  Policy → Storage → EcoSaver → Simulate 순서로 에이전트를 계획·실행합니다.")
+        from seapac_agents.agent_planner import run_agent_plan
+
+        decisions = run_agent_plan(
+            state_json_list=state_json_list,
+            alfp_decisions=decisions,
+            peak_threshold_kw=args.peak_threshold,
+            max_charge_kw=max_kw,
+            max_discharge_kw=max_kw,
+            use_llm=use_llm_plan,
+            max_revisions=args.agent_plan_max_revisions,
+            data_path=args.data_path,
+            n_steps=args.steps,
+            phase=args.phase,
+            seed=args.seed,
+            ess_capacity_kwh=args.ess_capacity,
+            verbose=args.verbose,
+        )
+        ap = decisions.get("agent_plan", {})
+        ap_approved = "승인" if ap.get("simulation_approved") else "미승인"
+        ap_revised = " (재수립됨)" if ap.get("revised") else ""
+        n_logs = len(ap.get("agent_logs") or [])
+        print(
+            f"  완료: 계획 ID={ap.get('plan_id')} | 시뮬레이션={ap_approved}{ap_revised} | "
+            f"ESS {len(decisions.get('ess_schedule', []))}건 | "
+            f"DR {len(decisions.get('demand_response_events', []))}건 | "
+            f"에이전트 로그 {n_logs}건"
+        )
+        if args.verbose:
+            print(f"  계획 목표: {ap.get('objective')}")
+            for log in (ap.get("agent_logs") or []):
+                print(f"    Step {log.get('step_id')} [{log.get('agent')}] → {log.get('status')}")
+
     # ── Step 3.5: Final Parallel Execution Layer (PRD: seapac_parallel_agents_prd.md) ──
     if args.use_parallel:
         print("\n[Step 3.5] Final Parallel Execution Layer — Policy / Eco Saver / Storage 에이전트 병렬 평가...")
@@ -247,6 +308,13 @@ def main() -> None:
             with open(report_path, "w", encoding="utf-8") as f:
                 json.dump(report.to_dict(), f, ensure_ascii=False, indent=2)
             print(f"  평가 보고서 저장: {report_path}")
+
+            # Agent Plan (--use-agent-plan 시)
+            if args.use_agent_plan and "agent_plan" in decisions:
+                ap_path = out_dir / "agent_plan.json"
+                with open(ap_path, "w", encoding="utf-8") as f:
+                    json.dump(decisions["agent_plan"], f, ensure_ascii=False, indent=2)
+                print(f"  Agent Plan 저장: {ap_path}")
 
         # Timeseries CSV (Step 4 실행 결과)
         if result.dataframe is not None:

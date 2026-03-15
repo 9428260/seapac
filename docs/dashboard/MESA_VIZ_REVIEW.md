@@ -1,4 +1,16 @@
-# [MESA] 시뮬레이션 실행 화면 — 첨부 이미지 대비 검토
+# [MESA] 시뮬레이션 실행 화면
+
+## 재설계 (Mesa 라이브러리 참조)
+
+[Mesa](https://github.com/mesa/mesa) 구조에 맞춰 **Modeling · Analysis · Visualization** 세 가지 영역으로 화면을 재구성했습니다.
+
+- **Intro**: "Mesa: Agent-based simulation" 헤더, GitHub 링크, Modeling / Analysis / Visualization 펍
+- **Analysis**: Model reporters (DataCollector · get_model_vars_dataframe) — 스텝별 지표 테이블
+- **Visualization**: Time series (model metric over time) + P2P Market (agent interaction) — 2열 레이아웃(대형 화면)
+
+---
+
+## 첨부 이미지 대비 검토
 
 ## 첨부 이미지 구성
 

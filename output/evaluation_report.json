@@ -21,9 +21,9 @@
       "peak_shaving_count": 81
     },
     "ess_degradation": {
-      "total_discharged_kwh": 1263.16,
+      "total_discharged_kwh": 642.42,
       "degradation_cost_per_kwh": 5.0,
-      "ess_degradation_cost_krw": 6316.0
+      "ess_degradation_cost_krw": 3212.0
     },
     "user_acceptance": {
       "dr_events_total": 86,
@@ -32,5 +32,5 @@
       "note": "기본 수락율 적용"
     }
   },
-  "summary_text": "  [Energy Cost]    계통 구매 비용: 1,213,867 원  (단가 100.0 원/kWh)\n  [Trading Profit] 커뮤니티 절감: 7,339 원  (거래 53건, 78.5 kWh)\n  [Peak Reduction] 피크 905.3 kW  →  0.0% 감소 (기준 905.3 kW)\n  [ESS Degradation] 방전 1263.2 kWh  →  마모 비용 6,316 원\n  [User Acceptance] DR 이벤트 86건, 수락율 75.0%\n  ─────────────────────────────────────────\n  순 효과 (절감 - 마모): 1,023 원   →   평가 등급: B"
+  "summary_text": "  [Energy Cost]    계통 구매 비용: 1,213,867 원  (단가 100.0 원/kWh)\n  [Trading Profit] 커뮤니티 절감: 7,339 원  (거래 53건, 78.5 kWh)\n  [Peak Reduction] 피크 905.3 kW  →  0.0% 감소 (기준 905.3 kW)\n  [ESS Degradation] 방전 642.4 kWh  →  마모 비용 3,212 원\n  [User Acceptance] DR 이벤트 86건, 수락율 75.0%\n  ─────────────────────────────────────────\n  순 효과 (절감 - 마모): 4,127 원   →   평가 등급: B"
 }

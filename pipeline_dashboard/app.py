@@ -350,6 +350,81 @@ def _prosumer_options(db_path: Path):
     return sorted(prosumer_set)
 
 
+@app.route("/agent-plans")
+def agent_plans():
+    """Agents 실행 계획 페이지: 상단 검색 + 전력거래/EcoSaver/Storage/Policy 계획 표시."""
+    init_db(_db_path())
+    search_run_id = request.args.get("run_id", "").strip()
+    search_plan_type = (request.args.get("plan_type") or "all").strip()
+    search_measure_date = (request.args.get("measure_date") or "").strip()
+    search_run_date = (request.args.get("run_date") or "").strip()
+    runs = get_runs(
+        limit=50,
+        measure_date=search_measure_date or None,
+        run_date=search_run_date or None,
+        db_path=_db_path(),
+    )
+    run = None
+    plan_sections = {
+        "trading": {"title": "전력거래 계획", "content": None, "visible": search_plan_type in ("all", "trading")},
+        "eco_saver": {"title": "EcoSaver 계획", "content": None, "visible": search_plan_type in ("all", "eco_saver")},
+        "storage": {"title": "Storage 관리 계획", "content": None, "visible": search_plan_type in ("all", "storage")},
+        "policy": {"title": "Policy 계획", "content": None, "visible": search_plan_type in ("all", "policy")},
+    }
+    if search_run_id:
+        try:
+            rid = int(search_run_id)
+            run = get_run_with_stages(rid, db_path=_db_path())
+        except (ValueError, TypeError):
+            pass
+    if run and run.get("stages"):
+        stages = run["stages"]
+        tab5 = [s for s in stages if "Step3.5 Parallel" in s.get("stage_name", "") or "Policy / EcoSaver / Storage" in s.get("stage_name", "")]
+        step3 = [s for s in stages if "Step3  AgentScope" in s.get("stage_name", "")]
+        pa_summary = (tab5[0].get("summary") or {}) if tab5 else {}
+        step3_summary = (step3[0].get("summary") or {}) if step3 else {}
+        plan_sections["trading"]["content"] = {
+            "objective": step3_summary.get("결정 모드") or pa_summary.get("실행 방식") or "전력거래 최적화: Policy 제약 → ESS 스케줄 → DR 이벤트 → 시뮬레이션 검증",
+            "거래 권고": step3_summary.get("거래 권고", "—"),
+        }
+        plan_sections["eco_saver"]["content"] = {
+            "권고": pa_summary.get("EcoSaver 권고", "—"),
+            "설명": "수요반응(DR) 이벤트 생성. 피크 초과 시 절감 권고.",
+        }
+        plan_sections["storage"]["content"] = {
+            "ESS 스케줄": step3_summary.get("ESS 스케줄", pa_summary.get("ESS 스케줄", "—")),
+            "승인": pa_summary.get("승인 액션", "—"),
+            "거절": pa_summary.get("거절 액션", "—"),
+            "수정": pa_summary.get("수정 액션", "—"),
+        }
+        plan_sections["policy"]["content"] = {
+            "정책 위반": pa_summary.get("정책 위반", "—"),
+            "위험 점수": pa_summary.get("위험 점수", "—"),
+            "설명": "제약 조건 설정 및 검증. 정책·규제 준수 검증.",
+        }
+    else:
+        # 기본 설명 문구 (Run 미선택 시)
+        plan_sections["trading"]["content"] = {"objective": "전력거래 최적화: Policy 제약 → ESS 스케줄 → DR 이벤트 → 시뮬레이션 검증", "거래 권고": "Run을 선택하면 Step3/Step3.5 결과가 표시됩니다."}
+        plan_sections["eco_saver"]["content"] = {"권고": "—", "설명": "수요반응(DR) 이벤트 생성. 피크 초과 시 절감 권고."}
+        plan_sections["storage"]["content"] = {"ESS 스케줄": "—", "승인": "—", "거절": "—", "수정": "—"}
+        plan_sections["policy"]["content"] = {"정책 위반": "—", "위험 점수": "—", "설명": "제약 조건 설정 및 검증. 정책·규제 준수 검증."}
+    prosumer_set = {r.get("args", {}).get("prosumer") for r in runs if (r.get("args") or {}).get("prosumer")}
+    prosumer_set.add("bus_48_Commercial")
+    prosumer_options = sorted(prosumer_set)
+    return render_template(
+        "agent_plans.html",
+        runs=runs,
+        run=run,
+        current_path=request.path,
+        search_run_id=search_run_id,
+        search_plan_type=search_plan_type,
+        search_measure_date=search_measure_date,
+        search_run_date=search_run_date,
+        plan_sections=plan_sections,
+        prosumer_options=prosumer_options,
+    )
+
+
 @app.route("/runs/by-search")
 def run_detail_by_search():
     """Find first run matching prosumer/measure_date/run_date and redirect to its detail with given tab."""

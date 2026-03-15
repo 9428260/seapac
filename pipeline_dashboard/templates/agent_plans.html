@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block title %}Agents 실행 계획 — SEAPAC Pipeline Dashboard{% endblock %}
+{% block extra_css %}
+  .search-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
+  .search-bar label { font-size: 0.85rem; color: var(--muted); margin-right: 0.25rem; }
+  .search-bar input[type="text"], .search-bar input[type="date"], .search-bar select {
+    padding: 0.35rem 0.5rem; background: var(--bg); border: 1px solid var(--muted); border-radius: 4px; color: var(--text);
+  }
+  .search-bar select { min-width: 10rem; cursor: pointer; }
+  .search-bar input[type="text"] { min-width: 6rem; }
+  .search-bar input[type="date"] { min-width: 10.5rem; font-family: inherit; }
+  .search-bar button { padding: 0.4rem 0.9rem; background: var(--accent); color: var(--bg); border: none; border-radius: 4px; cursor: pointer; font-weight: 600; }
+  .search-bar button:hover { opacity: 0.9; }
+  .plan-page-title { font-size: 1.35rem; margin: 0 0 1.25rem 0; color: var(--text); }
+  .plan-section {
+    background: var(--card);
+    border: 1px solid rgba(139, 148, 158, 0.2);
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .plan-section h3 { font-size: 1.1rem; margin: 0 0 0.75rem 0; color: var(--accent); border-bottom: 1px solid rgba(139, 148, 158, 0.2); padding-bottom: 0.5rem; }
+  .plan-section dl { margin: 0; display: grid; gap: 0.35rem 1.5rem; }
+  .plan-section dt { font-size: 0.8rem; color: var(--muted); font-weight: 600; margin: 0; }
+  .plan-section dd { margin: 0; font-size: 0.95rem; }
+  .plan-section .objective { font-style: italic; color: var(--muted); margin-bottom: 0.75rem; }
+  .plan-section.hidden { display: none; }
+{% endblock %}
+{% block main_top %}
+  <form class="search-bar" method="get" action="{{ url_for('agent_plans') }}" id="agent-plans-search">
+    <span>
+      <label for="search-run-id">Run ID</label>
+      <input type="text" name="run_id" id="search-run-id" value="{{ search_run_id|e }}" placeholder="예: 1">
+    </span>
+    <span>
+      <label for="search-plan-type">Plan 유형</label>
+      <select name="plan_type" id="search-plan-type">
+        <option value="all" {% if search_plan_type == 'all' %}selected{% endif %}>전체</option>
+        <option value="trading" {% if search_plan_type == 'trading' %}selected{% endif %}>전력거래 계획</option>
+        <option value="eco_saver" {% if search_plan_type == 'eco_saver' %}selected{% endif %}>EcoSaver 계획</option>
+        <option value="storage" {% if search_plan_type == 'storage' %}selected{% endif %}>Storage 관리 계획</option>
+        <option value="policy" {% if search_plan_type == 'policy' %}selected{% endif %}>Policy 계획</option>
+      </select>
+    </span>
+    <span>
+      <label for="search-measure-date">측정일</label>
+      <input type="date" id="search-measure-date" name="measure_date" value="{{ search_measure_date|e }}">
+    </span>
+    <span>
+      <label for="search-run-date">실행일</label>
+      <input type="date" id="search-run-date" name="run_date" value="{{ search_run_date|e }}">
+    </span>
+    <button type="submit">검색</button>
+  </form>
+{% endblock %}
+{% block content %}
+  <h1 class="plan-page-title">Agents 실행 계획</h1>
+  {% if run %}
+  <p class="muted" style="margin-bottom: 1rem;">Run #{{ run.id }} ({{ run.created_at[:10] if run.created_at else '—' }}) 기준 계획 내용입니다.</p>
+  {% else %}
+  <p class="muted" style="margin-bottom: 1rem;">Run ID를 입력하고 검색하면 해당 Run의 Step3/Step3.5 결과가 전력거래·EcoSaver·Storage·Policy 계획으로 표시됩니다.</p>
+  {% endif %}
+
+  {% set ps = plan_sections %}
+  {% if ps.trading.visible %}
+  <section class="plan-section" id="plan-trading">
+    <h3>전력거래 계획</h3>
+    {% if ps.trading.content %}
+    <p class="objective">{{ ps.trading.content.objective }}</p>
+    <dl>
+      <dt>거래 권고</dt>
+      <dd>{{ ps.trading.content.get('거래 권고', '—') }}</dd>
+    </dl>
+    {% endif %}
+  </section>
+  {% endif %}
+
+  {% if ps.eco_saver.visible %}
+  <section class="plan-section" id="plan-eco-saver">
+    <h3>EcoSaver 계획</h3>
+    {% if ps.eco_saver.content %}
+    <p class="objective">{{ ps.eco_saver.content.get('설명', '') }}</p>
+    <dl>
+      <dt>EcoSaver 권고</dt>
+      <dd>{{ ps.eco_saver.content.get('권고', '—') }}</dd>
+    </dl>
+    {% endif %}
+  </section>
+  {% endif %}
+
+  {% if ps.storage.visible %}
+  <section class="plan-section" id="plan-storage">
+    <h3>Storage 관리 계획</h3>
+    {% if ps.storage.content %}
+    <dl>
+      <dt>ESS 스케줄</dt>
+      <dd>{{ ps.storage.content.get('ESS 스케줄', '—') }}</dd>
+      <dt>승인 액션</dt>
+      <dd>{{ ps.storage.content.get('승인', '—') }}</dd>
+      <dt>거절 액션</dt>
+      <dd>{{ ps.storage.content.get('거절', '—') }}</dd>
+      <dt>수정 액션</dt>
+      <dd>{{ ps.storage.content.get('수정', '—') }}</dd>
+    </dl>
+    {% endif %}
+  </section>
+  {% endif %}
+
+  {% if ps.policy.visible %}
+  <section class="plan-section" id="plan-policy">
+    <h3>Policy 계획</h3>
+    {% if ps.policy.content %}
+    <p class="objective">{{ ps.policy.content.get('설명', '') }}</p>
+    <dl>
+      <dt>정책 위반</dt>
+      <dd>{{ ps.policy.content.get('정책 위반', '—') }}</dd>
+      <dt>위험 점수</dt>
+      <dd>{{ ps.policy.content.get('위험 점수', '—') }}</dd>
+    </dl>
+    {% endif %}
+  </section>
+  {% endif %}
+{% endblock %}

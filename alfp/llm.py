@@ -73,3 +73,34 @@ def get_llm(temperature: float = 0.0) -> Union[AzureChatOpenAI, _StubLLM]:
         temperature=temperature,
         callbacks=[get_llm_io_handler()],
     )
+
+
+def get_llm_forced(temperature: float = 0.0) -> AzureChatOpenAI:
+    """
+    ALFP_DISABLE_LLM 설정을 무시하고 항상 실제 LLM 인스턴스를 반환합니다.
+
+    AgentPlan 등 LLM 연계가 필수인 컴포넌트에서 사용합니다.
+    ALFP_DISABLE_LLM=1 이어도 LLM을 호출합니다.
+
+    환경변수:
+        AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_KEY (필수)
+        AZURE_OPENAI_DEPLOYMENT, AZURE_OPENAI_API_VERSION
+    """
+    endpoint = os.environ.get("AZURE_OPENAI_ENDPOINT")
+    api_key = os.environ.get("AZURE_OPENAI_API_KEY")
+    deployment = os.environ.get("AZURE_OPENAI_DEPLOYMENT", "gpt-4o")
+    api_version = os.environ.get("AZURE_OPENAI_API_VERSION", "2024-08-01-preview")
+
+    if not endpoint or not api_key:
+        raise EnvironmentError(
+            ".env 파일에 AZURE_OPENAI_ENDPOINT / AZURE_OPENAI_API_KEY가 설정되지 않았습니다."
+        )
+
+    return AzureChatOpenAI(
+        azure_endpoint=endpoint,
+        azure_deployment=deployment,
+        api_key=api_key,
+        api_version=api_version,
+        temperature=temperature,
+        callbacks=[get_llm_io_handler()],
+    )

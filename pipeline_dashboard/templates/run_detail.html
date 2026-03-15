@@ -208,19 +208,31 @@
   .sub-panel.active { display: block; }
   .domain-steps .domain-role-label { color: var(--accent); font-size: 0.95rem; }
   .domain-step { border-left-color: rgba(136, 82, 255, 0.5); }
-  /* MESA 그리드 및 궤적 */
-  .mesa-viz-section { margin-top: 1.5rem; }
-  .mesa-viz-section h3 { font-size: 1rem; margin: 0 0 0.75rem 0; color: var(--accent); }
-  .mesa-grid-wrap { overflow-x: auto; max-height: 320px; overflow-y: auto; margin-bottom: 1.5rem; border: 1px solid rgba(139, 148, 158, 0.25); border-radius: 8px; background: var(--card); }
+  /* [MESA] 시뮬레이션 실행 — Mesa 스타일 재설계 (github.com/mesa/mesa) */
+  .mesa-intro {
+    margin-bottom: 1.5rem; padding: 1rem 1.25rem; background: var(--card); border-radius: 8px;
+    border: 1px solid rgba(139, 148, 158, 0.2); border-left: 4px solid #58a6ff;
+  }
+  .mesa-intro-title { font-size: 1.1rem; margin: 0 0 0.35rem 0; color: var(--accent); font-weight: 600; }
+  .mesa-intro-desc { font-size: 0.9rem; color: var(--muted); margin: 0 0 0.5rem 0; line-height: 1.5; }
+  .mesa-intro-ref { font-size: 0.8rem; margin: 0; }
+  .mesa-intro-ref a { color: var(--accent); }
+  .mesa-pill { display: inline-block; padding: 0.2rem 0.5rem; margin-right: 0.35rem; margin-bottom: 0.25rem; background: rgba(88, 166, 255, 0.15); border-radius: 4px; font-size: 0.75rem; color: var(--text); }
+  .mesa-section { margin-top: 1.25rem; }
+  .mesa-section-title { font-size: 0.85rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.5rem; }
+  .mesa-viz-section { margin-top: 0; }
+  .mesa-viz-section .mesa-module { padding: 1rem 1.25rem; background: var(--card); border-radius: 8px; border: 1px solid rgba(139, 148, 158, 0.2); margin-bottom: 1rem; }
+  .mesa-module-title { font-size: 1rem; margin: 0 0 0.35rem 0; color: var(--accent); }
+  .mesa-module-desc { font-size: 0.85rem; color: var(--muted); margin: 0 0 0.75rem 0; line-height: 1.45; }
+  .mesa-grid-wrap { overflow-x: auto; max-height: 320px; overflow-y: auto; margin-top: 0.5rem; border: 1px solid rgba(139, 148, 158, 0.2); border-radius: 6px; background: rgba(0,0,0,0.15); }
   .mesa-grid-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
   .mesa-grid-table th, .mesa-grid-table td { padding: 0.35rem 0.6rem; text-align: right; border-bottom: 1px solid rgba(139, 148, 158, 0.15); white-space: nowrap; }
   .mesa-grid-table th { position: sticky; top: 0; background: var(--card); color: var(--muted); font-weight: 600; z-index: 1; }
   .mesa-grid-table th:first-child, .mesa-grid-table td:first-child { text-align: left; position: sticky; left: 0; background: var(--bg); z-index: 1; }
   .mesa-grid-table tr:hover { background: rgba(88, 166, 255, 0.06); }
-  .mesa-trajectory-wrap { margin-top: 1rem; max-width: 900px; height: 280px; }
-  .mesa-no-data { color: var(--muted); font-size: 0.9rem; padding: 1rem; background: var(--card); border-radius: 8px; margin-top: 1rem; }
-  /* 전력거래 (P2P) — energy_trading 스타일 */
-  .mesa-trading-section { margin-top: 1.5rem; padding: 1rem 1.25rem; background: var(--card); border-radius: 8px; border: 1px solid rgba(139, 148, 158, 0.2); border-left: 4px solid #a371f7; }
+  .mesa-trajectory-wrap { margin-top: 0.5rem; max-width: 100%; height: 200px; min-height: 160px; }
+  .mesa-no-data { color: var(--muted); font-size: 0.9rem; padding: 1rem; background: var(--card); border-radius: 8px; margin-top: 0.5rem; border: 1px dashed rgba(139, 148, 158, 0.3); }
+  .mesa-trading-section { padding: 1rem 1.25rem; background: var(--card); border-radius: 8px; border: 1px solid rgba(139, 148, 158, 0.2); border-left: 4px solid #a371f7; margin-bottom: 1rem; }
   .mesa-trading-title { font-size: 1rem; margin: 0 0 0.35rem 0; color: var(--accent); }
   .mesa-trading-desc { font-size: 0.85rem; color: var(--muted); margin: 0 0 1rem 0; line-height: 1.5; }
   .mesa-trading-summary { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem; }
@@ -230,7 +242,10 @@
   .mesa-trading-card-label { font-size: 0.8rem; color: var(--muted); }
   .mesa-trading-card-value { font-size: 1.1rem; font-weight: 600; color: var(--text); }
   .mesa-trading-card-unit { font-size: 0.8rem; color: var(--muted); }
-  .mesa-trading-chart-wrap { max-width: 900px; height: 220px; margin-top: 0.75rem; }
+  .mesa-trading-chart-wrap { max-width: 100%; height: 180px; min-height: 140px; margin-top: 0.5rem; }
+  @media (min-width: 900px) {
+    .mesa-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; align-items: start; }
+  }
   /* Tab3 AgentScope Agent 실행 요약 (seapac_agents/decision.py 기준) */
   .agentscope-summary-section { margin-bottom: 1.5rem; padding: 1rem 1.25rem; background: var(--card); border-radius: 8px; border: 1px solid rgba(139, 148, 158, 0.2); border-left: 4px solid #a371f7; }
   .agentscope-summary-title { font-size: 1rem; margin: 0 0 0.35rem 0; color: var(--accent); }
@@ -639,45 +654,66 @@
     </script>
   </div>
 
-  {# Tab 2: [MESA] 시뮬레이션 실행 #}
+  {# Tab 2: [MESA] 시뮬레이션 실행 — Mesa 스타일 재설계 (Modeling · Analysis · Visualization) #}
   <div id="tab-2" class="detail-panel {% if _ct == '2' %}active{% endif %}">
-    <div class="mesa-viz-section" id="mesa-viz-section">
-      <h3>MESA 그리드 및 궤적</h3>
-      <p class="run-meta" style="margin-bottom: 0.5rem;">스텝별 지표 그리드와 시계열 궤적 (Dashboard에서 실행한 Run에만 표시)</p>
-      <div id="mesa-no-data" class="mesa-no-data" style="display: none;">궤적 데이터를 불러오는 중이거나, 이 Run은 Dashboard에서 실행된 것이 아니어서 데이터가 없습니다.</div>
+    <div class="mesa-intro" id="mesa-intro">
+      <h3 class="mesa-intro-title">Mesa: Agent-based simulation</h3>
+      <p class="mesa-intro-desc">에이전트 기반 모델의 실행 결과입니다. Modeling(모델·에이전트) → Analysis(DataCollector 수집) → Visualization(브라우저 시각화) 구조로 확인할 수 있습니다.</p>
+      <p class="mesa-intro-ref">참조: <a href="https://github.com/mesa/mesa" target="_blank" rel="noopener">Mesa <span aria-hidden="true">↗</span></a> — open-source Python library for agent-based modeling, browser-based visualization, and analysis tools.</p>
+      <div style="margin-top: 0.5rem;">
+        <span class="mesa-pill">Modeling</span>
+        <span class="mesa-pill">Analysis</span>
+        <span class="mesa-pill">Visualization</span>
+      </div>
+    </div>
 
-      {# 전력거래 (P2P) — energy_trading 스타일: 거래량·거래건수·누적 절감액 요약 및 시계열 #}
-      <div id="mesa-trading-section" class="mesa-trading-section" style="display: none;">
-        <h4 class="mesa-trading-title">전력거래 (P2P)</h4>
-        <p class="mesa-trading-desc">커뮤니티 부하·PV·Net 기반으로 잉여(판매)와 부족(구매)이 P2P 시장에서 매칭됩니다. 스텝별 매칭량(kW)과 누적 절감액(원)을 확인할 수 있습니다.</p>
-        <div class="mesa-trading-summary" id="mesa-trading-summary">
-          <div class="mesa-trading-card"><span class="mesa-trading-card-label">총 P2P 거래량</span><span class="mesa-trading-card-value" id="mesa-trading-total-kw">—</span><span class="mesa-trading-card-unit">kW</span></div>
-          <div class="mesa-trading-card"><span class="mesa-trading-card-label">거래 발생 스텝</span><span class="mesa-trading-card-value" id="mesa-trading-step-count">—</span><span class="mesa-trading-card-unit">스텝</span></div>
-          <div class="mesa-trading-card"><span class="mesa-trading-card-label">누적 절감액</span><span class="mesa-trading-card-value" id="mesa-trading-saving-krw">—</span><span class="mesa-trading-card-unit">원</span></div>
-        </div>
-        <div class="mesa-trading-chart-wrap" id="mesa-trading-chart-wrap" style="display: none;">
-          <h5 style="font-size: 0.9rem; margin: 0 0 0.5rem 0; color: var(--muted);">스텝별 P2P 거래량 · 누적 절감액</h5>
-          <canvas id="mesa-trading-chart" width="900" height="220"></canvas>
+    <div id="mesa-no-data" class="mesa-no-data" style="display: none;">궤적 데이터를 불러오는 중이거나, 이 Run은 Dashboard에서 실행된 것이 아니어서 데이터가 없습니다.</div>
+
+    <div class="mesa-viz-section" id="mesa-viz-section" style="display: none;">
+      <div class="mesa-section">
+        <h4 class="mesa-section-title">Analysis — Model reporters (step-wise data)</h4>
+        <div class="mesa-module" id="mesa-grid-container">
+          <h4 class="mesa-module-title">DataCollector · get_model_vars_dataframe()</h4>
+          <p class="mesa-module-desc">스텝별 모델 레벨 지표 (community load, PV, net, ESS SoC, market matched kW 등). Mesa DataCollector의 model_reporters에 해당합니다.</p>
+          <div class="mesa-grid-wrap">
+            <table class="mesa-grid-table" id="mesa-grid-table">
+              <thead><tr id="mesa-grid-head"></tr></thead>
+              <tbody id="mesa-grid-body"></tbody>
+            </table>
+          </div>
         </div>
       </div>
 
-      <div id="mesa-grid-container" style="display: none;">
-        <h4 style="font-size: 0.95rem; margin: 0 0 0.5rem 0;">그리드 (스텝 × 지표)</h4>
-        <div class="mesa-grid-wrap">
-          <table class="mesa-grid-table" id="mesa-grid-table">
-            <thead><tr id="mesa-grid-head"></tr></thead>
-            <tbody id="mesa-grid-body"></tbody>
-          </table>
-        </div>
-      </div>
-      <div id="mesa-trajectory-container" style="display: none;">
-        <h4 style="font-size: 0.95rem; margin: 0 0 0.5rem 0;">궤적 추적 (스텝별 지표)</h4>
-        <div class="mesa-trajectory-wrap">
-          <canvas id="mesa-trajectory-chart" width="900" height="280"></canvas>
+      <div class="mesa-section">
+        <h4 class="mesa-section-title">Visualization — Model metrics over time</h4>
+        <div class="mesa-two-col">
+          <div class="mesa-module" id="mesa-trajectory-container">
+            <h4 class="mesa-module-title">Time series (model metric over time)</h4>
+            <p class="mesa-module-desc">Step에 따른 집계 지표 궤적. 브라우저 기반 시각화에서 “plot of a model metric over time”에 해당합니다.</p>
+            <div class="mesa-trajectory-wrap">
+              <canvas id="mesa-trajectory-chart"></canvas>
+            </div>
+          </div>
+          <div id="mesa-trading-section" class="mesa-trading-section" style="display: none;">
+            <h4 class="mesa-trading-title">P2P Market (agent interaction)</h4>
+            <p class="mesa-trading-desc">커뮤니티 부하·PV·Net 기반 잉여/부족이 P2P 시장에서 매칭됩니다. 스텝별 거래량·누적 절감액을 확인할 수 있습니다.</p>
+            <div class="mesa-trading-summary" id="mesa-trading-summary">
+              <div class="mesa-trading-card"><span class="mesa-trading-card-label">총 P2P 거래량</span><span class="mesa-trading-card-value" id="mesa-trading-total-kw">—</span><span class="mesa-trading-card-unit">kW</span></div>
+              <div class="mesa-trading-card"><span class="mesa-trading-card-label">거래 발생 스텝</span><span class="mesa-trading-card-value" id="mesa-trading-step-count">—</span><span class="mesa-trading-card-unit">스텝</span></div>
+              <div class="mesa-trading-card"><span class="mesa-trading-card-label">누적 절감액</span><span class="mesa-trading-card-value" id="mesa-trading-saving-krw">—</span><span class="mesa-trading-card-unit">원</span></div>
+            </div>
+            <div class="mesa-trading-chart-wrap" id="mesa-trading-chart-wrap" style="display: none;">
+              <h5 style="font-size: 0.9rem; margin: 0 0 0.35rem 0; color: var(--muted);">스텝별 P2P 거래량 · 누적 절감액</h5>
+              <canvas id="mesa-trading-chart"></canvas>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
+    <div class="mesa-section" style="margin-top: 1.5rem;">
+      <h4 class="mesa-section-title">Run stages</h4>
+    </div>
     {% for s in (tab2_stages or []) %}
     <div class="stage">
       <div class="stage-name">{{ s.stage_name }} {% if s.ok %}<span class="badge badge-success">✓</span>{% else %}<span class="badge badge-failure">✗</span>{% endif %}</div>
@@ -1005,13 +1041,15 @@
       }
       function loadMesaViz() {
         var noDataEl = document.getElementById('mesa-no-data');
+        var vizSection = document.getElementById('mesa-viz-section');
         var gridCont = document.getElementById('mesa-grid-container');
         var trajCont = document.getElementById('mesa-trajectory-container');
         var tradingSection = document.getElementById('mesa-trading-section');
         noDataEl.style.display = 'block';
         noDataEl.textContent = '궤적 데이터 불러오는 중…';
-        gridCont.style.display = 'none';
-        trajCont.style.display = 'none';
+        if (vizSection) vizSection.style.display = 'none';
+        gridCont.style.display = 'block';
+        trajCont.style.display = 'block';
         tradingSection.style.display = 'none';
         if (mesaChartInstance) { mesaChartInstance.destroy(); mesaChartInstance = null; }
         if (mesaTradingChartInstance) { mesaTradingChartInstance.destroy(); mesaTradingChartInstance = null; }
@@ -1024,6 +1062,7 @@
             var tr = (data.trajectory || []);
             if (tr.length === 0) throw new Error('empty');
             noDataEl.style.display = 'none';
+            if (vizSection) vizSection.style.display = 'block';
             updateTradingSection(tr);
             var thead = document.getElementById('mesa-grid-head');
             var tbody = document.getElementById('mesa-grid-body');
@@ -1089,7 +1128,8 @@
           })
           .catch(function() {
             noDataEl.style.display = 'block';
-            noDataEl.textContent = '궤적 데이터가 없습니다. 이 Run은 Dashboard에서 실행한 경우에만 그리드/궤적이 표시됩니다.';
+            noDataEl.textContent = '궤적 데이터가 없습니다. 이 Run은 Dashboard에서 실행한 경우에만 Analysis · Visualization이 표시됩니다.';
+            if (vizSection) vizSection.style.display = 'none';
           });
       }
       document.querySelectorAll('.detail-tab').forEach(function(a) {
