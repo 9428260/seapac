@@ -35,6 +35,11 @@
   .run-form button:hover { opacity: 0.9; }
   .run-form button:disabled { opacity: 0.5; cursor: not-allowed; }
   .run-form .hint { font-size: 0.85rem; color: var(--muted); margin-top: 0.25rem; }
+  .prosumer-multi-row { display: flex; align-items: flex-start; gap: 0.75rem; margin-bottom: 0.75rem; }
+  .prosumer-multi-row select[multiple] { flex: 1; min-width: 12rem; padding: 0.25rem; }
+  .prosumer-buttons { display: flex; flex-direction: column; gap: 0.35rem; }
+  .prosumer-buttons button { padding: 0.35rem 0.6rem; font-size: 0.85rem; background: var(--card); border: 1px solid var(--muted); border-radius: 4px; color: var(--text); cursor: pointer; white-space: nowrap; }
+  .prosumer-buttons button:hover { background: var(--muted); }
   .section-title { font-size: 1.1rem; margin-bottom: 0.75rem; }
   .runs-table { width: 100%; border-collapse: collapse; }
   .runs-table th, .runs-table td { text-align: left; padding: 0.5rem 1rem; }
@@ -82,16 +87,20 @@
       <form id="runForm">
         <label>데이터</label>
         <select name="data_path" id="data_path">
+          <option value="data/trade_20260315.pkl">trade_20260315.pkl (전력거래 1일 96스텝)</option>
           <option value="data/test_2026may_seoul.pkl">test_2026may_seoul.pkl (1일 96스텝)</option>
           <option value="data/train_2026_seoul.pkl">train_2026_seoul.pkl (1일 96스텝)</option>
         </select>
-        <label>Prosumer ID</label>
-        <select name="prosumer" id="prosumer">
-          {% for p in (prosumer_options or []) %}
-          <option value="{{ p|e }}" {% if p == 'bus_48_Commercial' %}selected{% endif %}>{{ p }}</option>
-          {% endfor %}
-        </select>
-        <label>Measure date</label>
+        <label>Prosumer ID <span class="hint">(복수 선택 가능)</span></label>
+        <div class="prosumer-multi-row">
+          <select name="prosumer" id="prosumer" multiple size="6"></select>
+          <div class="prosumer-buttons">
+            <button type="button" id="prosumerSelectAll">전체 선택</button>
+            <button type="button" id="prosumerDeselectAll">전체 해제</button>
+          </div>
+        </div>
+        <p class="hint" id="prosumer_hint">데이터를 선택하면 해당 파일의 Prosumer 목록이 로드됩니다.</p>
+        <label>Measure date <span class="hint">(미설정 시 기준일자 5월 4일)</span></label>
         <input type="date" name="measure_date" id="measure_date" aria-label="Measure date">
         <label>Run date</label>
         <input type="date" name="run_date" id="run_date" aria-label="Run date">
@@ -100,7 +109,10 @@
         <div class="row">
           <label><input type="checkbox" name="use_parallel" id="use_parallel"> Parallel Agents 사용</label>
         </div>
-        <button type="submit" id="runBtn">전체 아키텍처 실행</button>
+        <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
+          <button type="submit" id="runBtn">전체 아키텍처 실행</button>
+          <span id="p2p-badge" style="display:none;padding:0.25em 0.6em;background:rgba(88,166,255,.18);color:var(--accent);border-radius:4px;font-size:0.82rem;font-weight:600;">★ P2P 거래 모드</span>
+        </div>
       </form>
     </div>
   </div>
@@ -128,7 +140,7 @@
           {% for r in runs %}
           <tr>
             <td>{{ r.id }}</td>
-            <td>{{ (r.args or {}).get('prosumer') or '—' }}</td>
+            <td>{% set a = r.args or {} %}{% if a.get('prosumers') %}{{ a.get('prosumers')|join(', ') }}{% else %}{{ a.get('prosumer') or '—' }}{% endif %}</td>
             <td>{{ r.get('measure_date') or '—' }}</td>
             <td>{{ (r.args or {}).get('run_date') or (r.created_at or '')[:10] or '—' }}</td>
             <td>{{ r.created_at or '—' }}</td>
@@ -199,11 +211,79 @@
           runDate.value = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
         }
       })();
+
+      function getSelectedProsumers() {
+        var sel = document.getElementById('prosumer');
+        var chosen = [];
+        for (var i = 0; i < sel.options.length; i++) {
+          if (sel.options[i].selected) chosen.push(sel.options[i].value);
+        }
+        return chosen;
+      }
+      function loadProsumersForDataPath() {
+        var dataPath = document.getElementById('data_path').value;
+        var hint = document.getElementById('prosumer_hint');
+        hint.textContent = '로딩 중…';
+        fetch('/api/prosumers?data_path=' + encodeURIComponent(dataPath))
+          .then(function(r) { return r.json(); })
+          .then(function(data) {
+            var sel = document.getElementById('prosumer');
+            sel.innerHTML = '';
+            (data.prosumers || []).forEach(function(p) {
+              var opt = document.createElement('option');
+              opt.value = p;
+              opt.textContent = p;
+              if (p === 'bus_48_Commercial') opt.selected = true;
+              sel.appendChild(opt);
+            });
+            if (sel.options.length === 0) {
+              hint.textContent = '해당 데이터에서 Prosumer를 찾을 수 없습니다. 파일 경로를 확인하세요.';
+            } else {
+              hint.textContent = '선택한 데이터 기준 ' + sel.options.length + '개 Prosumer. 2명 이상 선택 시 P2P 거래 모드로 실행됩니다.';
+            }
+            updateRunButton();
+          })
+          .catch(function() {
+            hint.textContent = 'Prosumer 목록 로드 실패.';
+          });
+      }
+      document.getElementById('data_path').addEventListener('change', loadProsumersForDataPath);
+      loadProsumersForDataPath();
+
+      document.getElementById('prosumerSelectAll').addEventListener('click', function() {
+        var sel = document.getElementById('prosumer');
+        for (var i = 0; i < sel.options.length; i++) sel.options[i].selected = true;
+        updateRunButton();
+      });
+      document.getElementById('prosumerDeselectAll').addEventListener('click', function() {
+        var sel = document.getElementById('prosumer');
+        for (var i = 0; i < sel.options.length; i++) sel.options[i].selected = false;
+        updateRunButton();
+      });
+
+      // 프로슈머 선택 수에 따라 버튼 레이블 및 P2P 배지 업데이트
+      function updateRunButton() {
+        var chosen = getSelectedProsumers();
+        var btn = document.getElementById('runBtn');
+        var badge = document.getElementById('p2p-badge');
+        if (chosen.length > 1) {
+          btn.textContent = 'P2P 거래 파이프라인 실행 (' + chosen.length + '명)';
+          if (badge) badge.style.display = 'inline-block';
+        } else {
+          btn.textContent = '전체 아키텍처 실행';
+          if (badge) badge.style.display = 'none';
+        }
+      }
+      document.getElementById('prosumer').addEventListener('change', updateRunButton);
+
       document.getElementById('runForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         var btn = document.getElementById('runBtn');
+        var chosen = getSelectedProsumers();
+        if (chosen.length === 0) chosen = ['bus_48_Commercial'];
+        var isP2P = chosen.length > 1;
         btn.disabled = true;
-        btn.textContent = '실행 중…';
+        btn.textContent = isP2P ? 'P2P 거래 실행 중… (' + chosen.length + '명)' : '실행 중…';
         try {
           var res = await fetch('/api/run', {
             method: 'POST',
@@ -211,7 +291,7 @@
             body: JSON.stringify({
               data_path: document.getElementById('data_path').value,
               steps: parseInt(document.getElementById('steps').value, 10) || 96,
-              prosumer: document.getElementById('prosumer').value || 'bus_48_Commercial',
+              prosumers: chosen,
               measure_date: document.getElementById('measure_date').value || null,
               run_date: document.getElementById('run_date').value || null,
               use_parallel: document.getElementById('use_parallel').checked
@@ -219,6 +299,7 @@
           });
           var data = await res.json();
           if (data.run_id) {
+            if (data.p2p_mode) btn.textContent = 'P2P 거래 파이프라인 시작됨';
             window.location.href = '/#history';
           } else {
             btn.textContent = '실행 실패';

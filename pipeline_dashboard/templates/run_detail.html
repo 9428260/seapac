@@ -118,6 +118,36 @@
   .alfp-agent-steps-table th { color: var(--muted); font-weight: 600; }
   .alfp-agent-steps-table tr:hover { background: rgba(88, 166, 255, 0.06); }
   .agent-steps-doc-ref { font-size: 0.8rem; color: var(--muted); margin-top: 0.25rem; }
+  /* CDA Energy Market Tab 4 */
+  .cda-market-intro { margin-bottom: 1.25rem; padding: 1rem 1.25rem; background: var(--card); border-radius: 8px; border: 1px solid rgba(139, 148, 158, 0.2); }
+  .cda-market-intro-below { margin-top: 2rem; margin-bottom: 0; }
+  .cda-market-title { font-size: 1.15rem; margin: 0 0 0.5rem 0; color: var(--accent); }
+  .cda-market-desc { font-size: 0.9rem; color: var(--muted); margin: 0 0 1rem 0; line-height: 1.5; }
+  .cda-flow-diagram { margin: 0.75rem 0; }
+  .cda-flow-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.35rem; }
+  .cda-flow-boxes { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem; }
+  .cda-flow-box { padding: 0.35rem 0.6rem; background: rgba(88, 166, 255, 0.15); border-radius: 6px; font-size: 0.8rem; color: var(--text); }
+  .cda-flow-arrow { color: var(--muted); font-size: 0.85rem; }
+  .cda-mechanism { margin-top: 1rem; }
+  .cda-mechanism-title { font-size: 0.95rem; margin: 0 0 0.5rem 0; }
+  .cda-mechanism-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  .cda-mechanism-table th, .cda-mechanism-table td { padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid rgba(139, 148, 158, 0.2); }
+  .cda-mechanism-table th { color: var(--muted); font-weight: 600; }
+  .cda-main-top { margin-bottom: 0; }
+  /* 탭4 시: 상단 CDA 블록 아래 단계별 결과 영역이 명확히 구분되도록 */
+  #cda-top-section + .step-results-section { margin-top: 2rem; padding-top: 1.25rem; border-top: 1px solid rgba(139, 148, 158, 0.25); }
+  .tab4-sub-tabs { margin-top: 0.5rem; margin-bottom: 0.75rem; }
+  .cda-domain-section { margin-bottom: 1.5rem; padding: 1rem; background: var(--card); border-radius: 8px; border-left: 3px solid rgba(88, 166, 255, 0.5); }
+  .cda-domain-heading { font-size: 1rem; margin: 0 0 0.35rem 0; }
+  .cda-domain-desc { font-size: 0.85rem; color: var(--muted); margin: 0 0 0.75rem 0; }
+  .cda-domain-logs { max-height: 24rem; overflow-y: auto; }
+  .cda-log-entry { padding: 0.5rem 0; border-bottom: 1px solid rgba(139, 148, 158, 0.15); font-size: 0.85rem; }
+  .cda-log-entry:last-child { border-bottom: none; }
+  .cda-log-time { color: var(--muted); font-size: 0.8rem; margin-right: 0.5rem; }
+  .cda-log-text { margin: 0.25rem 0 0 0; white-space: pre-wrap; word-break: break-word; }
+  .cda-negotiation-steps { margin: 0.25rem 0 0 1rem; padding-left: 1rem; list-style: disc; }
+  .cda-negotiation-steps li { margin-bottom: 0.2rem; }
+  .cda-log-more { font-size: 0.85rem; color: var(--muted); margin-top: 0.5rem; }
   /* Tab1 서브탭: Summary / 단계 / 결과 */
   .sub-tabs { display: flex; gap: 0.25rem; margin-bottom: 1rem; border-bottom: 1px solid rgba(139, 148, 158, 0.2); }
   .sub-tabs a.sub-tab {
@@ -167,8 +197,103 @@
   <p class="run-meta">실행 중입니다. 단계가 완료되면 탭별로 표시됩니다.</p>
   {% endif %}
 
+  {% set _ct = (current_tab|default('1'))|string %}
+  {% set _sub4 = current_sub4|default('exec') %}
+  {% if _ct == '4' %}
+  {# [CDA] 전력거래 선택 시 상단: 실행 / 도메인 특화 탭 영역만 (CDA 시장 개요는 단계별 결과 아래에 표시) #}
+  <div class="cda-main-top" id="cda-top-section">
+    <div class="sub-tabs tab4-sub-tabs" role="tablist">
+      <a href="#" class="sub-tab {% if _sub4 == 'exec' %}active{% endif %}" data-subtab="tab4-sub-exec" data-sub4="exec" role="tab">실행</a>
+      <a href="#" class="sub-tab {% if _sub4 == 'domain' %}active{% endif %}" data-subtab="tab4-sub-domain" data-sub4="domain" role="tab">도메인 특화</a>
+    </div>
+    <div id="tab4-sub-exec" class="sub-panel {% if _sub4 == 'exec' %}active{% endif %}" role="tabpanel">
+      <p class="agent-steps-doc-ref">Step 3 CDA 의사결정 · Step 4 CDA Settlement 실행 결과</p>
+      {% for s in (tab4_stages or []) %}
+      <div class="stage">
+        <div class="stage-name">{{ s.stage_name }} {% if s.ok %}<span class="badge badge-success">✓</span>{% else %}<span class="badge badge-failure">✗</span>{% endif %}</div>
+        <div class="stage-meta">소요: {{ "%.2f"|format(s.elapsed_sec) }}s</div>
+        {% if s.error_text %}<p style="color: var(--fail); font-size: 0.9rem;">{{ s.error_text }}</p>{% endif %}
+        {% if s.summary %}
+        <div class="stage-summary"><ul>{% for key, val in s.summary.items() %}<li><strong>{{ key }}</strong>: {{ val }}</li>{% endfor %}</ul></div>
+        {% endif %}
+      </div>
+      {% else %}
+      <p class="no-content">해당 단계 결과가 없습니다.</p>
+      {% endfor %}
+    </div>
+    <div id="tab4-sub-domain" class="sub-panel {% if _sub4 == 'domain' %}active{% endif %}" role="tabpanel">
+      <p class="agent-steps-doc-ref">PRD: cda_strategy_negotiation_prd.md — Strategy Agent (LLM) · Negotiation Layer 실행 내용</p>
+      <div class="cda-domain-section">
+        <h4 class="cda-domain-heading">Strategy Agent (LLM)</h4>
+        <p class="cda-domain-desc">에너지 예측·가격·ESS·피크 위험을 분석하여 Bid/Ask·ESS·DR 전략 권고 및 reasoning log 생성.</p>
+        {% if (cda_strategy_logs or []) %}
+        <div class="cda-domain-logs">
+          {% for entry in (cda_strategy_logs or [])[:20] %}
+          <div class="cda-log-entry">
+            <span class="cda-log-time">{{ entry.get('time', '—') }}</span>
+            <p class="cda-log-text">{{ entry.get('log', '') }}</p>
+          </div>
+          {% endfor %}
+          {% if (cda_strategy_logs or [])|length > 20 %}
+          <p class="cda-log-more">… 외 {{ (cda_strategy_logs|length) - 20 }}건</p>
+          {% endif %}
+        </div>
+        {% else %}
+        <p class="no-content">이번 Run에는 Strategy Agent reasoning 로그가 없습니다. (--use-cda-negotiation 실행 시 표시됩니다)</p>
+        {% endif %}
+      </div>
+      <div class="cda-domain-section">
+        <h4 class="cda-domain-heading">Negotiation Layer</h4>
+        <p class="cda-domain-desc">전략 제안 + SmartSeller/StorageMaster/EcoSaver 제안 공유 → 충돌 해결 → 합의안 → CDA 제출. 협상 감사 로그(FR-8).</p>
+        {% if (cda_negotiation_logs or []) %}
+        <div class="cda-domain-logs">
+          {% for entry in (cda_negotiation_logs or [])[:15] %}
+          <div class="cda-log-entry">
+            <span class="cda-log-time">{{ entry.get('time', '—') }}</span>
+            <ul class="cda-negotiation-steps">
+              {% for step in (entry.get('steps') or [])[:8] %}
+              <li><strong>{{ step.get('role', '—') }}</strong>: {{ (step.get('content', '') or '')[:120] }}{% if (step.get('content') or '')|length > 120 %}…{% endif %}</li>
+              {% endfor %}
+            </ul>
+          </div>
+          {% endfor %}
+          {% if (cda_negotiation_logs or [])|length > 15 %}
+          <p class="cda-log-more">… 외 {{ (cda_negotiation_logs|length) - 15 }}건</p>
+          {% endif %}
+        </div>
+        {% else %}
+        <p class="no-content">이번 Run에는 Negotiation Layer 로그가 없습니다. (--use-cda-negotiation 실행 시 표시됩니다)</p>
+        {% endif %}
+      </div>
+    </div>
+    <script>
+    (function() {
+      var tab4 = document.querySelector('.cda-main-top');
+      if (!tab4) return;
+      tab4.querySelectorAll('.tab4-sub-tabs .sub-tab').forEach(function(a) {
+        a.addEventListener('click', function(e) {
+          e.preventDefault();
+          var id = this.getAttribute('data-subtab');
+          var sub4 = this.getAttribute('data-sub4') || 'exec';
+          tab4.querySelectorAll('.tab4-sub-tabs .sub-tab').forEach(function(x) { x.classList.remove('active'); });
+          tab4.querySelectorAll('.sub-panel').forEach(function(x) { x.classList.remove('active'); });
+          this.classList.add('active');
+          var panel = document.getElementById(id);
+          if (panel) panel.classList.add('active');
+          var params = new URLSearchParams(window.location.search);
+          params.set('tab', '4');
+          params.set('sub4', sub4);
+          window.history.replaceState({}, '', window.location.pathname + '?' + params.toString());
+        });
+      });
+    })();
+    </script>
+  </div>
+  {% endif %}
+
+  {# 하단: 단계별 결과 영역 (탭4일 때는 CDA 상단 블록 아래에 표시) #}
+  <section class="step-results-section" aria-label="단계별 결과">
   <h2 style="font-size: 1.1rem; margin: 1.25rem 0 0.5rem 0;">단계별 결과</h2>
-  {% set _ct = current_tab|default('1') %}
   <div class="detail-tabs">
     <a href="#" data-tab="tab-1" class="detail-tab {% if _ct == '1' %}active{% endif %}">1. [ALFP] 부하 예측 및 운영 의사결정</a>
     <a href="#" data-tab="tab-2" class="detail-tab {% if _ct == '2' %}active{% endif %}">2. [MESA] 시뮬레이션 실행</a>
@@ -371,20 +496,9 @@
     {% endfor %}
   </div>
 
-  {# Tab 4: [CDA] 전력거래 #}
+  {# Tab 4: [CDA] 전력거래 — 상단에 실행/도메인 특화 영역 표시됨, 하단 단계별 결과에서 4번 탭 선택 시 요약만 #}
   <div id="tab-4" class="detail-panel {% if _ct == '4' %}active{% endif %}">
-    {% for s in (tab4_stages or []) %}
-    <div class="stage">
-      <div class="stage-name">{{ s.stage_name }} {% if s.ok %}<span class="badge badge-success">✓</span>{% else %}<span class="badge badge-failure">✗</span>{% endif %}</div>
-      <div class="stage-meta">소요: {{ "%.2f"|format(s.elapsed_sec) }}s</div>
-      {% if s.error_text %}<p style="color: var(--fail); font-size: 0.9rem;">{{ s.error_text }}</p>{% endif %}
-      {% if s.summary %}
-      <div class="stage-summary"><ul>{% for key, val in s.summary.items() %}<li><strong>{{ key }}</strong>: {{ val }}</li>{% endfor %}</ul></div>
-      {% endif %}
-    </div>
-    {% else %}
-    <p class="no-content">해당 단계 결과가 없습니다.</p>
-    {% endfor %}
+    <p class="no-content">CDA 전력거래 실행 및 도메인 특화 내용은 상단 영역(실행 / 도메인 특화 탭)에서 확인하세요.</p>
   </div>
 
   {# Tab 5: EcoSaver, Storage Master, Policy #}
@@ -418,6 +532,49 @@
     <p class="no-content">해당 단계 결과가 없습니다.</p>
     {% endfor %}
   </div>
+
+  </section>
+
+  {% if _ct == '4' %}
+  {# [CDA] 전력거래 선택 시: CDA 시장 개요 영역을 단계별 결과 아래에 표시 #}
+  <section class="cda-market-intro cda-market-intro-below" aria-label="CDA 시장 개요">
+    <h3 class="cda-market-title">CDA (Continuous Double Auction) Energy Market</h3>
+    <p class="cda-market-desc">연속 양방향 경매 기반 전력 시장. 구매 입찰(Bid)과 판매 호가(Ask)가 Order Book에 등록되고, 매칭 엔진이 Highest Bid ≥ Lowest Ask 조건으로 체결하며 거래가는 (Bid+Ask)/2로 결정됩니다.</p>
+    <div class="cda-flow-diagram">
+      <div class="cda-flow-label">시장 흐름</div>
+      <div class="cda-flow-boxes">
+        <span class="cda-flow-box">Forecast / State</span>
+        <span class="cda-flow-arrow">→</span>
+        <span class="cda-flow-box">Strategy Agent (LLM)</span>
+        <span class="cda-flow-arrow">→</span>
+        <span class="cda-flow-box">Negotiation Layer</span>
+        <span class="cda-flow-arrow">→</span>
+        <span class="cda-flow-box">Policy / Trust</span>
+        <span class="cda-flow-arrow">→</span>
+        <span class="cda-flow-box">CDA Market</span>
+        <span class="cda-flow-arrow">→</span>
+        <span class="cda-flow-box">Settlement</span>
+      </div>
+    </div>
+    <div class="cda-mechanism">
+      <h4 class="cda-mechanism-title">시장 메커니즘</h4>
+      <table class="cda-mechanism-table" role="grid">
+        <thead>
+          <tr>
+            <th>구성요소</th>
+            <th>설명</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Order Book</td><td>Bid 테이블(가격 내림차순) · Ask 테이블(가격 오름차순)</td></tr>
+          <tr><td>Matching</td><td>Highest Bid ≥ Lowest Ask 일 때 체결, 거래가 = (Bid + Ask) / 2</td></tr>
+          <tr><td>Buyer</td><td>Deficit / Market Price / Peak Risk 기반 구매 입찰 생성</td></tr>
+          <tr><td>Settlement</td><td>거래 기록 반영, 정책 검증, Mesa 시뮬레이션 업데이트</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+  {% endif %}
 
   <p style="margin-top: 1.5rem;"><a href="/">← 실행 이력으로</a></p>
 
@@ -541,6 +698,7 @@
           params.set('tab', tabNum);
           if (tabNum !== '1') params.delete('sub');
           else if (!params.has('sub')) params.set('sub', 'summary');
+          if (tabNum === '4' && !params.has('sub4')) params.set('sub4', 'exec');
           var url = window.location.pathname + '?' + params.toString();
           if (window.location.href !== url) window.history.replaceState({}, '', url);
         });

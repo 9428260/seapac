@@ -1,0 +1,75 @@
+{
+  "last_run_at": "2026-03-15T10:10:40.017982Z",
+  "last_plan": {
+    "selected_model": "xgboost",
+    "forecast_horizon_steps": 96,
+    "llm_reasoning": "이전 런에서 lgbm 모델이 사용되었으나, 재시도 횟수가 2회에 도달했으므로 다른 모델을 시도할 필요가 있습니다. xgboost는 복잡한 상호작용을 잘 학습하며, 상업용 부하와 PV 발전량의 높은 변동성을 더 잘 반영할 가능성이 있습니다."
+  },
+  "last_validation_metrics": {
+    "kpi": {
+      "MAPE_target": 10.0,
+      "MAPE_achieved": 4.58,
+      "MAPE_pass": true,
+      "peak_acc_target": 90.0,
+      "peak_acc_achieved": 97.04,
+      "peak_acc_pass": true
+    },
+    "load": {
+      "MAE": 1.1658,
+      "RMSE": 1.5086,
+      "MAPE": 4.58,
+      "peak": {
+        "true_peak_kw": 59.602,
+        "pred_peak_kw": 57.839,
+        "peak_error_pct": 2.96
+      },
+      "n_samples": 346,
+      "skill_mape": 4.58,
+      "skill_rmse": 1.5086
+    },
+    "pv": {
+      "MAE": 0.3306,
+      "RMSE": 0.6215,
+      "MAPE": 3.52,
+      "peak": {
+        "true_peak_kw": 29.91,
+        "pred_peak_kw": 29.775,
+        "peak_error_pct": 0.45
+      },
+      "n_samples": 346,
+      "skill_mape": 3.52,
+      "skill_rmse": 0.6215
+    },
+    "net_load": {
+      "MAE": 1.2445,
+      "RMSE": 1.6322,
+      "MAPE": 6.36,
+      "peak": {
+        "true_peak_kw": 45.195,
+        "pred_peak_kw": 42.92,
+        "peak_error_pct": 5.03
+      },
+      "n_samples": 346,
+      "skill_mape": 6.36,
+      "skill_rmse": 1.6322
+    }
+  },
+  "last_decisions_summary": {
+    "ess_summary": {
+      "charge_steps": 9,
+      "discharge_steps": 45,
+      "idle_steps": 292
+    },
+    "tariff_saving": {
+      "base_cost_krw": 0,
+      "adjusted_cost_krw": 0,
+      "saving_krw": 0,
+      "saving_pct": 0.0
+    },
+    "dr_summary": {
+      "peak_threshold_kw": 24.28,
+      "dr_event_count": 52
+    }
+  },
+  "policy_gate_status": "REPLAN_REQUIRED"
+}

@@ -1,0 +1,75 @@
+{
+  "last_run_at": "2026-03-15T10:58:28.892328Z",
+  "last_plan": {
+    "selected_model": "lgbm",
+    "forecast_horizon_steps": 96,
+    "llm_reasoning": "재계획: 이전 모델 xgboost → lgbm 전환 (규칙 fallback)"
+  },
+  "last_validation_metrics": {
+    "kpi": {
+      "MAPE_target": 10.0,
+      "MAPE_achieved": 3.74,
+      "MAPE_pass": true,
+      "peak_acc_target": 90.0,
+      "peak_acc_achieved": 97.97,
+      "peak_acc_pass": true
+    },
+    "load": {
+      "MAE": 2.0296,
+      "RMSE": 2.6554,
+      "MAPE": 3.74,
+      "peak": {
+        "true_peak_kw": 96.025,
+        "pred_peak_kw": 94.073,
+        "peak_error_pct": 2.03
+      },
+      "n_samples": 346,
+      "skill_mape": 3.74,
+      "skill_rmse": 2.6554
+    },
+    "pv": {
+      "MAE": 0.6713,
+      "RMSE": 1.2427,
+      "MAPE": 3.21,
+      "peak": {
+        "true_peak_kw": 62.068,
+        "pred_peak_kw": 60.266,
+        "peak_error_pct": 2.9
+      },
+      "n_samples": 346,
+      "skill_mape": 3.21,
+      "skill_rmse": 1.2427
+    },
+    "net_load": {
+      "MAE": 2.2401,
+      "RMSE": 2.9584,
+      "MAPE": 8.85,
+      "peak": {
+        "true_peak_kw": 96.025,
+        "pred_peak_kw": 93.925,
+        "peak_error_pct": 2.19
+      },
+      "n_samples": 346,
+      "skill_mape": 8.85,
+      "skill_rmse": 2.9584
+    }
+  },
+  "last_decisions_summary": {
+    "ess_summary": {
+      "charge_steps": 17,
+      "discharge_steps": 47,
+      "idle_steps": 282
+    },
+    "tariff_saving": {
+      "base_cost_krw": 0,
+      "adjusted_cost_krw": 0,
+      "saving_krw": 0,
+      "saving_pct": 0.0
+    },
+    "dr_summary": {
+      "peak_threshold_kw": 52.21,
+      "dr_event_count": 52
+    }
+  },
+  "policy_gate_status": "REPLAN_REQUIRED"
+}

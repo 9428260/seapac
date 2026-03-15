@@ -34,6 +34,7 @@ def _parse_args() -> argparse.Namespace:
     p.add_argument("--save-json", action="store_true", help="JSON 파일로 결과 저장")
     p.add_argument("--verbose", action="store_true", help="상세 출력")
     p.add_argument("--use-cda", action="store_true", help="CDA 시장 사용 (MarketCoordinator/Execution 대체)")
+    p.add_argument("--use-cda-negotiation", action="store_true", help="CDA + Strategy Agent(LLM) + Negotiation Layer 사용 (cda_strategy_negotiation_prd.md). --use-cda 필요")
     p.add_argument("--use-parallel", action="store_true", help="Final Parallel Execution Layer 사용 (Policy/Eco/Storage 에이전트 병렬 평가 후 실행)")
     p.add_argument("--audit-log", default=None, help="병렬 레이어 감사 로그 파일 경로 (--use-parallel 시 append)")
     return p.parse_args()
@@ -76,7 +77,35 @@ def main() -> None:
 
     # ── Step 3: Multi-Agent Decision Engine ───────────────────────
     max_kw = min(50.0, args.ess_capacity / 4)
-    if args.use_cda:
+    if args.use_cda_negotiation:
+        if not args.use_cda:
+            args.use_cda = True
+        print("\n[Step 3] Multi-Agent Decision Engine 실행 (CDA + Strategy Agent + Negotiation)...")
+        from seapac_agents.decision import (
+            _init_agentscope,
+            PolicyAgentAS,
+            SmartSellerAgentAS,
+            StorageMasterAgentAS,
+            EcoSaverAgentAS,
+            _PROMPTS,
+        )
+        from cda import run_cda_decision_series_with_agents_and_negotiation
+
+        _init_agentscope()
+        policy = PolicyAgentAS(max_charge_kw=max_kw, max_discharge_kw=max_kw)
+        seller = SmartSellerAgentAS()
+        storage = StorageMasterAgentAS()
+        eco_saver = EcoSaverAgentAS(peak_threshold_kw=args.peak_threshold)
+        decisions = run_cda_decision_series_with_agents_and_negotiation(
+            state_json_list,
+            policy,
+            seller,
+            storage,
+            eco_saver,
+            state_message_template=_PROMPTS["state_message_template"],
+            use_llm_strategy=True,
+        )
+    elif args.use_cda:
         print("\n[Step 3] Multi-Agent Decision Engine 실행 (CDA 시장 — Order Book + 매칭)...")
         from seapac_agents.decision import (
             _init_agentscope,

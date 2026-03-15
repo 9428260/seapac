@@ -15,17 +15,43 @@ from alfp.skills.ess_optimization import ESSOptimizationSkill
 from alfp.skills.tariff_analysis import TariffAnalysisSkill
 
 
-def _trading_recommendation(load_df: pd.DataFrame, pv_df: pd.DataFrame) -> list:
+def _trading_recommendation(
+    nl_df: pd.DataFrame,
+    load_df: pd.DataFrame | None = None,
+    pv_df: pd.DataFrame | None = None,
+) -> list:
+    """
+    예측된 net_load(부하 - PV)에서 잉여(surplus = -net_load > 0)가 발생하는 스텝을
+    P2P 판매 추천으로 생성합니다.
+
+    net_load_forecast를 우선 사용합니다. 이 값은 ALFP ML 모델이 직접 예측한
+    값으로 load_forecast - pv_forecast보다 정확하며, PV 과소평가 문제가 없습니다.
+    fallback으로 load_df / pv_df를 병합하여 계산합니다.
+    """
     cfg = get_skills_config().get("decision_agent", {}).get("trading", {})
     surplus_min = cfg.get("surplus_kw_min", 0.5)
-    max_recs = cfg.get("max_recommendations", 10)
-    merged = pd.merge(
-        load_df[["timestamp", "predicted_load_kw"]],
-        pv_df[["timestamp", "predicted_pv_kw"]], on="timestamp")
-    merged["surplus_kw"] = (merged["predicted_pv_kw"] - merged["predicted_load_kw"]).clip(lower=0)
+    # 1일(96스텝) 전체에서 추천을 생성할 수 있도록 상한을 충분히 늘림
+    max_recs = cfg.get("max_recommendations", 96)
+
+    if nl_df is not None and "predicted_net_load_kw" in nl_df.columns:
+        # net_load < 0  →  PV > load  →  잉여 전력 발생
+        surplus = (-nl_df["predicted_net_load_kw"]).clip(lower=0)
+        df_work = nl_df[["timestamp"]].copy()
+        df_work["surplus_kw"] = surplus
+    elif load_df is not None and pv_df is not None:
+        # fallback: load / pv 예측값 병합
+        merged = pd.merge(
+            load_df[["timestamp", "predicted_load_kw"]],
+            pv_df[["timestamp", "predicted_pv_kw"]], on="timestamp")
+        merged["surplus_kw"] = (merged["predicted_pv_kw"] - merged["predicted_load_kw"]).clip(lower=0)
+        df_work = merged[["timestamp", "surplus_kw"]]
+    else:
+        return []
+
     recs = []
-    for _, row in merged[merged["surplus_kw"] > surplus_min].iterrows():
-        recs.append({"timestamp": str(row["timestamp"]), "surplus_kw": round(row["surplus_kw"], 2),
+    for _, row in df_work[df_work["surplus_kw"] > surplus_min].iterrows():
+        recs.append({"timestamp": str(row["timestamp"]),
+                     "surplus_kw": round(float(row["surplus_kw"]), 2),
                      "action": "sell_p2p"})
     return recs[:max_recs]
 
@@ -78,7 +104,7 @@ def decision_agent(state: ALFPState) -> ALFPState:
         n_discharge = ess_summary_skill["discharge_steps"]
         n_idle = ess_summary_skill["idle_steps"]
 
-        trading_recs = _trading_recommendation(load_df, pv_df)
+        trading_recs = _trading_recommendation(nl_df, load_df, pv_df)
         dr_events = _demand_response(net_load_series, timestamps, peak_threshold)
 
         # ── TariffAnalysisSkill: TOU 분석 및 ESS 절감 시뮬레이션 ──────

@@ -1,36 +1,36 @@
 {
   "phase": 4,
   "n_steps": 96,
-  "grade": "C",
+  "grade": "B",
   "kpis": {
     "energy_cost": {
-      "total_grid_cost_krw": 1270588.0,
+      "total_grid_cost_krw": 1213867.0,
       "grid_price_krw_per_kwh": 100.0
     },
     "trading_profit": {
-      "seller_revenue_krw": 0.0,
-      "buyer_saving_krw": 0.0,
-      "community_saving_krw": 0.0,
-      "total_matched_kwh": 0.0,
-      "total_trades": 0
+      "seller_revenue_krw": 5921.0,
+      "buyer_saving_krw": 1417.0,
+      "community_saving_krw": 7339.0,
+      "total_matched_kwh": 78.52,
+      "total_trades": 53
     },
     "peak_reduction": {
-      "peak_kw": 922.33,
-      "baseline_peak_kw": 922.33,
+      "peak_kw": 905.31,
+      "baseline_peak_kw": 905.31,
       "peak_reduction_pct": 0.0,
-      "peak_shaving_count": 79
+      "peak_shaving_count": 81
     },
     "ess_degradation": {
-      "total_discharged_kwh": 1263.16,
+      "total_discharged_kwh": 460.53,
       "degradation_cost_per_kwh": 5.0,
-      "ess_degradation_cost_krw": 6316.0
+      "ess_degradation_cost_krw": 2303.0
     },
     "user_acceptance": {
-      "dr_events_total": 84,
-      "accepted_events": 63,
+      "dr_events_total": 86,
+      "accepted_events": 64,
       "acceptance_rate_pct": 75.0,
       "note": "기본 수락율 적용"
     }
   },
-  "summary_text": "  [Energy Cost]    계통 구매 비용: 1,270,588 원  (단가 100.0 원/kWh)\n  [Trading Profit] 커뮤니티 절감: 0 원  (거래 0건, 0.0 kWh)\n  [Peak Reduction] 피크 922.3 kW  →  0.0% 감소 (기준 922.3 kW)\n  [ESS Degradation] 방전 1263.2 kWh  →  마모 비용 6,316 원\n  [User Acceptance] DR 이벤트 84건, 수락율 75.0%\n  ─────────────────────────────────────────\n  순 효과 (절감 - 마모): -6,316 원   →   평가 등급: C"
+  "summary_text": "  [Energy Cost]    계통 구매 비용: 1,213,867 원  (단가 100.0 원/kWh)\n  [Trading Profit] 커뮤니티 절감: 7,339 원  (거래 53건, 78.5 kWh)\n  [Peak Reduction] 피크 905.3 kW  →  0.0% 감소 (기준 905.3 kW)\n  [ESS Degradation] 방전 460.5 kWh  →  마모 비용 2,303 원\n  [User Acceptance] DR 이벤트 86건, 수락율 75.0%\n  ─────────────────────────────────────────\n  순 효과 (절감 - 마모): 5,036 원   →   평가 등급: B"
 }

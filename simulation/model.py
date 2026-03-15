@@ -200,6 +200,7 @@ class ALFPSimulationModel(mesa.Model):
         data_path: str = "data/train_2026_seoul.pkl",
         n_steps: int = 96,
         prosumer_ids: list[str] | None = None,
+        measure_date: str | None = None,
         seed: int = 42,
         ess_capacity_kwh: float = 200.0,
         ess_peak_threshold_kw: float = 500.0,
@@ -224,6 +225,12 @@ class ALFPSimulationModel(mesa.Model):
         # 1) ProsumerAgent (Phase 1 ~ 4 모두 활성)
         for pid in prosumer_ids:
             pdata = ts[ts["prosumer_id"] == pid].copy()
+            if measure_date:
+                pdata["_date"] = pd.to_datetime(pdata["timestamp"]).dt.date
+                ref_date = pd.to_datetime(measure_date).date()
+                day_slice = pdata.loc[pdata["_date"] == ref_date].drop(columns=["_date"])
+                if len(day_slice) > 0:
+                    pdata = day_slice
             pdata = pdata.sort_values("timestamp").head(n_steps).reset_index(drop=True)
             ptype = pdata["prosumer_type"].iloc[0] if "prosumer_type" in pdata.columns else "Unknown"
             ProsumerAgent(

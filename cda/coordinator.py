@@ -13,6 +13,8 @@ from typing import Any
 from cda.orderbook import OrderBook
 from cda.matching import match_cda
 from cda.buyer import generate_bids_from_state
+from cda.strategy_agent import generate_strategy
+from cda.negotiation import run_negotiation
 
 
 def _build_asks_from_seller_proposal(
@@ -164,6 +166,169 @@ def run_cda_step(
         ),
     }
     return decisions
+
+
+def _msg_with_proposal(proposal: dict) -> Any:
+    """협상 합의안을 run_cda_step에 넘기기 위한 Msg 호환 객체."""
+    class _FakeMsg:
+        def __init__(self, p: dict) -> None:
+            self.metadata = {"proposal": p}
+    return _FakeMsg(proposal)
+
+
+def run_cda_step_with_strategy_and_negotiation(
+    state_json: dict,
+    seller_msg: Any,
+    storage_msg: Any,
+    eco_msg: Any,
+    policy_agent: Any,
+    *,
+    use_llm_strategy: bool = True,
+    state_summary: str | None = None,
+    min_trade_kw: float = 0.2,
+) -> dict:
+    """
+    단일 스텝: Strategy Agent → Negotiation → CDA 매칭 → decisions.
+
+    PRD (cda_strategy_negotiation_prd.md):
+      Forecast Layer → Strategy Agent (LLM) → Negotiation Layer → Policy/Trust → CDA Market.
+
+    Returns:
+        decisions dict (기존 형식) + strategy_reasoning_log, negotiation_log 추가.
+    """
+    strategy_rec = generate_strategy(
+        state_json,
+        state_summary=state_summary,
+        use_llm=use_llm_strategy,
+    )
+    negotiation_result = run_negotiation(
+        state_json,
+        strategy_rec,
+        seller_msg,
+        storage_msg,
+        eco_msg,
+        policy_agent,
+    )
+    # 합의안을 run_cda_step에 넘김 (검증·충돌해결은 협상 단계에서 이미 수행)
+    fake_seller = _msg_with_proposal(negotiation_result.consensus_seller_proposal or {})
+    fake_storage = _msg_with_proposal(negotiation_result.consensus_storage_proposal or {})
+    fake_eco = _msg_with_proposal({"dr_events": negotiation_result.consensus_dr_events})
+    decisions = run_cda_step(
+        state_json,
+        fake_seller,
+        fake_storage,
+        fake_eco,
+        policy_agent,
+        min_trade_kw=min_trade_kw,
+    )
+    decisions["strategy_reasoning_log"] = strategy_rec.reasoning_log
+    decisions["negotiation_log"] = [
+        {"role": s.role, "content": s.content[:500], "proposal_keys": list((s.proposal or {}).keys())}
+        for s in negotiation_result.negotiation_log
+    ]
+    decisions["conflicts_resolved"] = negotiation_result.conflicts_resolved
+    return decisions
+
+
+async def _run_cda_single_step_with_negotiation_async(
+    state_json: dict,
+    policy_agent: Any,
+    seller_agent: Any,
+    storage_agent: Any,
+    eco_saver_agent: Any,
+    *,
+    state_message_template: str = "커뮤니티 에너지 상태 [{time}]: 부하={total_load}kW, 피크위험={peak_risk}",
+    use_llm_strategy: bool = True,
+) -> dict:
+    """한 스텝: State → 에이전트 호출 → Strategy → Negotiation → CDA → decisions."""
+    from agentscope.message import Msg
+
+    _cs = state_json.get("community_state") or {}
+    state_msg = Msg(
+        name="StateTranslator",
+        content=state_message_template.format(
+            time=state_json.get("time", "?"),
+            total_load=_cs.get("total_load", 0),
+            peak_risk=_cs.get("peak_risk", "N/A"),
+        ),
+        role="user",
+        metadata={"state": state_json},
+    )
+    policy_msg = await policy_agent(state_msg)
+    seller_msg = await seller_agent(state_msg)
+    storage_msg = await storage_agent(state_msg)
+    eco_msg = await eco_saver_agent(state_msg)
+    return run_cda_step_with_strategy_and_negotiation(
+        state_json,
+        seller_msg,
+        storage_msg,
+        eco_msg,
+        policy_agent,
+        use_llm_strategy=use_llm_strategy,
+    )
+
+
+def run_cda_decision_series_with_agents_and_negotiation(
+    state_json_list: list[dict],
+    policy_agent: Any,
+    seller_agent: Any,
+    storage_agent: Any,
+    eco_saver_agent: Any,
+    *,
+    state_message_template: str = "커뮤니티 에너지 상태 [{time}]: 부하={total_load}kW, 피크위험={peak_risk}",
+    use_llm_strategy: bool = True,
+) -> dict:
+    """
+    다중 스텝: Strategy Agent + Negotiation Layer 포함 CDA 의사결정.
+
+    PRD §4.3: Strategy 제안 → 에이전트 제안 공유 → 협상 → 합의 → CDA 제출.
+
+    Returns:
+        decisions (ess_schedule, trading_recommendations, demand_response_events)
+        + strategy_reasoning_logs, negotiation_logs (스텝별).
+    """
+    import asyncio
+
+    async def _run_all() -> dict:
+        ess_schedule = []
+        trading_recommendations = []
+        demand_response_events = []
+        strategy_logs = []
+        negotiation_logs = []
+        for state in state_json_list:
+            d = await _run_cda_single_step_with_negotiation_async(
+                state,
+                policy_agent,
+                seller_agent,
+                storage_agent,
+                eco_saver_agent,
+                state_message_template=state_message_template,
+                use_llm_strategy=use_llm_strategy,
+            )
+            ess_schedule.extend(d.get("ess_schedule", []))
+            trading_recommendations.extend(d.get("trading_recommendations", []))
+            demand_response_events.extend(d.get("demand_response_events", []))
+            if d.get("strategy_reasoning_log"):
+                strategy_logs.append({"time": state.get("time"), "log": d["strategy_reasoning_log"]})
+            if d.get("negotiation_log"):
+                negotiation_logs.append({"time": state.get("time"), "steps": d["negotiation_log"]})
+        return {
+            "ess_schedule": ess_schedule,
+            "trading_recommendations": trading_recommendations,
+            "demand_response_events": demand_response_events,
+            "ess_summary": {"total_steps": len(ess_schedule)},
+            "trading_summary": {
+                "total_surplus_events": len(trading_recommendations),
+                "total_surplus_kw": round(
+                    sum(float(r.get("surplus_kw", 0)) for r in trading_recommendations), 2
+                ),
+            },
+            "dr_summary": {"dr_event_count": len(demand_response_events)},
+            "strategy_reasoning_logs": strategy_logs,
+            "negotiation_logs": negotiation_logs,
+        }
+
+    return asyncio.run(_run_all())
 
 
 def run_cda_decision_series(

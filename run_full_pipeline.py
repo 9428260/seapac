@@ -191,7 +191,9 @@ def _parse_args() -> argparse.Namespace:
     )
     # 데이터
     p.add_argument("--data-path",   default="data/train_2026_seoul.pkl", help="학습 데이터 경로")
-    p.add_argument("--prosumer",    default="bus_48_Commercial",          help="ALFP 예측 프로슈머 ID")
+    p.add_argument("--measure-date", default=None, help="기준일자 YYYY-MM-DD (해당 날짜 데이터로 실행; 미설정 시 데이터 첫날)")
+    p.add_argument("--prosumer",    default="bus_48_Commercial",          help="ALFP 예측 프로슈머 ID (단일)")
+    p.add_argument("--prosumers",   nargs="+",  default=None,             help="ALFP 예측 프로슈머 ID 목록 (다중 P2P 거래 모드; 지정 시 --prosumer 무시)")
     # 시뮬레이션
     p.add_argument("--steps",       type=int,   default=96,    help="시뮬레이션 스텝 수 (15분 단위, 기본 96=24h)")
     p.add_argument("--phase",       type=int,   default=4,     choices=[1, 2, 3, 4], help="Mesa 시뮬레이션 단계")
@@ -203,6 +205,7 @@ def _parse_args() -> argparse.Namespace:
     p.add_argument("--skip-alfp",   action="store_true", help="ALFP 단계를 건너뜀 (MESA→Step2~5 만 실행)")
     p.add_argument("--use-parallel", action="store_true", help="Step3.5 Parallel Agents 활성화")
     p.add_argument("--use-cda",     action="store_true", help="Step3 CDA 시장 모드 사용")
+    p.add_argument("--use-cda-negotiation", action="store_true", help="Step3 CDA + Strategy Agent(LLM) + Negotiation Layer 사용 (--use-cda 필요)")
     # 출력
     p.add_argument("--output-dir",  default=None, help="결과 저장 디렉토리")
     p.add_argument("--save-json",   action="store_true", help="JSON 파일로 결과 저장")
@@ -277,6 +280,107 @@ def stage_alfp(
         return _stage_error(label, t0, exc), {}
 
 
+def _merge_alfp_decisions(results: list[tuple[str, dict]]) -> dict:
+    """
+    여러 프로슈머의 ALFP decisions를 하나로 병합.
+    각 항목에 prosumer_id 태그를 추가하여 P2P 거래 매칭 시 식별 가능하게 함.
+    """
+    merged: dict = {
+        "ess_schedule": [],
+        "trading_recommendations": [],
+        "demand_response_events": [],
+        "llm_strategy": {},
+        "prosumer_decisions": {},  # prosumer_id → 원본 decisions
+    }
+    for prosumer_id, dec in results:
+        merged["prosumer_decisions"][prosumer_id] = dec
+        for item in dec.get("ess_schedule", []):
+            merged["ess_schedule"].append({**item, "prosumer_id": prosumer_id})
+        for item in dec.get("trading_recommendations", []):
+            merged["trading_recommendations"].append({**item, "prosumer_id": prosumer_id})
+        for item in dec.get("demand_response_events", []):
+            merged["demand_response_events"].append({**item, "prosumer_id": prosumer_id})
+        # llm_strategy는 마지막 성공 프로슈머 것을 사용 (대표값)
+        if dec.get("llm_strategy"):
+            merged["llm_strategy"] = dec["llm_strategy"]
+    return merged
+
+
+def stage_alfp_multi(
+    args: argparse.Namespace,
+    prosumers: list[str],
+    run_id: int | None = None,
+    db_path: "Path | None" = None,
+) -> tuple["StageResult", dict]:
+    """
+    [ALFP Multi-Prosumer] — 선택된 프로슈머 각각에 대해 ALFP를 병렬 실행하고 decisions를 병합.
+    P2P 거래가 가능하도록 각 프로슈머의 ESS·거래·DR 계획을 통합.
+    """
+    label = f"[ALFP] 다중 프로슈머 병렬 의사결정 ({len(prosumers)}명)"
+    t0 = _stage_start(label)
+    log.info("   P2P 거래 모드: 프로슈머 %s", prosumers)
+
+    try:
+        from alfp.main import run as alfp_run
+
+        def _run_one(prosumer_id: str) -> tuple[str, dict, bool]:
+            """(prosumer_id, decisions, ok)"""
+            log.info("   [ALFP/%s] 시작", prosumer_id)
+            try:
+                result = alfp_run(
+                    prosumer_id=prosumer_id,
+                    data_path=args.data_path,
+                    forecast_horizon=args.steps,
+                    verbose=args.verbose,
+                    run_id=run_id,
+                    db_path=str(db_path) if db_path else None,
+                )
+                dec = result.get("decisions", {})
+                log.info(
+                    "   [ALFP/%s] 완료 — ESS %d건 / 거래권고 %d건 / DR %d건",
+                    prosumer_id,
+                    len(dec.get("ess_schedule", [])),
+                    len(dec.get("trading_recommendations", [])),
+                    len(dec.get("demand_response_events", [])),
+                )
+                return prosumer_id, dec, True
+            except Exception as e:
+                log.error("   [ALFP/%s] 오류: %s", prosumer_id, e)
+                return prosumer_id, {}, False
+
+        # 프로슈머별 ALFP 병렬 실행
+        with ThreadPoolExecutor(max_workers=len(prosumers), thread_name_prefix="alfp") as ex:
+            futures = [ex.submit(_run_one, p) for p in prosumers]
+            raw_results = [f.result() for f in futures]
+
+        ok_results = [(pid, dec) for pid, dec, ok in raw_results if ok]
+        fail_ids = [pid for pid, _, ok in raw_results if not ok]
+
+        if fail_ids:
+            log.warning("   ALFP 실패 프로슈머: %s (rule-based fallback 적용)", fail_ids)
+
+        merged = _merge_alfp_decisions(ok_results)
+
+        n_ess   = len(merged["ess_schedule"])
+        n_trade = len(merged["trading_recommendations"])
+        n_dr    = len(merged["demand_response_events"])
+
+        summary = {
+            "실행 프로슈머":       ", ".join(prosumers),
+            "성공 / 전체":         f"{len(ok_results)} / {len(prosumers)}",
+            "ESS 스케줄 합산":     f"{n_ess}건",
+            "P2P 거래 권고 합산":  f"{n_trade}건",
+            "DR 이벤트 합산":      f"{n_dr}건",
+            "P2P 거래 모드":       "✓ 활성화",
+        }
+
+        return _stage_end(label, t0, summary), merged
+
+    except Exception as exc:
+        log.exception("ALFP 다중 프로슈머 실행 오류")
+        return _stage_error(label, t0, exc), {}
+
+
 def stage_mesa(
     args: argparse.Namespace,
     alfp_decisions: dict | None,
@@ -288,8 +392,11 @@ def stage_mesa(
         from simulation.model import ALFPSimulationModel
 
         using_decisions = bool(alfp_decisions)
+        measure_date = getattr(args, "measure_date", None) or os.environ.get("PIPELINE_MEASURE_DATE")
         log.info("   Phase:    %d", args.phase)
         log.info("   Steps:    %d", args.steps)
+        if measure_date:
+            log.info("   기준일자: %s", measure_date)
         log.info("   ESS:      %.0f kWh  (피크 임계 %.0f kW)", args.ess_capacity, args.peak_threshold)
         log.info("   ALFP 연동: %s", "✓ decisions 주입" if using_decisions else "✗ rule-based fallback")
 
@@ -297,6 +404,7 @@ def stage_mesa(
             phase=args.phase,
             data_path=args.data_path,
             n_steps=args.steps,
+            measure_date=measure_date,
             seed=args.seed,
             ess_capacity_kwh=args.ess_capacity,
             ess_peak_threshold_kw=args.peak_threshold,
@@ -397,7 +505,24 @@ def stage_multi_agent_decision(
         log.info("   모드:  %s", "CDA 시장" if args.use_cda else "AgentScope 페르소나")
         log.info("   최대 충방전: %.1f kW", max_kw)
 
-        if args.use_cda:
+        if getattr(args, "use_cda_negotiation", False) and args.use_cda:
+            from seapac_agents.decision import (
+                _init_agentscope, PolicyAgentAS, SmartSellerAgentAS,
+                StorageMasterAgentAS, EcoSaverAgentAS, _PROMPTS,
+            )
+            from cda import run_cda_decision_series_with_agents_and_negotiation
+
+            _init_agentscope()
+            policy  = PolicyAgentAS(max_charge_kw=max_kw, max_discharge_kw=max_kw)
+            seller  = SmartSellerAgentAS()
+            storage = StorageMasterAgentAS()
+            eco     = EcoSaverAgentAS(peak_threshold_kw=args.peak_threshold)
+            decisions = run_cda_decision_series_with_agents_and_negotiation(
+                state_json_list, policy, seller, storage, eco,
+                state_message_template=_PROMPTS["state_message_template"],
+                use_llm_strategy=True,
+            )
+        elif args.use_cda:
             from seapac_agents.decision import (
                 _init_agentscope, PolicyAgentAS, SmartSellerAgentAS,
                 StorageMasterAgentAS, EcoSaverAgentAS, _PROMPTS,
@@ -440,8 +565,12 @@ def stage_multi_agent_decision(
             "ESS 스케줄":    f"{n_ess}건  (충전 {charge_n} / 방전 {disch_n} / 대기 {idle_n})",
             "거래 권고":      f"{n_trade}건",
             "DR 이벤트":      f"{n_dr}건",
-            "결정 모드":      "CDA 시장" if args.use_cda else "AgentScope",
+            "결정 모드":      "CDA+Negotiation" if getattr(args, "use_cda_negotiation", False) and args.use_cda else ("CDA 시장" if args.use_cda else "AgentScope"),
         }
+        if decisions.get("strategy_reasoning_logs"):
+            summary["strategy_reasoning_logs"] = decisions["strategy_reasoning_logs"]
+        if decisions.get("negotiation_logs"):
+            summary["negotiation_logs"] = decisions["negotiation_logs"]
 
         if args.verbose and n_ess > 0:
             log.debug("   ESS[0]: %s", ess_sched[0])
@@ -562,6 +691,7 @@ def stage_execution(
             data_path=args.data_path,
             n_steps=args.steps,
             phase=args.phase,
+            measure_date=getattr(args, "measure_date", None),
             seed=args.seed,
             ess_capacity_kwh=args.ess_capacity,
             ess_peak_threshold_kw=args.peak_threshold,
@@ -713,6 +843,7 @@ def stage_execution_with_parallel(
                 data_path=args.data_path,
                 n_steps=args.steps,
                 phase=args.phase,
+                measure_date=getattr(args, "measure_date", None),
                 seed=args.seed,
                 ess_capacity_kwh=args.ess_capacity,
                 ess_peak_threshold_kw=args.peak_threshold,
@@ -999,11 +1130,18 @@ def main() -> None:
             run_id = create_run(args, db_path=db_path)
             log.info("  Dashboard DB: run_id=%s  path=%s", run_id, db_path)
 
+    # 다중 프로슈머 목록 확정 (--prosumers 우선, 없으면 --prosumer 단일값)
+    multi_prosumers: list[str] = args.prosumers if args.prosumers else []
+    is_p2p_mode = len(multi_prosumers) > 1
+
     _divider("=", 72)
     log.info("  SEAPAC Full Integrated Pipeline")
     log.info("  실행 시각: %s", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     log.info("  Phase=%d  Steps=%d  Parallel=%s  SkipALFP=%s",
              args.phase, args.steps, args.use_parallel, args.skip_alfp)
+    if is_p2p_mode:
+        log.info("  ★ P2P 거래 모드: 프로슈머 %d명 병렬 ALFP → 통합 MESA 실행", len(multi_prosumers))
+        log.info("    참여 프로슈머: %s", multi_prosumers)
     _divider("=", 72)
 
     stage_order = 0
@@ -1013,12 +1151,20 @@ def main() -> None:
     alfp_decisions: dict = {}
 
     if not args.skip_alfp:
-        # run_id/db_path 가 있으면 ALFP 실행 시 Agent별 Langchain DeepAgent 단계가 DB(alfp_agent_step)에 기록됨
         if run_id is not None and db_path is not None:
             log.info("  ALFP Agent 단계 로깅 활성화 run_id=%s  db_path=%s", run_id, db_path)
         else:
             log.warning("  ALFP Agent 단계 로깅 비활성화 (run_id=%s, db_path=%s) — Dashboard에서 실행 시에만 기록됨", run_id, db_path)
-        stage_r, alfp_decisions = stage_alfp(args, run_id=run_id, db_path=db_path)
+
+        if is_p2p_mode:
+            # ── P2P 거래 모드: 다중 프로슈머 병렬 ALFP ────────────
+            stage_r, alfp_decisions = stage_alfp_multi(
+                args, multi_prosumers, run_id=run_id, db_path=db_path
+            )
+        else:
+            # ── 단일 프로슈머 모드 ─────────────────────────────────
+            stage_r, alfp_decisions = stage_alfp(args, run_id=run_id, db_path=db_path)
+
         pipeline.add(stage_r)
         stage_order += 1
         _record_stage(run_id, stage_order, stage_r, db_path)

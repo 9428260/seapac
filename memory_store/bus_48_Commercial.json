@@ -1,64 +1,64 @@
 {
-  "last_run_at": "2026-03-15T08:09:38.723325Z",
+  "last_run_at": "2026-03-15T10:58:26.823157Z",
   "last_plan": {
-    "selected_model": "lgbm",
+    "selected_model": "xgboost",
     "forecast_horizon_steps": 96,
-    "llm_reasoning": "이전 런에서 lgbm 모델이 MAPE와 피크 정확도 모두 우수한 성능을 보였으므로 동일한 모델을 선택했습니다. 날씨 데이터가 불완전하지만, 상업용 부하와 PV 발전량의 변동성을 고려해 안정적인 설정을 유지했습니다."
+    "llm_reasoning": "재계획: 이전 모델 lgbm → xgboost 전환 (규칙 fallback)"
   },
   "last_validation_metrics": {
     "kpi": {
       "MAPE_target": 10.0,
-      "MAPE_achieved": 4.76,
+      "MAPE_achieved": 4.67,
       "MAPE_pass": true,
       "peak_acc_target": 90.0,
-      "peak_acc_achieved": 96.81,
+      "peak_acc_achieved": 95.42,
       "peak_acc_pass": true
     },
     "load": {
-      "MAE": 1.265,
-      "RMSE": 1.6219,
-      "MAPE": 4.76,
+      "MAE": 1.2263,
+      "RMSE": 1.5586,
+      "MAPE": 4.67,
       "peak": {
         "true_peak_kw": 59.94,
-        "pred_peak_kw": 58.025,
-        "peak_error_pct": 3.19
+        "pred_peak_kw": 57.196,
+        "peak_error_pct": 4.58
       },
       "n_samples": 346,
-      "skill_mape": 4.76,
-      "skill_rmse": 1.6219
+      "skill_mape": 4.67,
+      "skill_rmse": 1.5586
     },
     "pv": {
-      "MAE": 0.3345,
-      "RMSE": 0.6507,
-      "MAPE": 3.48,
+      "MAE": 0.2997,
+      "RMSE": 0.6423,
+      "MAPE": 3.39,
       "peak": {
         "true_peak_kw": 30.585,
-        "pred_peak_kw": 30.034,
-        "peak_error_pct": 1.8
+        "pred_peak_kw": 29.831,
+        "peak_error_pct": 2.47
       },
       "n_samples": 346,
-      "skill_mape": 3.48,
-      "skill_rmse": 0.6507
+      "skill_mape": 3.39,
+      "skill_rmse": 0.6423
     },
     "net_load": {
-      "MAE": 1.3652,
-      "RMSE": 1.7533,
-      "MAPE": 7.04,
+      "MAE": 1.3529,
+      "RMSE": 1.7157,
+      "MAPE": 6.98,
       "peak": {
         "true_peak_kw": 46.367,
-        "pred_peak_kw": 42.759,
-        "peak_error_pct": 7.78
+        "pred_peak_kw": 41.91,
+        "peak_error_pct": 9.61
       },
       "n_samples": 346,
-      "skill_mape": 7.04,
-      "skill_rmse": 1.7533
+      "skill_mape": 6.98,
+      "skill_rmse": 1.7157
     }
   },
   "last_decisions_summary": {
     "ess_summary": {
-      "charge_steps": 9,
+      "charge_steps": 10,
       "discharge_steps": 45,
-      "idle_steps": 292
+      "idle_steps": 291
     },
     "tariff_saving": {
       "base_cost_krw": 0,
@@ -67,7 +67,7 @@
       "saving_pct": 0.0
     },
     "dr_summary": {
-      "peak_threshold_kw": 24.2,
+      "peak_threshold_kw": 24.28,
       "dr_event_count": 52
     }
   },

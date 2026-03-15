@@ -148,17 +148,43 @@ def index():
     )
 
 
+@app.route("/api/prosumers")
+def api_prosumers():
+    """
+    GET ?data_path=data/test_2026may_seoul.pkl
+    Load the pkl and return list of prosumer_id. Returns [] if file missing or invalid.
+    """
+    data_path = (request.args.get("data_path") or "data/test_2026may_seoul.pkl").strip()
+    path = PROJECT_ROOT / data_path
+    if not path.is_file():
+        return jsonify({"prosumers": []})
+    try:
+        from alfp.data.loader import load_dataset, get_prosumer_list
+        data = load_dataset(str(path))
+        prosumers = get_prosumer_list(data)
+        return jsonify({"prosumers": prosumers})
+    except Exception as e:
+        log.warning("api_prosumers data_path=%s error: %s", data_path, e)
+        return jsonify({"prosumers": []})
+
+
 @app.route("/api/run", methods=["POST"])
 def api_run():
     """
-    Request body (JSON): data_path, steps, prosumer, use_parallel, phase, output_dir(optional).
-    Creates a run in DB, starts pipeline subprocess with PIPELINE_RUN_ID, returns run_id.
+    Request body (JSON): data_path, steps, prosumer (single) or prosumers (list), use_parallel, phase, ...
+    Creates one run per prosumer, starts pipeline subprocess per run, returns run_id or run_ids.
     """
     out_dir = _output_dir()
     data = request.get_json(force=True, silent=True) or {}
     data_path = data.get("data_path", "data/test_2026may_seoul.pkl")
     steps = int(data.get("steps", 96))
-    prosumer = data.get("prosumer", "bus_48_Commercial")
+    # Support multiple: prosumers (list) or single prosumer (string)
+    prosumers_raw = data.get("prosumers")
+    if isinstance(prosumers_raw, list) and len(prosumers_raw) > 0:
+        prosumers = [str(p).strip() for p in prosumers_raw if str(p).strip()]
+    else:
+        single = (data.get("prosumer") or "bus_48_Commercial").strip()
+        prosumers = [single] if single else ["bus_48_Commercial"]
     use_parallel = bool(data.get("use_parallel", False))
     phase = int(data.get("phase", 4))
     skip_alfp = bool(data.get("skip_alfp", False))
@@ -167,62 +193,112 @@ def api_run():
     today = datetime.utcnow().strftime("%Y-%m-%d")
     if not run_date:
         run_date = today
-    # Measure date: from data file first (period_start / first timestamp), else form, else today
-    measure_date_from_data = _measure_date_from_data(data_path)
-    if measure_date_from_data:
-        measure_date = measure_date_from_data
-    elif not measure_date:
-        measure_date = today
+    # 기준일자: 폼에서 설정하지 않으면 5월 4일 기본값 (해당 날짜 데이터로 파이프라인 실행)
+    if not measure_date:
+        measure_date = "2026-05-04"
 
-    args_dict = {
-        "data_path": data_path,
-        "steps": steps,
-        "prosumer": prosumer,
-        "use_parallel": use_parallel,
-        "phase": phase,
-        "skip_alfp": skip_alfp,
-        "output_dir": out_dir,
-        "save_json": True,
-        "measure_date": measure_date,
-        "run_date": run_date,
-    }
     init_db(_db_path())
-    run_id = create_run(args_dict, db_path=_db_path())
-
-    # subprocess가 Dashboard와 동일한 DB 파일에 기록하도록 절대 경로로 전달
     out_dir_abs = str(PROJECT_ROOT / out_dir)
+    prev_pp = os.environ.get("PYTHONPATH", "")
 
-    cmd = [
-        sys.executable,
-        "-m",
-        "run_full_pipeline",
-        "--data-path", data_path,
-        "--steps", str(steps),
-        "--prosumer", prosumer,
-        "--phase", str(phase),
-        "--output-dir", out_dir_abs,
-        "--save-json",
-    ]
-    if use_parallel:
-        cmd.append("--use-parallel")
-    if skip_alfp:
-        cmd.append("--skip-alfp")
+    is_p2p_mode = len(prosumers) > 1
 
-    env = os.environ.copy()
-    env["PIPELINE_RUN_ID"] = str(run_id)
-    env["PIPELINE_DB_DIR"] = out_dir
-    # subprocess에서 pipeline_dashboard 등 프로젝트 모듈을 찾을 수 있도록
-    prev_pp = env.get("PYTHONPATH", "")
-    env["PYTHONPATH"] = str(PROJECT_ROOT) + (os.pathsep + prev_pp if prev_pp else "")
+    if is_p2p_mode:
+        # ── P2P 거래 모드: 단일 run + --prosumers 다중값으로 하나의 파이프라인 실행 ──
+        args_dict = {
+            "data_path": data_path,
+            "steps": steps,
+            "prosumer": prosumers[0],       # 대표 ID (검색용)
+            "prosumers": prosumers,         # 실제 다중 목록
+            "use_parallel": use_parallel,
+            "phase": phase,
+            "skip_alfp": skip_alfp,
+            "output_dir": out_dir,
+            "save_json": True,
+            "measure_date": measure_date,
+            "run_date": run_date,
+            "p2p_mode": True,
+        }
+        run_id = create_run(args_dict, db_path=_db_path())
 
-    subprocess.Popen(
-        cmd,
-        cwd=PROJECT_ROOT,
-        env=env,
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-    )
-    return jsonify({"run_id": run_id})
+        cmd = [
+            sys.executable,
+            "-m",
+            "run_full_pipeline",
+            "--data-path", data_path,
+            "--measure-date", measure_date,
+            "--steps", str(steps),
+            "--prosumers", *prosumers,
+            "--phase", str(phase),
+            "--output-dir", out_dir_abs,
+            "--save-json",
+        ]
+        if use_parallel:
+            cmd.append("--use-parallel")
+        if skip_alfp:
+            cmd.append("--skip-alfp")
+
+        env = os.environ.copy()
+        env["PIPELINE_RUN_ID"] = str(run_id)
+        env["PIPELINE_DB_DIR"] = out_dir
+        env["PYTHONPATH"] = str(PROJECT_ROOT) + (os.pathsep + prev_pp if prev_pp else "")
+
+        subprocess.Popen(
+            cmd,
+            cwd=PROJECT_ROOT,
+            env=env,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        return jsonify({"run_id": run_id, "p2p_mode": True, "prosumers": prosumers})
+
+    else:
+        # ── 단일 프로슈머 모드 (기존 동작 유지) ──────────────────────
+        prosumer = prosumers[0]
+        args_dict = {
+            "data_path": data_path,
+            "steps": steps,
+            "prosumer": prosumer,
+            "use_parallel": use_parallel,
+            "phase": phase,
+            "skip_alfp": skip_alfp,
+            "output_dir": out_dir,
+            "save_json": True,
+            "measure_date": measure_date,
+            "run_date": run_date,
+        }
+        run_id = create_run(args_dict, db_path=_db_path())
+
+        cmd = [
+            sys.executable,
+            "-m",
+            "run_full_pipeline",
+            "--data-path", data_path,
+            "--measure-date", measure_date,
+            "--steps", str(steps),
+            "--prosumer", prosumer,
+            "--phase", str(phase),
+            "--output-dir", out_dir_abs,
+            "--save-json",
+        ]
+        if use_parallel:
+            cmd.append("--use-parallel")
+        if skip_alfp:
+            cmd.append("--skip-alfp")
+
+        env = os.environ.copy()
+        env["PIPELINE_RUN_ID"] = str(run_id)
+        env["PIPELINE_DB_DIR"] = out_dir
+        env["PYTHONPATH"] = str(PROJECT_ROOT) + (os.pathsep + prev_pp if prev_pp else "")
+
+        subprocess.Popen(
+            cmd,
+            cwd=PROJECT_ROOT,
+            env=env,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        return jsonify({"run_id": run_id})
 
 
 def _stages_for_tabs(stages: list[dict]) -> dict[str, list]:
@@ -321,6 +397,19 @@ def run_detail(run_id: int):
     current_sub = request.args.get("sub", "summary")
     if current_sub not in ("summary", "domain", "steps", "result"):
         current_sub = "summary"
+    # CDA 탭(4) 내 서브탭: exec | domain (실행 / 도메인 특화)
+    current_sub4 = request.args.get("sub4", "exec")
+    if current_sub4 not in ("exec", "domain"):
+        current_sub4 = "exec"
+    # CDA 도메인 특화: Strategy Agent · Negotiation 로그 (Step3 stage summary에서 추출)
+    cda_strategy_logs = []
+    cda_negotiation_logs = []
+    for s in stages:
+        summary = s.get("summary") or {}
+        if summary.get("strategy_reasoning_logs"):
+            cda_strategy_logs = summary["strategy_reasoning_logs"]
+        if summary.get("negotiation_logs"):
+            cda_negotiation_logs = summary["negotiation_logs"]
     prosumer_options = _prosumer_options(_db_path())
     search_run_date = (run.get("created_at") or "")[:10]
     search_prosumer = (run.get("args") or {}).get("prosumer") or ""
@@ -330,6 +419,7 @@ def run_detail(run_id: int):
         run=run,
         current_tab=current_tab,
         current_sub=current_sub,
+        current_sub4=current_sub4,
         current_path=request.path,
         prosumer_options=prosumer_options,
         search_run_date=search_run_date,
@@ -337,6 +427,8 @@ def run_detail(run_id: int):
         search_measure_date=search_measure_date,
         alfp_agent_steps=alfp_agent_steps,
         alfp_domain_steps=alfp_domain_steps,
+        cda_strategy_logs=cda_strategy_logs,
+        cda_negotiation_logs=cda_negotiation_logs,
         **tabs,
     )
 
