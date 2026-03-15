@@ -77,6 +77,22 @@ def init_db(db_path: Path | None = None) -> None:
                 FOREIGN KEY (run_id) REFERENCES pipeline_run(id)
             );
             CREATE INDEX IF NOT EXISTS ix_alfp_agent_run_stage ON alfp_agent_step(run_id, stage_order);
+            CREATE TABLE IF NOT EXISTS alfp_domain_step (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                run_id INTEGER NOT NULL,
+                stage_order INTEGER NOT NULL,
+                step_order INTEGER NOT NULL,
+                step_type TEXT NOT NULL,
+                role_label TEXT NOT NULL,
+                summary_json TEXT,
+                started_at TEXT,
+                finished_at TEXT,
+                elapsed_sec REAL,
+                ok INTEGER NOT NULL DEFAULT 1,
+                error_text TEXT,
+                FOREIGN KEY (run_id) REFERENCES pipeline_run(id)
+            );
+            CREATE INDEX IF NOT EXISTS ix_alfp_domain_run_stage ON alfp_domain_step(run_id, stage_order);
         """)
         try:
             conn.execute("ALTER TABLE pipeline_run ADD COLUMN measure_date TEXT")
@@ -165,6 +181,16 @@ def add_stage(
         conn.close()
 
 
+# 도메인 특화 단계(Governance) 역할 라벨 — UI "도메인 특화" 탭 표시용
+DOMAIN_STEP_ROLES: dict[str, str] = {
+    "evidence_curator": "Evidence Curator — 의사결정 근거 구조화 저장",
+    "critic_agent": "Critic / Red-Team Agent — 리스크·실패 시나리오·대안 검토",
+    "policy_gate": "Policy + Approval Gate — 규정·정책 준수 검증",
+    "simulation_sandbox": "Simulation Sandbox — 실행 전 전략 가상 검증",
+    "save_memory": "Strategy Memory — 전략 성과 저장 및 평가 루프",
+}
+
+
 def add_agent_step(
     run_id: int,
     stage_order: int,
@@ -178,7 +204,9 @@ def add_agent_step(
     error_text: str | None = None,
     db_path: Path | None = None,
 ) -> None:
-    """Append one ALFP agent (Langchain DeepAgent) step log. stage_order=1 for ALFP stage."""
+    """Append one ALFP agent (Langchain DeepAgent) step log. stage_order=1 for ALFP stage.
+    도메인 특화 단계(evidence_curator, critic_agent, policy_gate, simulation_sandbox, save_memory)는
+    alfp_domain_step에도 역할(role_label)과 함께 기록합니다."""
     path = db_path or get_db_path()
     conn = _connect(path)
     try:
@@ -200,7 +228,66 @@ def add_agent_step(
                 error_text,
             ),
         )
+        if agent_name in DOMAIN_STEP_ROLES:
+            conn.execute(
+                """INSERT INTO alfp_domain_step
+                   (run_id, stage_order, step_order, step_type, role_label, summary_json, started_at, finished_at, elapsed_sec, ok, error_text)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                (
+                    run_id,
+                    stage_order,
+                    step_order,
+                    agent_name,
+                    DOMAIN_STEP_ROLES[agent_name],
+                    summary_json,
+                    started_at,
+                    finished_at,
+                    elapsed_sec,
+                    1 if ok else 0,
+                    error_text,
+                ),
+            )
         conn.commit()
+    finally:
+        conn.close()
+
+
+def get_alfp_domain_steps(
+    run_id: int,
+    stage_order: int = 1,
+    db_path: Path | None = None,
+) -> list[dict[str, Any]]:
+    """도메인 특화 단계(Evidence Curator, Critic, Policy Gate, Simulation Sandbox, Strategy Memory) 조회.
+    run_detail '도메인 특화' 탭에서 사용."""
+    path = db_path or get_db_path()
+    if not path.exists():
+        return []
+    conn = _connect(path)
+    try:
+        rows = conn.execute(
+            """SELECT id, run_id, stage_order, step_order, step_type, role_label, summary_json,
+                      started_at, finished_at, elapsed_sec, ok, error_text
+               FROM alfp_domain_step WHERE run_id = ? AND stage_order = ?
+               ORDER BY step_order, id""",
+            (run_id, stage_order),
+        ).fetchall()
+        return [
+            {
+                "id": r["id"],
+                "run_id": r["run_id"],
+                "stage_order": r["stage_order"],
+                "step_order": r["step_order"],
+                "step_type": r["step_type"],
+                "role_label": r["role_label"],
+                "summary": json.loads(r["summary_json"]) if r["summary_json"] else {},
+                "started_at": r["started_at"],
+                "finished_at": r["finished_at"],
+                "elapsed_sec": r["elapsed_sec"],
+                "ok": bool(r["ok"]),
+                "error_text": r["error_text"],
+            }
+            for r in rows
+        ]
     finally:
         conn.close()
 

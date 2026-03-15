@@ -684,9 +684,9 @@
       ]
     },
     "ess_state": {
-      "soc": 43.6,
+      "soc": 43.5,
       "capacity": 200.0,
-      "available_discharge": 63.8
+      "available_discharge": 63.6
     }
   },
   {
@@ -730,9 +730,9 @@
       ]
     },
     "ess_state": {
-      "soc": 42.1,
+      "soc": 42.2,
       "capacity": 200.0,
-      "available_discharge": 61.0
+      "available_discharge": 61.2
     }
   },
   {
@@ -2064,9 +2064,9 @@
       ]
     },
     "ess_state": {
-      "soc": 56.9,
+      "soc": 57.0,
       "capacity": 200.0,
-      "available_discharge": 89.1
+      "available_discharge": 89.3
     }
   },
   {

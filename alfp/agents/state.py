@@ -48,6 +48,17 @@ class ALFPState(TypedDict, total=False):
     # ── DecisionAgent ─────────────────────────────────────
     decisions: dict                # ESS / 거래 / DR 추천
 
+    # ── Governance (PRD §4.1–4.3) ─────────────────────────
+    evidence: dict                 # Evidence Curator 출력 (의사결정 근거)
+    critic_output: dict            # Critic Agent 출력 (risk_score, failure_scenarios, recommendation)
+    policy_gate_result: dict       # Policy Gate 결과 (status: APPROVED|REJECTED|REPLAN_REQUIRED)
+
+    # ── Simulation Sandbox (PRD §4.4) ───────────────────
+    simulation_result: dict        # Sandbox 검증 결과 (predicted_cost, peak_load 등)
+
+    # ── Strategy Memory (PRD §4.5) ───────────────────────
+    strategy_memory_entry: dict    # 이번 런 저장 entry 요약
+
     # ── 공통 로그 ─────────────────────────────────────────
     messages: list                 # 에이전트별 실행 로그
     errors: list                   # 오류 로그

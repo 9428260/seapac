@@ -107,6 +107,7 @@
 
   <div id="section-history" class="main-section">
     <h1>Execution History</h1>
+    <p class="run-meta" style="margin: 0 0 1rem 0; font-size: 0.9rem; color: var(--muted);">15초마다 자동 새로고침</p>
     {% if not runs %}
       <p class="muted">No runs recorded yet. Run a pipeline from 「Run historical data」 in the LNB or run <code>python run_full_pipeline.py --output-dir output</code> to see entries here.</p>
     {% else %}
@@ -227,6 +228,14 @@
         }
         btn.disabled = false;
       });
+
+      // 실행 이력 화면(Execution History)일 때만 15초마다 새로고침 (새 파이프라인 실행 폼은 새로고침하지 않음)
+      setInterval(function() {
+        var hash = window.location.hash || '#history';
+        if (hash === '#history') {
+          window.location.reload();
+        }
+      }, 15000);
     })();
   </script>
 {% endblock %}

@@ -26,6 +26,7 @@ from pipeline_dashboard.db import (
     get_runs,
     get_run_with_stages,
     get_alfp_agent_steps,
+    get_alfp_domain_steps,
 )
 
 # 프로젝트 루트 (run_full_pipeline.py 가 있는 디렉터리)
@@ -295,8 +296,15 @@ def run_detail(run_id: int):
     alfp_agent_steps = get_alfp_agent_steps(run_id, stage_order=1, db_path=db_path)
     if alfp_agent_steps is None:
         alfp_agent_steps = []
-    log.info("run_detail run_id=%s alfp_agent_steps count=%s db=%s", run_id, len(alfp_agent_steps), db_path)
+    alfp_domain_steps = get_alfp_domain_steps(run_id, stage_order=1, db_path=db_path)
+    if alfp_domain_steps is None:
+        alfp_domain_steps = []
+    log.info("run_detail run_id=%s alfp_agent_steps count=%s domain_steps=%s db=%s", run_id, len(alfp_agent_steps), len(alfp_domain_steps), db_path)
     current_tab = request.args.get("tab", "1")
+    # ALFP 탭(1) 내 서브탭: summary | domain | steps | result (refresh 후에도 유지)
+    current_sub = request.args.get("sub", "summary")
+    if current_sub not in ("summary", "domain", "steps", "result"):
+        current_sub = "summary"
     prosumer_options = _prosumer_options(_db_path())
     search_run_date = (run.get("created_at") or "")[:10]
     search_prosumer = (run.get("args") or {}).get("prosumer") or ""
@@ -305,12 +313,14 @@ def run_detail(run_id: int):
         "run_detail.html",
         run=run,
         current_tab=current_tab,
+        current_sub=current_sub,
         current_path=request.path,
         prosumer_options=prosumer_options,
         search_run_date=search_run_date,
         search_prosumer=search_prosumer,
         search_measure_date=search_measure_date,
         alfp_agent_steps=alfp_agent_steps,
+        alfp_domain_steps=alfp_domain_steps,
         **tabs,
     )
 

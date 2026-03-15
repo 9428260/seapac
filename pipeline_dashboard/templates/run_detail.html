@@ -128,6 +128,8 @@
   .sub-tabs a.sub-tab.active { color: var(--accent); background: var(--bg); border-color: rgba(139, 148, 158, 0.3); border-bottom: 1px solid var(--bg); margin-bottom: -2px; padding-bottom: calc(0.5rem + 1px); }
   .sub-panel { display: none; padding-top: 0.5rem; }
   .sub-panel.active { display: block; }
+  .domain-steps .domain-role-label { color: var(--accent); font-size: 0.95rem; }
+  .domain-step { border-left-color: rgba(136, 82, 255, 0.5); }
 {% endblock %}
 {% block content %}
   <h1>Run #{{ run.id }}</h1>
@@ -165,16 +167,18 @@
     <a href="#" data-tab="tab-6" class="detail-tab {% if _ct == '6' %}active{% endif %}">6. Evaluation</a>
   </div>
 
-  {# Tab 1: [ALFP] 부하 예측 및 운영 의사결정 — Summary / 단계 / 결과 서브탭 #}
+  {# Tab 1: [ALFP] 부하 예측 및 운영 의사결정 — Summary / 단계 / 결과 서브탭 (서브탭은 URL ?sub= 로 유지, refresh 후 복원) #}
+  {% set _sub = current_sub|default('summary') %}
   <div id="tab-1" class="detail-panel {% if _ct == '1' %}active{% endif %}">
     <div class="sub-tabs" role="tablist">
-      <a href="#" class="sub-tab active" data-subtab="sub-summary" role="tab" aria-selected="true">Summary</a>
-      <a href="#" class="sub-tab" data-subtab="sub-steps" role="tab" aria-selected="false">단계</a>
-      <a href="#" class="sub-tab" data-subtab="sub-result" role="tab" aria-selected="false">결과</a>
+      <a href="#" class="sub-tab {% if _sub == 'summary' %}active{% endif %}" data-subtab="sub-summary" data-sub="summary" role="tab" aria-selected="{% if _sub == 'summary' %}true{% else %}false{% endif %}">Summary</a>
+      <a href="#" class="sub-tab {% if _sub == 'domain' %}active{% endif %}" data-subtab="sub-domain" data-sub="domain" role="tab" aria-selected="{% if _sub == 'domain' %}true{% else %}false{% endif %}">도메인 특화</a>
+      <a href="#" class="sub-tab {% if _sub == 'steps' %}active{% endif %}" data-subtab="sub-steps" data-sub="steps" role="tab" aria-selected="{% if _sub == 'steps' %}true{% else %}false{% endif %}">단계</a>
+      <a href="#" class="sub-tab {% if _sub == 'result' %}active{% endif %}" data-subtab="sub-result" data-sub="result" role="tab" aria-selected="{% if _sub == 'result' %}true{% else %}false{% endif %}">결과</a>
     </div>
 
     {# 서브탭 Summary: 단계별 summary #}
-    <div id="sub-summary" class="sub-panel active" role="tabpanel">
+    <div id="sub-summary" class="sub-panel {% if _sub == 'summary' %}active{% endif %}" role="tabpanel">
       {% if (alfp_agent_steps or []) %}
       <div class="alfp-agent-steps">
         {% for step in (alfp_agent_steps or []) %}
@@ -199,8 +203,35 @@
       {% endif %}
     </div>
 
+    {# 서브탭 도메인 특화: Evidence Curator, Critic, Policy Gate, Simulation Sandbox, Strategy Memory #}
+    <div id="sub-domain" class="sub-panel {% if _sub == 'domain' %}active{% endif %}" role="tabpanel">
+      <p class="agent-steps-doc-ref">PRD: langchain_deepagent_architecture_prd.md — Governance 및 전략 메모리 단계별 역할</p>
+      {% if (alfp_domain_steps or []) %}
+      <div class="alfp-agent-steps domain-steps">
+        {% for step in (alfp_domain_steps or []) %}
+        <div class="agent-step domain-step {% if not step.ok %}agent-step-fail{% endif %}">
+          <div class="agent-step-header">
+            <span class="agent-step-order">{{ step.step_order }}</span>
+            <span class="agent-step-name domain-role-label">{{ step.role_label }}</span>
+            {% if step.ok %}<span class="badge badge-success">✓</span>{% else %}<span class="badge badge-failure">✗</span>{% endif %}
+            <span class="agent-step-time">시작 {{ step.started_at or '—' }}{% if step.finished_at %} · 종료 {{ step.finished_at }}{% endif %}{% if step.elapsed_sec is not none %} · {{ "%.2f"|format(step.elapsed_sec) }}s{% endif %}</span>
+          </div>
+          {% if step.error_text %}<p class="agent-step-error">{{ step.error_text }}</p>{% endif %}
+          {% if step.summary and step.summary.items() %}
+          <ul class="agent-step-summary">{% for key, val in step.summary.items() %}<li><strong>{{ key }}</strong>: {{ val }}</li>{% endfor %}</ul>
+          {% else %}
+          <p class="agent-step-summary" style="margin: 0.35rem 0 0 1.75rem; color: var(--muted);">summary 없음</p>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="no-content">이번 Run에는 도메인 특화 단계 기록이 없습니다. (ALFP 파이프라인 실행 시 Evidence Curator, Critic, Policy Gate, Simulation Sandbox, Strategy Memory 단계가 기록됩니다.)</p>
+      {% endif %}
+    </div>
+
     {# 서브탭 단계: Langchain DeepAgent 단계 테이블 #}
-    <div id="sub-steps" class="sub-panel" role="tabpanel">
+    <div id="sub-steps" class="sub-panel {% if _sub == 'steps' %}active{% endif %}" role="tabpanel">
       <h3 class="agent-steps-title">Langchain DeepAgent 단계</h3>
       {% if (alfp_agent_steps or []) %}
       <table class="alfp-agent-steps-table" role="grid">
@@ -235,7 +266,7 @@
     </div>
 
     {# 서브탭 결과: 단계별 결과 영역 #}
-    <div id="sub-result" class="sub-panel" role="tabpanel">
+    <div id="sub-result" class="sub-panel {% if _sub == 'result' %}active{% endif %}" role="tabpanel">
       {% for s in (tab1_stages or []) %}
       <div class="stage">
         <div class="stage-name">{{ s.stage_name }} {% if s.ok %}<span class="badge badge-success">✓</span>{% else %}<span class="badge badge-failure">✗</span>{% endif %}</div>
@@ -258,12 +289,18 @@
         a.addEventListener('click', function(e) {
           e.preventDefault();
           var id = this.getAttribute('data-subtab');
+          var subVal = this.getAttribute('data-sub') || 'summary';
           tab1.querySelectorAll('.sub-tab').forEach(function(x) { x.classList.remove('active'); x.setAttribute('aria-selected', 'false'); });
           tab1.querySelectorAll('.sub-panel').forEach(function(x) { x.classList.remove('active'); });
           this.classList.add('active');
           this.setAttribute('aria-selected', 'true');
           var panel = document.getElementById(id);
           if (panel) panel.classList.add('active');
+          // refresh 후에도 현재 서브탭이 유지되도록 URL 갱신
+          var params = new URLSearchParams(window.location.search);
+          params.set('tab', '1');
+          params.set('sub', subVal);
+          window.history.replaceState({}, '', window.location.pathname + '?' + params.toString());
         });
       });
     })();
@@ -352,12 +389,10 @@
 
   <p style="margin-top: 1.5rem;"><a href="/">← 실행 이력으로</a></p>
 
-  {% if run.status == 'running' %}
-  <p class="run-meta" style="margin-top: 1rem;">실행 중 — 3초마다 자동 새로고침</p>
+  <p class="run-meta" style="margin-top: 1rem;">15초마다 자동 새로고침{% if run.status == 'running' %} (실행 중){% endif %}</p>
   <script>
-    setTimeout(function() { window.location.reload(); }, 3000);
+    setTimeout(function() { window.location.reload(); }, 15000);
   </script>
-  {% endif %}
 
   <script>
     document.querySelectorAll('.detail-tab').forEach(function(a) {
@@ -370,7 +405,11 @@
         this.classList.add('active');
         var panel = document.getElementById(tabId);
         if (panel) panel.classList.add('active');
-        var url = window.location.pathname + '?tab=' + tabNum;
+        var params = new URLSearchParams(window.location.search);
+        params.set('tab', tabNum);
+        if (tabNum !== '1') params.delete('sub');
+        else if (!params.has('sub')) params.set('sub', 'summary');
+        var url = window.location.pathname + '?' + params.toString();
         if (window.location.href !== url) window.history.replaceState({}, '', url);
       });
     });
