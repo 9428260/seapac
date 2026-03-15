@@ -11,3 +11,6 @@ __pycache__/
 
 # Data
 ods132.json
+
+# Logs
+logs/

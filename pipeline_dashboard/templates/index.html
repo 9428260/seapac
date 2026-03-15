@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+{% block title %}Execution History — SEAPAC Pipeline Dashboard{% endblock %}
+{% block extra_css %}
+  .search-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
+  .search-bar label { font-size: 0.85rem; color: var(--muted); margin-right: 0.25rem; }
+  .search-bar input[type="text"], .search-bar input[type="date"], .search-bar select {
+    padding: 0.35rem 0.5rem; background: var(--bg); border: 1px solid var(--muted); border-radius: 4px; color: var(--text);
+  }
+  .search-bar .date-field { display: inline-flex; align-items: center; gap: 0.35rem; }
+  .search-bar .date-field label { margin-right: 0; }
+  .search-bar input[type="date"] {
+    min-width: 10.5rem; cursor: pointer;
+    font-family: inherit;
+  }
+  .search-bar input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.8; }
+  .search-bar .date-hint { font-size: 0.75rem; color: var(--muted); }
+  .search-bar select { min-width: 10rem; cursor: pointer; }
+  .search-bar button { padding: 0.4rem 0.9rem; background: var(--accent); color: var(--bg); border: none; border-radius: 4px; cursor: pointer; font-weight: 600; }
+  .search-bar button:hover { opacity: 0.9; }
+  .main-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--muted); margin-bottom: 1.25rem; }
+  .main-tabs a {
+    padding: 0.6rem 1.25rem; font-size: 0.95rem; color: var(--muted);
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
+  }
+  .main-tabs a:hover { color: var(--text); }
+  .main-tabs a.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .main-section { display: none; }
+  .main-section.active { display: block; }
+  .run-form { background: var(--card); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem; max-width: 520px; }
+  .run-form h2 { font-size: 1.1rem; margin: 0 0 1rem 0; }
+  .run-form label { display: block; margin-bottom: 0.25rem; color: var(--muted); font-size: 0.9rem; }
+  .run-form select, .run-form input[type="text"], .run-form input[type="number"] { width: 100%; padding: 0.4rem 0.5rem; margin-bottom: 0.75rem; background: var(--bg); border: 1px solid var(--muted); border-radius: 4px; color: var(--text); }
+  .run-form .row { margin-bottom: 0.75rem; }
+  .run-form button { padding: 0.5rem 1rem; background: var(--accent); color: var(--bg); border: none; border-radius: 4px; cursor: pointer; font-weight: 600; }
+  .run-form button:hover { opacity: 0.9; }
+  .run-form button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .run-form .hint { font-size: 0.85rem; color: var(--muted); margin-top: 0.25rem; }
+  .section-title { font-size: 1.1rem; margin-bottom: 0.75rem; }
+  .runs-table { width: 100%; border-collapse: collapse; }
+  .runs-table th, .runs-table td { text-align: left; padding: 0.5rem 1rem; }
+  .runs-table th { border-bottom: 1px solid var(--muted); }
+  .runs-table tr { border-bottom: 1px solid var(--card); }
+  body.view-new-run .main-tabs { display: none !important; }
+  body.view-new-run .main-top { display: none !important; }
+  body.view-history .main-tabs { display: none !important; }
+{% endblock %}
+{% block main_top %}
+  <form class="search-bar" method="get" action="/#history" id="execution-history-search">
+    <input type="hidden" name="tab" value="{{ current_tab }}">
+    <span><label for="search-prosumer">Prosumer ID</label>
+      <select name="prosumer" id="search-prosumer">
+        <option value="">All</option>
+        {% for p in (prosumer_options or []) %}
+        <option value="{{ p|e }}" {% if p == search_prosumer %}selected{% endif %}>{{ p }}</option>
+        {% endfor %}
+      </select>
+    </span>
+    <span class="date-field">
+      <label for="search-measure-date">Measure date</label>
+      <input type="date" id="search-measure-date" name="measure_date" value="{{ search_measure_date|e }}" aria-label="Measure date">
+      <span class="date-hint" aria-hidden="true">📅</span>
+    </span>
+    <span class="date-field">
+      <label for="search-run-date">Run date</label>
+      <input type="date" id="search-run-date" name="run_date" value="{{ search_run_date|e }}" aria-label="Run date">
+      <span class="date-hint" aria-hidden="true">📅</span>
+    </span>
+    <button type="submit">Search</button>
+  </form>
+{% endblock %}
+{% block content %}
+  <div class="main-tabs">
+    <a href="/#new-run" id="tab-new-run">새 파이프라인 실행</a>
+    <a href="/#history" id="tab-history">Execution History</a>
+  </div>
+
+  <div id="section-new-run" class="main-section">
+    <h1>새 파이프라인 실행</h1>
+    <div class="run-form">
+      <h2>전체 아키텍처 실행</h2>
+      <p class="hint" style="margin-bottom: 1rem;">테스트 데이터 1일(96스텝) 기준으로 ALFP → MESA → Step2~5 → Parallel Agents 를 실행합니다.</p>
+      <form id="runForm">
+        <label>데이터</label>
+        <select name="data_path" id="data_path">
+          <option value="data/test_2026may_seoul.pkl">test_2026may_seoul.pkl (1일 96스텝)</option>
+          <option value="data/train_2026_seoul.pkl">train_2026_seoul.pkl (1일 96스텝)</option>
+        </select>
+        <label>Prosumer ID</label>
+        <select name="prosumer" id="prosumer">
+          {% for p in (prosumer_options or []) %}
+          <option value="{{ p|e }}" {% if p == 'bus_48_Commercial' %}selected{% endif %}>{{ p }}</option>
+          {% endfor %}
+        </select>
+        <label>Measure date</label>
+        <input type="date" name="measure_date" id="measure_date" aria-label="Measure date">
+        <label>Run date</label>
+        <input type="date" name="run_date" id="run_date" aria-label="Run date">
+        <label>스텝 수 (1일 = 96)</label>
+        <input type="number" name="steps" id="steps" value="96" min="1" max="96">
+        <div class="row">
+          <label><input type="checkbox" name="use_parallel" id="use_parallel"> Parallel Agents 사용</label>
+        </div>
+        <button type="submit" id="runBtn">전체 아키텍처 실행</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="section-history" class="main-section">
+    <h1>Execution History</h1>
+    {% if not runs %}
+      <p class="muted">No runs recorded yet. Run a pipeline from 「Run historical data」 in the LNB or run <code>python run_full_pipeline.py --output-dir output</code> to see entries here.</p>
+    {% else %}
+      <table class="runs-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Prosumer ID</th>
+            <th>Measure date</th>
+            <th>Run date</th>
+            <th>Created at</th>
+            <th>Status</th>
+            <th>Elapsed</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in runs %}
+          <tr>
+            <td>{{ r.id }}</td>
+            <td>{{ (r.args or {}).get('prosumer') or '—' }}</td>
+            <td>{{ r.get('measure_date') or '—' }}</td>
+            <td>{{ (r.args or {}).get('run_date') or (r.created_at or '')[:10] or '—' }}</td>
+            <td>{{ r.created_at or '—' }}</td>
+            <td>
+              {% if r.status == 'success' %}
+                <span class="badge badge-success">Success</span>
+              {% elif r.status == 'failure' %}
+                <span class="badge badge-failure">Failure</span>
+              {% else %}
+                <span class="badge badge-running">Running</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if r.total_elapsed_sec is not none %}
+                {{ "%.1f"|format(r.total_elapsed_sec) }}s
+              {% else %}
+                —
+              {% endif %}
+            </td>
+            <td><a href="{{ url_for('run_detail', run_id=r.id) }}{% if current_tab %}?tab={{ current_tab }}{% endif %}">Detail</a></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+  </div>
+
+  <script>
+    (function() {
+      function setTabActive(sectionId) {
+        document.querySelectorAll('.main-section').forEach(function(el) { el.classList.remove('active'); });
+        var el = document.getElementById(sectionId);
+        if (el) el.classList.add('active');
+        document.querySelectorAll('.main-tabs a').forEach(function(a) { a.classList.remove('active'); });
+        document.querySelectorAll('.lnb-nav a').forEach(function(a) { a.classList.remove('active'); });
+        if (sectionId === 'section-new-run') {
+          document.body.classList.remove('view-history');
+          document.body.classList.add('view-new-run');
+          var lnb = document.getElementById('lnb-new-run');
+          if (lnb) lnb.classList.add('active');
+        } else {
+          document.body.classList.remove('view-new-run');
+          document.body.classList.add('view-history');
+          var lnb = document.getElementById('lnb-history');
+          if (lnb) lnb.classList.add('active');
+        }
+      }
+      function onHash() {
+        if (window.location.hash === '#new-run') setTabActive('section-new-run');
+        else setTabActive('section-history');
+      }
+      window.addEventListener('hashchange', onHash);
+      onHash();
+
+      document.querySelectorAll('.main-tabs a').forEach(function(a) {
+        a.addEventListener('click', function(e) {
+          e.preventDefault();
+          var h = (this.getAttribute('href') || '').split('#')[1] || 'history';
+          window.location.hash = h;
+          onHash();
+        });
+      });
+
+      (function setRunDateDefault() {
+        var runDate = document.getElementById('run_date');
+        if (runDate && !runDate.value) {
+          var d = new Date();
+          runDate.value = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        }
+      })();
+      document.getElementById('runForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        var btn = document.getElementById('runBtn');
+        btn.disabled = true;
+        btn.textContent = '실행 중…';
+        try {
+          var res = await fetch('/api/run', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              data_path: document.getElementById('data_path').value,
+              steps: parseInt(document.getElementById('steps').value, 10) || 96,
+              prosumer: document.getElementById('prosumer').value || 'bus_48_Commercial',
+              measure_date: document.getElementById('measure_date').value || null,
+              run_date: document.getElementById('run_date').value || null,
+              use_parallel: document.getElementById('use_parallel').checked
+            })
+          });
+          var data = await res.json();
+          if (data.run_id) {
+            window.location.href = '/#history';
+          } else {
+            btn.textContent = '실행 실패';
+          }
+        } catch (err) {
+          btn.textContent = '실행 실패';
+        }
+        btn.disabled = false;
+      });
+    })();
+  </script>
+{% endblock %}

@@ -1,0 +1,108 @@
+{
+  "run_timestamp": "20260315_151209",
+  "args": {
+    "data_path": "data/test_2026may_seoul.pkl",
+    "prosumer": "bus_48_Commercial",
+    "steps": 96,
+    "phase": 4,
+    "peak_threshold": 500.0,
+    "ess_capacity": 200.0,
+    "grid_price": 100.0,
+    "seed": 42,
+    "skip_alfp": false,
+    "use_parallel": false,
+    "use_cda": false,
+    "output_dir": "output",
+    "save_json": true,
+    "log_file": "logs/pipeline_20260315_151157.log",
+    "log_dir": "logs",
+    "verbose": false,
+    "audit_log": null
+  },
+  "stages": [
+    {
+      "name": "[ALFP] 부하 예측 및 운영 의사결정",
+      "ok": true,
+      "elapsed_sec": 11.36,
+      "summary": {
+        "ESS 스케줄 건수": 346,
+        "거래 권고 건수": 0,
+        "DR 이벤트 건수": 52,
+        "예측 MAPE": "4.67%  (KPI ✓)",
+        "LLM 경보 수준": "N/A",
+        "LLM ESS 전략 (요약)": "(없음)"
+      },
+      "error": ""
+    },
+    {
+      "name": "[MESA] 시뮬레이션 실행",
+      "ok": true,
+      "elapsed_sec": 0.363,
+      "summary": {
+        "시뮬레이션 스텝": 96,
+        "커뮤니티 최대 부하": "922.3 kW",
+        "커뮤니티 평균 부하": "659.0 kW",
+        "평균 PV 발전": "129.5 kW",
+        "평균 Net Load": "529.4 kW",
+        "평균 예측 MAPE": "18.78 %",
+        "ESS 평균 SoC": "45.7 %",
+        "P2P 거래량 합계": "0.0 kW",
+        "ALFP decisions 연동": "✓"
+      },
+      "error": ""
+    },
+    {
+      "name": "Step2  State Translator",
+      "ok": true,
+      "elapsed_sec": 0.308,
+      "summary": {
+        "생성된 state JSON 수": 96,
+        "첫 스텝 요약": "[00:00] 커뮤니티 에너지 상태 요약\n  부하: 663.0 kW, PV 발전: 0.0 kW\n  잉여: 0.0 kW, 부족: 663.0 kW,",
+        "끝 스텝 요약": "[23:45] 커뮤니티 에너지 상태 요약\n  부하: 663.1 kW, PV 발전: 0.0 kW\n  잉여: 0.0 kW, 부족: 663.1 kW,",
+        "피크 위험 스텝 (≥0.7)": 96
+      },
+      "error": ""
+    },
+    {
+      "name": "Step3  AgentScope Multi-Agent Decision",
+      "ok": true,
+      "elapsed_sec": 0.012,
+      "summary": {
+        "ESS 스케줄": "96건  (충전 0 / 방전 96 / 대기 0)",
+        "거래 권고": "0건",
+        "DR 이벤트": "84건",
+        "결정 모드": "AgentScope"
+      },
+      "error": ""
+    },
+    {
+      "name": "Step4  Action Execution Engine",
+      "ok": true,
+      "elapsed_sec": 0.187,
+      "summary": {
+        "실행 승인 여부": "✓ 승인",
+        "검증 오류": "0건",
+        "결과 DataFrame": "96 rows × 11 cols",
+        "ESS 실행 스텝": "0건",
+        "P2P 거래량 합계": "0.0 kW"
+      },
+      "error": ""
+    },
+    {
+      "name": "Step5  Evaluation Engine",
+      "ok": true,
+      "elapsed_sec": 0.0,
+      "summary": {
+        "에너지 비용": "0 원",
+        "거래 수익": "0 원",
+        "피크 감소율": "0.0 %",
+        "ESS 마모 비용": "0 원",
+        "DR 수락율": "0 %",
+        "종합 등급": "C"
+      },
+      "error": ""
+    }
+  ],
+  "total_elapsed_sec": 12.24,
+  "ok": true
+}

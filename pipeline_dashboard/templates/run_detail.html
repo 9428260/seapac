@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+{% block title %}Run #{{ run.id }} — SEAPAC Pipeline Dashboard{% endblock %}
+{% block main_top %}
+  <form class="search-bar step-search-bar" method="get" action="{{ url_for('run_detail_by_search') }}" id="step-search-form">
+    <input type="hidden" name="tab" value="{{ current_tab }}">
+    <span><label for="step-search-prosumer">Prosumer ID</label>
+      <select name="prosumer" id="step-search-prosumer">
+        <option value="">All</option>
+        {% for p in (prosumer_options or []) %}
+        <option value="{{ p|e }}" {% if p == search_prosumer %}selected{% endif %}>{{ p }}</option>
+        {% endfor %}
+      </select>
+    </span>
+    <span class="date-field">
+      <label for="step-search-measure-date">Measure date</label>
+      <input type="date" id="step-search-measure-date" name="measure_date" value="{{ search_measure_date|e }}" aria-label="Measure date">
+    </span>
+    <span class="date-field">
+      <label for="step-search-run-date">Run date</label>
+      <input type="date" id="step-search-run-date" name="run_date" value="{{ search_run_date|e }}" aria-label="Run date">
+    </span>
+    <button type="submit">Search</button>
+  </form>
+{% endblock %}
+{% block extra_css %}
+  .search-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
+  .search-bar label { font-size: 0.85rem; color: var(--muted); margin-right: 0.25rem; }
+  .search-bar input[type="date"], .search-bar select {
+    padding: 0.35rem 0.5rem; background: var(--bg); border: 1px solid var(--muted); border-radius: 4px; color: var(--text);
+  }
+  .search-bar .date-field { display: inline-flex; align-items: center; gap: 0.35rem; }
+  .search-bar .date-field label { margin-right: 0; }
+  .search-bar select { min-width: 10rem; cursor: pointer; }
+  .search-bar button { padding: 0.4rem 0.9rem; background: var(--accent); color: var(--bg); border: none; border-radius: 4px; cursor: pointer; font-weight: 600; }
+  .detail-tabs {
+    display: none !important;
+  }
+  .detail-tabs a.detail-tab {
+    display: inline-block;
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+    color: var(--muted);
+    background: rgba(0,0,0,0.2);
+    border: 1px solid transparent;
+    border-bottom: none;
+    border-radius: 6px 6px 0 0;
+    margin-bottom: -1px;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .detail-tabs a.detail-tab:hover {
+    color: var(--text);
+    background: rgba(88, 166, 255, 0.1);
+  }
+  .detail-tabs a.detail-tab.active {
+    color: var(--accent);
+    background: var(--bg);
+    border-color: rgba(139, 148, 158, 0.3);
+    border-bottom: 1px solid var(--bg);
+    margin-bottom: -2px;
+    padding-bottom: calc(0.6rem + 1px);
+  }
+  .detail-panel {
+    display: none;
+    padding: 1rem 0;
+    border: 1px solid rgba(139, 148, 158, 0.2);
+    border-radius: 0 0 8px 8px;
+    border-top: none;
+    background: var(--bg);
+  }
+  .detail-panel.active {
+    display: block;
+  }
+  .stage { background: var(--card); border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 0.75rem; }
+  .stage-name { font-weight: 600; margin-bottom: 0.25rem; }
+  .stage-meta { font-size: 0.9rem; color: var(--muted); margin-bottom: 0.5rem; }
+  .stage-summary { font-size: 0.9rem; margin-top: 0.5rem; }
+  .stage-summary ul { margin: 0; padding-left: 1.25rem; }
+  .run-meta { color: var(--muted); font-size: 0.9rem; margin-bottom: 1rem; }
+  .no-content { color: var(--muted); font-style: italic; padding: 1rem 0; }
+{% endblock %}
+{% block content %}
+  <h1>Run #{{ run.id }}</h1>
+  <div class="run-meta">
+    생성: {{ run.created_at }}
+    {% if run.finished_at %} · 완료: {{ run.finished_at }}{% endif %}
+    · 상태:
+    {% if run.status == 'success' %}
+      <span class="badge badge-success">성공</span>
+    {% elif run.status == 'failure' %}
+      <span class="badge badge-failure">실패</span>
+    {% else %}
+      <span class="badge badge-running">실행 중</span>
+    {% endif %}
+    {% if run.total_elapsed_sec is not none %}
+      · 총 소요: {{ "%.1f"|format(run.total_elapsed_sec) }}s
+    {% endif %}
+  </div>
+  {% if run.error_message %}
+    <p style="color: var(--fail); margin-bottom: 1rem;">{{ run.error_message }}</p>
+  {% endif %}
+
+  {% if run.status == 'running' and not run.stages %}
+  <p class="run-meta">실행 중입니다. 단계가 완료되면 탭별로 표시됩니다.</p>
+  {% endif %}
+
+  <h2 style="font-size: 1.1rem; margin: 1.25rem 0 0.5rem 0;">단계별 결과</h2>
+  {% set _ct = current_tab|default('1') %}
+  <div class="detail-tabs">
+    <a href="#" data-tab="tab-1" class="detail-tab {% if _ct == '1' %}active{% endif %}">1. [ALFP] 부하 예측 및 운영 의사결정</a>
+    <a href="#" data-tab="tab-2" class="detail-tab {% if _ct == '2' %}active{% endif %}">2. [MESA] 시뮬레이션 실행</a>
+    <a href="#" data-tab="tab-3" class="detail-tab {% if _ct == '3' %}active{% endif %}">3. [AgentScope] Multi-Agent Decision</a>
+    <a href="#" data-tab="tab-4" class="detail-tab {% if _ct == '4' %}active{% endif %}">4. [CDA] 전력거래</a>
+    <a href="#" data-tab="tab-5" class="detail-tab {% if _ct == '5' %}active{% endif %}">5. EcoSaver, Storage Master, Policy</a>
+    <a href="#" data-tab="tab-6" class="detail-tab {% if _ct == '6' %}active{% endif %}">6. Evaluation</a>
+  </div>
+
+  {# Tab 1: [ALFP] 부하 예측 및 운영 의사결정 #}
+  <div id="tab-1" class="detail-panel {% if _ct == '1' %}active{% endif %}">
+    {% for s in (tab1_stages or []) %}
+    <div class="stage">
+      <div class="stage-name">{{ s.stage_name }} {% if s.ok %}<span class="badge badge-success">✓</span>{% else %}<span class="badge badge-failure">✗</span>{% endif %}</div>
+      <div class="stage-meta">소요: {{ "%.2f"|format(s.elapsed_sec) }}s</div>
+      {% if s.error_text %}<p style="color: var(--fail); font-size: 0.9rem;">{{ s.error_text }}</p>{% endif %}
+      {% if s.summary %}
+      <div class="stage-summary"><ul>{% for key, val in s.summary.items() %}<li><strong>{{ key }}</strong>: {{ val }}</li>{% endfor %}</ul></div>
+      {% endif %}
+    </div>
+    {% else %}
+    <p class="no-content">해당 단계 결과가 없습니다.</p>
+    {% endfor %}
+  </div>
+
+  {# Tab 2: [MESA] 시뮬레이션 실행 #}
+  <div id="tab-2" class="detail-panel {% if _ct == '2' %}active{% endif %}">
+    {% for s in (tab2_stages or []) %}
+    <div class="stage">
+      <div class="stage-name">{{ s.stage_name }} {% if s.ok %}<span class="badge badge-success">✓</span>{% else %}<span class="badge badge-failure">✗</span>{% endif %}</div>
+      <div class="stage-meta">소요: {{ "%.2f"|format(s.elapsed_sec) }}s</div>
+      {% if s.error_text %}<p style="color: var(--fail); font-size: 0.9rem;">{{ s.error_text }}</p>{% endif %}
+      {% if s.summary %}
+      <div class="stage-summary"><ul>{% for key, val in s.summary.items() %}<li><strong>{{ key }}</strong>: {{ val }}</li>{% endfor %}</ul></div>
+      {% endif %}
+    </div>
+    {% else %}
+    <p class="no-content">해당 단계 결과가 없습니다.</p>
+    {% endfor %}
+  </div>
+
+  {# Tab 3: State Translator, AgentScope Multi-Agent Decision, Step3.5+4 병합 #}
+  <div id="tab-3" class="detail-panel {% if _ct == '3' %}active{% endif %}">
+    {% for s in (tab3_stages or []) %}
+    <div class="stage">
+      <div class="stage-name">{{ s.stage_name }} {% if s.ok %}<span class="badge badge-success">✓</span>{% else %}<span class="badge badge-failure">✗</span>{% endif %}</div>
+      <div class="stage-meta">소요: {{ "%.2f"|format(s.elapsed_sec) }}s</div>
+      {% if s.error_text %}<p style="color: var(--fail); font-size: 0.9rem;">{{ s.error_text }}</p>{% endif %}
+      {% if s.summary %}
+      <div class="stage-summary"><ul>{% for key, val in s.summary.items() %}<li><strong>{{ key }}</strong>: {{ val }}</li>{% endfor %}</ul></div>
+      {% endif %}
+    </div>
+    {% else %}
+    <p class="no-content">해당 단계 결과가 없습니다.</p>
+    {% endfor %}
+  </div>
+
+  {# Tab 4: [CDA] 전력거래 #}
+  <div id="tab-4" class="detail-panel {% if _ct == '4' %}active{% endif %}">
+    {% for s in (tab4_stages or []) %}
+    <div class="stage">
+      <div class="stage-name">{{ s.stage_name }} {% if s.ok %}<span class="badge badge-success">✓</span>{% else %}<span class="badge badge-failure">✗</span>{% endif %}</div>
+      <div class="stage-meta">소요: {{ "%.2f"|format(s.elapsed_sec) }}s</div>
+      {% if s.error_text %}<p style="color: var(--fail); font-size: 0.9rem;">{{ s.error_text }}</p>{% endif %}
+      {% if s.summary %}
+      <div class="stage-summary"><ul>{% for key, val in s.summary.items() %}<li><strong>{{ key }}</strong>: {{ val }}</li>{% endfor %}</ul></div>
+      {% endif %}
+    </div>
+    {% else %}
+    <p class="no-content">해당 단계 결과가 없습니다.</p>
+    {% endfor %}
+  </div>
+
+  {# Tab 5: EcoSaver, Storage Master, Policy #}
+  <div id="tab-5" class="detail-panel {% if _ct == '5' %}active{% endif %}">
+    {% for s in (tab5_stages or []) %}
+    <div class="stage">
+      <div class="stage-name">{{ s.stage_name }} {% if s.ok %}<span class="badge badge-success">✓</span>{% else %}<span class="badge badge-failure">✗</span>{% endif %}</div>
+      <div class="stage-meta">소요: {{ "%.2f"|format(s.elapsed_sec) }}s</div>
+      {% if s.error_text %}<p style="color: var(--fail); font-size: 0.9rem;">{{ s.error_text }}</p>{% endif %}
+      {% if s.summary %}
+      <div class="stage-summary"><ul>{% for key, val in s.summary.items() %}<li><strong>{{ key }}</strong>: {{ val }}</li>{% endfor %}</ul></div>
+      {% endif %}
+    </div>
+    {% else %}
+    <p class="no-content">해당 단계 결과가 없습니다.</p>
+    {% endfor %}
+  </div>
+
+  {# Tab 6: Evaluation #}
+  <div id="tab-6" class="detail-panel {% if _ct == '6' %}active{% endif %}">
+    {% for s in (tab6_stages or []) %}
+    <div class="stage">
+      <div class="stage-name">{{ s.stage_name }} {% if s.ok %}<span class="badge badge-success">✓</span>{% else %}<span class="badge badge-failure">✗</span>{% endif %}</div>
+      <div class="stage-meta">소요: {{ "%.2f"|format(s.elapsed_sec) }}s</div>
+      {% if s.error_text %}<p style="color: var(--fail); font-size: 0.9rem;">{{ s.error_text }}</p>{% endif %}
+      {% if s.summary %}
+      <div class="stage-summary"><ul>{% for key, val in s.summary.items() %}<li><strong>{{ key }}</strong>: {{ val }}</li>{% endfor %}</ul></div>
+      {% endif %}
+    </div>
+    {% else %}
+    <p class="no-content">해당 단계 결과가 없습니다.</p>
+    {% endfor %}
+  </div>
+
+  <p style="margin-top: 1.5rem;"><a href="/">← 실행 이력으로</a></p>
+
+  {% if run.status == 'running' %}
+  <p class="run-meta" style="margin-top: 1rem;">실행 중 — 3초마다 자동 새로고침</p>
+  <script>
+    setTimeout(function() { window.location.reload(); }, 3000);
+  </script>
+  {% endif %}
+
+  <script>
+    document.querySelectorAll('.detail-tab').forEach(function(a) {
+      a.addEventListener('click', function(e) {
+        e.preventDefault();
+        var tabId = this.getAttribute('data-tab');
+        var tabNum = tabId.replace('tab-', '');
+        document.querySelectorAll('.detail-tab').forEach(function(x) { x.classList.remove('active'); });
+        document.querySelectorAll('.detail-panel').forEach(function(x) { x.classList.remove('active'); });
+        this.classList.add('active');
+        var panel = document.getElementById(tabId);
+        if (panel) panel.classList.add('active');
+        var url = window.location.pathname + '?tab=' + tabNum;
+        if (window.location.href !== url) window.history.replaceState({}, '', url);
+      });
+    });
+  </script>
+{% endblock %}
+{% block extra_js %}
+  <script> document.getElementById('lnb-history') && document.getElementById('lnb-history').classList.add('active'); </script>
+{% endblock %}

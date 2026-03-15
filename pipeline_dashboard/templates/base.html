@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}SEAPAC Pipeline Dashboard{% endblock %}</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --card: #1a2332;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --ok: #3fb950;
+      --fail: #f85149;
+      --accent: #58a6ff;
+      --lnb-width: 300px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .layout {
+      display: flex;
+      min-height: 100vh;
+    }
+    .lnb {
+      width: var(--lnb-width);
+      flex-shrink: 0;
+      background: var(--card);
+      border-right: 1px solid rgba(139, 148, 158, 0.25);
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .lnb-title {
+      font-size: 1rem;
+      font-weight: 600;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid rgba(139, 148, 158, 0.25);
+    }
+    .lnb-title a { color: var(--text); }
+    .lnb-title a:hover { text-decoration: none; opacity: 0.9; }
+    .lnb-group {
+      padding: 0.75rem 0;
+      border-bottom: 1px solid rgba(139, 148, 158, 0.2);
+    }
+    .lnb-group:last-of-type { border-bottom: none; }
+    .lnb-group-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 0 1.25rem 0.5rem;
+      margin-bottom: 0.25rem;
+    }
+    .lnb-nav { padding: 0 0.75rem; }
+    .lnb-nav a {
+      display: block;
+      padding: 0.5rem 0.75rem;
+      margin-bottom: 2px;
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 0.9rem;
+    }
+    .lnb-nav a:hover {
+      background: rgba(88, 166, 255, 0.15);
+      text-decoration: none;
+    }
+    .lnb-nav a.active {
+      background: rgba(88, 166, 255, 0.22);
+      color: var(--accent);
+      font-weight: 500;
+    }
+    .lnb-nav .lnb-section {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 0.5rem 1.25rem 0.35rem;
+      margin-top: 0.25rem;
+      border-top: 1px solid rgba(139, 148, 158, 0.15);
+    }
+    .lnb-nav a.lnb-tab { font-size: 0.85rem; padding: 0.4rem 0.75rem; }
+
+    .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .main-top {
+      flex-shrink: 0;
+      padding: 0.75rem 2rem 1rem;
+      border-bottom: 1px solid rgba(139, 148, 158, 0.2);
+      background: var(--card);
+    }
+    .main-body {
+      flex: 1;
+      padding: 1.5rem 2rem;
+      overflow-x: auto;
+    }
+    .main-body h1 { font-size: 1.5rem; margin: 0 0 1rem 0; }
+    .badge { display: inline-block; padding: 0.2em 0.5em; border-radius: 4px; font-size: 0.85rem; }
+    .badge-success { background: rgba(63,185,80,.2); color: var(--ok); }
+    .badge-failure { background: rgba(248,81,73,.2); color: var(--fail); }
+    .badge-running { background: rgba(88,166,255,.2); color: var(--accent); }
+    {% block extra_css %}{% endblock %}
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <nav class="lnb">
+      <div class="lnb-title"><a href="/">SEAPAC Pipeline</a></div>
+      <div class="lnb-group">
+        <div class="lnb-group-title">실행</div>
+        <div class="lnb-nav">
+          <a href="/#new-run" id="lnb-new-run">Run historical data</a>
+          <a href="/" id="lnb-history" class="{% if (current_path|default('')) == '/' %}active{% endif %}">Execution History</a>
+        </div>
+      </div>
+      <div class="lnb-group">
+        <div class="lnb-section">단계별 이력</div>
+        <div class="lnb-nav">
+          <a href="{% if run %}{{ url_for('run_detail', run_id=run.id) }}?tab=1{% else %}/?tab=1{% endif %}" id="lnb-tab-1" class="lnb-tab {% if (current_tab|default('')) == '1' %}active{% endif %}">[ALFP] 부하 예측 및 운영 의사결정</a>
+          <a href="{% if run %}{{ url_for('run_detail', run_id=run.id) }}?tab=2{% else %}/?tab=2{% endif %}" id="lnb-tab-2" class="lnb-tab {% if (current_tab|default('')) == '2' %}active{% endif %}">[MESA] 시뮬레이션 실행</a>
+          <a href="{% if run %}{{ url_for('run_detail', run_id=run.id) }}?tab=3{% else %}/?tab=3{% endif %}" id="lnb-tab-3" class="lnb-tab {% if (current_tab|default('')) == '3' %}active{% endif %}">[AgentScope] Multi-Agent Decision</a>
+          <a href="{% if run %}{{ url_for('run_detail', run_id=run.id) }}?tab=4{% else %}/?tab=4{% endif %}" id="lnb-tab-4" class="lnb-tab {% if (current_tab|default('')) == '4' %}active{% endif %}">[CDA] 전력거래</a>
+          <a href="{% if run %}{{ url_for('run_detail', run_id=run.id) }}?tab=5{% else %}/?tab=5{% endif %}" id="lnb-tab-5" class="lnb-tab {% if (current_tab|default('')) == '5' %}active{% endif %}">[PA] EcoSaver, Storage, Policy</a>
+          <a href="{% if run %}{{ url_for('run_detail', run_id=run.id) }}?tab=6{% else %}/?tab=6{% endif %}" id="lnb-tab-6" class="lnb-tab {% if (current_tab|default('')) == '6' %}active{% endif %}">Evaluation</a>
+        </div>
+      </div>
+    </nav>
+    <main class="main">
+      <div class="main-top">{% block main_top %}{% endblock %}</div>
+      <div class="main-body">{% block content %}{% endblock %}</div>
+    </main>
+  </div>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

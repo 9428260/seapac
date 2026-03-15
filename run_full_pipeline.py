@@ -48,6 +48,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import os
 import sys
 import time
 from concurrent.futures import ThreadPoolExecutor, Future
@@ -55,6 +56,19 @@ from dataclasses import dataclass, field, asdict
 from datetime import datetime
 from pathlib import Path
 from typing import Any
+
+try:
+    from pipeline_dashboard.db import (
+        get_db_path,
+        init_db,
+        create_run,
+        add_stage,
+        finish_run,
+    )
+    _DASHBOARD_AVAILABLE = True
+except ImportError:
+    get_db_path = init_db = create_run = add_stage = finish_run = None  # type: ignore[misc, assignment]
+    _DASHBOARD_AVAILABLE = False
 
 
 # ─────────────────────────────────────────────────────────────────
@@ -186,7 +200,8 @@ def _parse_args() -> argparse.Namespace:
     # 출력
     p.add_argument("--output-dir",  default=None, help="결과 저장 디렉토리")
     p.add_argument("--save-json",   action="store_true", help="JSON 파일로 결과 저장")
-    p.add_argument("--log-file",    default=None, help="로그 파일 경로")
+    p.add_argument("--log-file",    default=None, help="로그 파일 경로 (미지정 시 logs/pipeline_YYYYMMDD_HHMMSS.log)")
+    p.add_argument("--log-dir",     default="logs", help="시간별 로그 파일을 저장할 디렉토리 (--log-file 미지정 시 사용)")
     p.add_argument("--verbose",     action="store_true", help="DEBUG 수준 상세 출력")
     p.add_argument("--audit-log",   default=None, help="Parallel Layer 감사 로그 경로")
     return p.parse_args()
@@ -919,12 +934,44 @@ def _write_json(path: Path, obj: Any) -> None:
 # 메인
 # ─────────────────────────────────────────────────────────────────
 
+def _record_stage(run_id: int, order: int, stage_r: StageResult, db_path: Path | None) -> None:
+    """Persist one stage to dashboard DB if available."""
+    if not _DASHBOARD_AVAILABLE or run_id is None:
+        return
+    add_stage(
+        run_id,
+        stage_order=order,
+        stage_name=stage_r.name,
+        ok=stage_r.ok,
+        elapsed_sec=stage_r.elapsed_sec,
+        summary=stage_r.summary,
+        error_text=stage_r.error or None,
+        db_path=db_path,
+    )
+
+
 def main() -> None:
     args = _parse_args()
+    # 로그 파일 미지정 시 logs 디렉토리에 실행 시각 기준 파일 생성
+    if args.log_file is None:
+        log_dir = Path(args.log_dir)
+        log_dir.mkdir(parents=True, exist_ok=True)
+        args.log_file = str(log_dir / f"pipeline_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log")
     _setup_logger(log_file=args.log_file, verbose=args.verbose)
 
     pipeline = PipelineResult()
     pipeline_t0 = time.perf_counter()
+    run_id: int | None = None
+    db_path: Path | None = get_db_path(Path(args.output_dir or "output")) if _DASHBOARD_AVAILABLE else None
+    if _DASHBOARD_AVAILABLE and db_path is not None:
+        init_db(db_path)
+        existing_run_id = os.environ.get("PIPELINE_RUN_ID")
+        if existing_run_id:
+            run_id = int(existing_run_id)
+            log.info("  Dashboard DB: 기존 run_id 사용 (UI 실행) run_id=%s  path=%s", run_id, db_path)
+        else:
+            run_id = create_run(args, db_path=db_path)
+            log.info("  Dashboard DB: run_id=%s  path=%s", run_id, db_path)
 
     _divider("=", 72)
     log.info("  SEAPAC Full Integrated Pipeline")
@@ -933,6 +980,8 @@ def main() -> None:
              args.phase, args.steps, args.use_parallel, args.skip_alfp)
     _divider("=", 72)
 
+    stage_order = 0
+
     # ── [ALFP] ────────────────────────────────────────────────────
     alfp_result: dict | None = None
     alfp_decisions: dict = {}
@@ -940,6 +989,8 @@ def main() -> None:
     if not args.skip_alfp:
         stage_r, alfp_decisions = stage_alfp(args)
         pipeline.add(stage_r)
+        stage_order += 1
+        _record_stage(run_id, stage_order, stage_r, db_path)
         alfp_result = alfp_decisions  # reference for saving
         if not stage_r.ok:
             log.warning("ALFP 실패 → rule-based fallback으로 계속합니다.")
@@ -950,9 +1001,13 @@ def main() -> None:
     # ── [MESA] ────────────────────────────────────────────────────
     stage_r, df, model = stage_mesa(args, alfp_decisions or None)
     pipeline.add(stage_r)
+    stage_order += 1
+    _record_stage(run_id, stage_order, stage_r, db_path)
     if not stage_r.ok or df is None:
         log.error("MESA 실패 — 파이프라인 중단")
         pipeline.total_elapsed_sec = time.perf_counter() - pipeline_t0
+        if _DASHBOARD_AVAILABLE and run_id is not None:
+            finish_run(run_id, pipeline.total_elapsed_sec, ok=False, db_path=db_path)
         pipeline.print_summary()
         sys.exit(1)
 
@@ -961,18 +1016,26 @@ def main() -> None:
     # ── Step2 State Translator ────────────────────────────────────
     stage_r, state_json_list = stage_state_translator(args, df)
     pipeline.add(stage_r)
+    stage_order += 1
+    _record_stage(run_id, stage_order, stage_r, db_path)
     if not stage_r.ok or not state_json_list:
         log.error("State Translator 실패 — 파이프라인 중단")
         pipeline.total_elapsed_sec = time.perf_counter() - pipeline_t0
+        if _DASHBOARD_AVAILABLE and run_id is not None:
+            finish_run(run_id, pipeline.total_elapsed_sec, ok=False, db_path=db_path)
         pipeline.print_summary()
         sys.exit(1)
 
     # ── Step3 AgentScope Multi-Agent Decision ─────────────────────
     stage_r, decisions = stage_multi_agent_decision(args, state_json_list)
     pipeline.add(stage_r)
+    stage_order += 1
+    _record_stage(run_id, stage_order, stage_r, db_path)
     if not stage_r.ok:
         log.error("Multi-Agent Decision 실패 — 파이프라인 중단")
         pipeline.total_elapsed_sec = time.perf_counter() - pipeline_t0
+        if _DASHBOARD_AVAILABLE and run_id is not None:
+            finish_run(run_id, pipeline.total_elapsed_sec, ok=False, db_path=db_path)
         pipeline.print_summary()
         sys.exit(1)
 
@@ -983,27 +1046,39 @@ def main() -> None:
         )
         for s in stages:
             pipeline.add(s)
+            stage_order += 1
+            _record_stage(run_id, stage_order, s, db_path)
         if exec_result is None:
             log.error("전력거래 실행 실패 — 파이프라인 중단")
             pipeline.total_elapsed_sec = time.perf_counter() - pipeline_t0
+            if _DASHBOARD_AVAILABLE and run_id is not None:
+                finish_run(run_id, pipeline.total_elapsed_sec, ok=False, db_path=db_path)
             pipeline.print_summary()
             sys.exit(1)
     else:
         # ── Step4 Action Execution Engine (순차) ──────────────────
         stage_r, exec_result = stage_execution(args, decisions)
         pipeline.add(stage_r)
+        stage_order += 1
+        _record_stage(run_id, stage_order, stage_r, db_path)
         if not stage_r.ok or exec_result is None:
             log.error("Action Execution 실패 — 파이프라인 중단")
             pipeline.total_elapsed_sec = time.perf_counter() - pipeline_t0
+            if _DASHBOARD_AVAILABLE and run_id is not None:
+                finish_run(run_id, pipeline.total_elapsed_sec, ok=False, db_path=db_path)
             pipeline.print_summary()
             sys.exit(1)
 
     # ── Step5 Evaluation Engine ───────────────────────────────────
     stage_r, eval_report = stage_evaluation(args, exec_result, decisions, baseline_peak_kw)
     pipeline.add(stage_r)
+    stage_order += 1
+    _record_stage(run_id, stage_order, stage_r, db_path)
 
     # ── 결과 저장 ─────────────────────────────────────────────────
     pipeline.total_elapsed_sec = time.perf_counter() - pipeline_t0
+    if _DASHBOARD_AVAILABLE and run_id is not None:
+        finish_run(run_id, pipeline.total_elapsed_sec, ok=pipeline.ok, db_path=db_path)
 
     if args.output_dir or args.save_json:
         _divider()

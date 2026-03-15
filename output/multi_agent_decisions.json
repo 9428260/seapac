@@ -4,15 +4,7 @@
       "action": "idle",
       "power_kw": 0.0,
       "soc_kwh": 0.0,
-      "net_load_kw": 632.3,
-      "timestamp": "01:00",
-      "reason": "피크 위험 HIGH → 방전 50.0kW"
-    },
-    {
-      "action": "idle",
-      "power_kw": 0.0,
-      "soc_kwh": 0.0,
-      "net_load_kw": 636.1,
+      "net_load_kw": 645.8,
       "timestamp": "00:45",
       "reason": "피크 위험 HIGH → 방전 50.0kW"
     },
@@ -20,23 +12,15 @@
       "action": "idle",
       "power_kw": 0.0,
       "soc_kwh": 0.0,
-      "net_load_kw": 654.5,
-      "timestamp": "00:30",
+      "net_load_kw": 625.0,
+      "timestamp": "01:30",
       "reason": "피크 위험 HIGH → 방전 50.0kW"
     },
     {
       "action": "idle",
       "power_kw": 0.0,
       "soc_kwh": 0.0,
-      "net_load_kw": 651.3,
-      "timestamp": "00:00",
-      "reason": "피크 위험 HIGH → 방전 50.0kW"
-    },
-    {
-      "action": "idle",
-      "power_kw": 0.0,
-      "soc_kwh": 0.0,
-      "net_load_kw": 660.9,
+      "net_load_kw": 654.3,
       "timestamp": "00:15",
       "reason": "피크 위험 HIGH → 방전 50.0kW"
     },
@@ -44,7 +28,15 @@
       "action": "idle",
       "power_kw": 0.0,
       "soc_kwh": 0.0,
-      "net_load_kw": 637.9,
+      "net_load_kw": 663.0,
+      "timestamp": "00:00",
+      "reason": "피크 위험 HIGH → 방전 50.0kW"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 650.6,
       "timestamp": "01:15",
       "reason": "피크 위험 HIGH → 방전 50.0kW"
     },
@@ -52,510 +44,524 @@
       "action": "idle",
       "power_kw": 0.0,
       "soc_kwh": 0.0,
-      "net_load_kw": 617.2,
-      "timestamp": "01:30",
+      "net_load_kw": 639.9,
+      "timestamp": "01:00",
+      "reason": "피크 위험 HIGH → 방전 50.0kW"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 666.0,
+      "timestamp": "00:30",
       "reason": "피크 위험 HIGH → 방전 50.0kW"
     }
   ],
   "trading_recommendations": [],
   "demand_response_events": [
     {
-      "net_load_kw": 603.2,
-      "recommended_reduction_kw": 30.96,
-      "action": "demand_response",
-      "timestamp": "17:00"
-    },
-    {
-      "net_load_kw": 662.3,
-      "recommended_reduction_kw": 48.69,
+      "net_load_kw": 704.9,
+      "recommended_reduction_kw": 61.47,
       "action": "demand_response",
       "timestamp": "16:00"
     },
     {
-      "net_load_kw": 705.9,
-      "recommended_reduction_kw": 61.77,
-      "action": "demand_response",
-      "timestamp": "21:30"
-    },
-    {
-      "net_load_kw": 656.2,
-      "recommended_reduction_kw": 46.86,
-      "action": "demand_response",
-      "timestamp": "23:00"
-    },
-    {
-      "net_load_kw": 664.4,
-      "recommended_reduction_kw": 49.32,
-      "action": "demand_response",
-      "timestamp": "22:30"
-    },
-    {
-      "net_load_kw": 627.3,
-      "recommended_reduction_kw": 38.19,
-      "action": "demand_response",
-      "timestamp": "23:15"
-    },
-    {
-      "net_load_kw": 660.9,
-      "recommended_reduction_kw": 48.27,
-      "action": "demand_response",
-      "timestamp": "00:15"
-    },
-    {
-      "net_load_kw": 892.2,
-      "recommended_reduction_kw": 117.66,
-      "action": "demand_response",
-      "timestamp": "11:45"
-    },
-    {
-      "net_load_kw": 722.6,
-      "recommended_reduction_kw": 66.78,
-      "action": "demand_response",
-      "timestamp": "08:15"
-    },
-    {
-      "net_load_kw": 731.0,
-      "recommended_reduction_kw": 69.3,
-      "action": "demand_response",
-      "timestamp": "08:45"
-    },
-    {
-      "net_load_kw": 551.5,
-      "recommended_reduction_kw": 15.45,
-      "action": "demand_response",
-      "timestamp": "02:45"
-    },
-    {
-      "net_load_kw": 715.1,
-      "recommended_reduction_kw": 64.53,
-      "action": "demand_response",
-      "timestamp": "15:15"
-    },
-    {
-      "net_load_kw": 541.8,
-      "recommended_reduction_kw": 12.54,
+      "net_load_kw": 535.9,
+      "recommended_reduction_kw": 10.77,
       "action": "demand_response",
       "timestamp": "03:00"
     },
     {
-      "net_load_kw": 739.6,
-      "recommended_reduction_kw": 71.88,
+      "net_load_kw": 586.8,
+      "recommended_reduction_kw": 26.04,
       "action": "demand_response",
-      "timestamp": "09:00"
+      "timestamp": "20:15"
     },
     {
-      "net_load_kw": 535.5,
-      "recommended_reduction_kw": 10.65,
-      "action": "demand_response",
-      "timestamp": "07:15"
-    },
-    {
-      "net_load_kw": 632.3,
-      "recommended_reduction_kw": 39.69,
-      "action": "demand_response",
-      "timestamp": "01:00"
-    },
-    {
-      "net_load_kw": 648.8,
-      "recommended_reduction_kw": 44.64,
-      "action": "demand_response",
-      "timestamp": "22:15"
-    },
-    {
-      "net_load_kw": 628.2,
-      "recommended_reduction_kw": 38.46,
-      "action": "demand_response",
-      "timestamp": "23:30"
-    },
-    {
-      "net_load_kw": 525.1,
-      "recommended_reduction_kw": 7.53,
-      "action": "demand_response",
-      "timestamp": "18:45"
-    },
-    {
-      "net_load_kw": 651.3,
-      "recommended_reduction_kw": 45.39,
-      "action": "demand_response",
-      "timestamp": "00:00"
-    },
-    {
-      "net_load_kw": 589.5,
-      "recommended_reduction_kw": 26.85,
+      "net_load_kw": 594.6,
+      "recommended_reduction_kw": 28.38,
       "action": "demand_response",
       "timestamp": "02:00"
     },
     {
-      "net_load_kw": 894.3,
-      "recommended_reduction_kw": 118.29,
+      "net_load_kw": 625.0,
+      "recommended_reduction_kw": 37.5,
       "action": "demand_response",
-      "timestamp": "11:00"
+      "timestamp": "01:30"
     },
     {
-      "net_load_kw": 852.5,
-      "recommended_reduction_kw": 105.75,
+      "net_load_kw": 600.0,
+      "recommended_reduction_kw": 30.0,
       "action": "demand_response",
-      "timestamp": "10:30"
+      "timestamp": "22:00"
     },
     {
-      "net_load_kw": 616.9,
-      "recommended_reduction_kw": 35.07,
+      "net_load_kw": 541.0,
+      "recommended_reduction_kw": 12.3,
       "action": "demand_response",
-      "timestamp": "20:30"
+      "timestamp": "19:00"
     },
     {
-      "net_load_kw": 540.4,
-      "recommended_reduction_kw": 12.12,
+      "net_load_kw": 758.1,
+      "recommended_reduction_kw": 77.43,
       "action": "demand_response",
-      "timestamp": "19:15"
+      "timestamp": "15:15"
     },
     {
-      "net_load_kw": 771.8,
-      "recommended_reduction_kw": 81.54,
+      "net_load_kw": 866.2,
+      "recommended_reduction_kw": 109.86,
       "action": "demand_response",
-      "timestamp": "14:30"
+      "timestamp": "17:15"
     },
     {
-      "net_load_kw": 557.6,
-      "recommended_reduction_kw": 17.28,
+      "net_load_kw": 673.7,
+      "recommended_reduction_kw": 52.11,
       "action": "demand_response",
-      "timestamp": "19:45"
+      "timestamp": "16:15"
+    },
+    {
+      "net_load_kw": 905.5,
+      "recommended_reduction_kw": 121.65,
+      "action": "demand_response",
+      "timestamp": "12:00"
+    },
+    {
+      "net_load_kw": 781.4,
+      "recommended_reduction_kw": 84.42,
+      "action": "demand_response",
+      "timestamp": "15:30"
+    },
+    {
+      "net_load_kw": 885.4,
+      "recommended_reduction_kw": 115.62,
+      "action": "demand_response",
+      "timestamp": "12:30"
+    },
+    {
+      "net_load_kw": 583.8,
+      "recommended_reduction_kw": 25.14,
+      "action": "demand_response",
+      "timestamp": "02:15"
+    },
+    {
+      "net_load_kw": 558.6,
+      "recommended_reduction_kw": 17.58,
+      "action": "demand_response",
+      "timestamp": "07:45"
+    },
+    {
+      "net_load_kw": 650.6,
+      "recommended_reduction_kw": 45.18,
+      "action": "demand_response",
+      "timestamp": "01:15"
+    },
+    {
+      "net_load_kw": 531.3,
+      "recommended_reduction_kw": 9.39,
+      "action": "demand_response",
+      "timestamp": "04:00"
     },
     {
       "net_load_kw": 620.4,
       "recommended_reduction_kw": 36.12,
       "action": "demand_response",
-      "timestamp": "01:45"
+      "timestamp": "23:00"
     },
     {
-      "net_load_kw": 588.4,
-      "recommended_reduction_kw": 26.52,
-      "action": "demand_response",
-      "timestamp": "17:45"
-    },
-    {
-      "net_load_kw": 706.4,
-      "recommended_reduction_kw": 61.92,
-      "action": "demand_response",
-      "timestamp": "15:30"
-    },
-    {
-      "net_load_kw": 521.8,
-      "recommended_reduction_kw": 6.54,
-      "action": "demand_response",
-      "timestamp": "03:15"
-    },
-    {
-      "net_load_kw": 834.4,
-      "recommended_reduction_kw": 100.32,
-      "action": "demand_response",
-      "timestamp": "14:00"
-    },
-    {
-      "net_load_kw": 763.9,
-      "recommended_reduction_kw": 79.17,
-      "action": "demand_response",
-      "timestamp": "14:45"
-    },
-    {
-      "net_load_kw": 617.2,
-      "recommended_reduction_kw": 35.16,
-      "action": "demand_response",
-      "timestamp": "01:30"
-    },
-    {
-      "net_load_kw": 684.7,
-      "recommended_reduction_kw": 55.41,
-      "action": "demand_response",
-      "timestamp": "21:00"
-    },
-    {
-      "net_load_kw": 638.1,
-      "recommended_reduction_kw": 41.43,
-      "action": "demand_response",
-      "timestamp": "22:45"
-    },
-    {
-      "net_load_kw": 882.0,
-      "recommended_reduction_kw": 114.6,
-      "action": "demand_response",
-      "timestamp": "11:15"
-    },
-    {
-      "net_load_kw": 826.7,
-      "recommended_reduction_kw": 98.01,
-      "action": "demand_response",
-      "timestamp": "10:15"
-    },
-    {
-      "net_load_kw": 525.4,
-      "recommended_reduction_kw": 7.62,
-      "action": "demand_response",
-      "timestamp": "07:00"
-    },
-    {
-      "net_load_kw": 867.9,
-      "recommended_reduction_kw": 110.37,
-      "action": "demand_response",
-      "timestamp": "13:00"
-    },
-    {
-      "net_load_kw": 569.6,
-      "recommended_reduction_kw": 20.88,
-      "action": "demand_response",
-      "timestamp": "02:30"
-    },
-    {
-      "net_load_kw": 654.5,
-      "recommended_reduction_kw": 46.35,
-      "action": "demand_response",
-      "timestamp": "00:30"
-    },
-    {
-      "net_load_kw": 561.0,
-      "recommended_reduction_kw": 18.3,
-      "action": "demand_response",
-      "timestamp": "07:45"
-    },
-    {
-      "net_load_kw": 617.9,
-      "recommended_reduction_kw": 35.37,
+      "net_load_kw": 586.7,
+      "recommended_reduction_kw": 26.01,
       "action": "demand_response",
       "timestamp": "08:00"
     },
     {
-      "net_load_kw": 502.1,
-      "recommended_reduction_kw": 0.63,
+      "net_load_kw": 557.4,
+      "recommended_reduction_kw": 17.22,
       "action": "demand_response",
-      "timestamp": "18:00"
+      "timestamp": "02:45"
     },
     {
-      "net_load_kw": 874.2,
-      "recommended_reduction_kw": 112.26,
+      "net_load_kw": 634.4,
+      "recommended_reduction_kw": 40.32,
       "action": "demand_response",
-      "timestamp": "10:45"
+      "timestamp": "23:15"
     },
     {
-      "net_load_kw": 589.6,
-      "recommended_reduction_kw": 26.88,
-      "action": "demand_response",
-      "timestamp": "17:15"
-    },
-    {
-      "net_load_kw": 833.0,
-      "recommended_reduction_kw": 99.9,
-      "action": "demand_response",
-      "timestamp": "13:45"
-    },
-    {
-      "net_load_kw": 515.7,
-      "recommended_reduction_kw": 4.71,
-      "action": "demand_response",
-      "timestamp": "18:30"
-    },
-    {
-      "net_load_kw": 508.0,
-      "recommended_reduction_kw": 2.4,
-      "action": "demand_response",
-      "timestamp": "18:15"
-    },
-    {
-      "net_load_kw": 548.9,
-      "recommended_reduction_kw": 14.67,
-      "action": "demand_response",
-      "timestamp": "07:30"
-    },
-    {
-      "net_load_kw": 636.1,
-      "recommended_reduction_kw": 40.83,
-      "action": "demand_response",
-      "timestamp": "00:45"
-    },
-    {
-      "net_load_kw": 775.9,
-      "recommended_reduction_kw": 82.77,
-      "action": "demand_response",
-      "timestamp": "09:30"
-    },
-    {
-      "net_load_kw": 642.8,
-      "recommended_reduction_kw": 42.84,
-      "action": "demand_response",
-      "timestamp": "16:15"
-    },
-    {
-      "net_load_kw": 688.2,
-      "recommended_reduction_kw": 56.46,
-      "action": "demand_response",
-      "timestamp": "21:15"
-    },
-    {
-      "net_load_kw": 750.9,
-      "recommended_reduction_kw": 75.27,
-      "action": "demand_response",
-      "timestamp": "09:15"
-    },
-    {
-      "net_load_kw": 622.1,
-      "recommended_reduction_kw": 36.63,
-      "action": "demand_response",
-      "timestamp": "16:30"
-    },
-    {
-      "net_load_kw": 686.3,
-      "recommended_reduction_kw": 55.89,
-      "action": "demand_response",
-      "timestamp": "15:45"
-    },
-    {
-      "net_load_kw": 893.4,
-      "recommended_reduction_kw": 118.02,
-      "action": "demand_response",
-      "timestamp": "12:30"
-    },
-    {
-      "net_load_kw": 518.9,
-      "recommended_reduction_kw": 5.67,
-      "action": "demand_response",
-      "timestamp": "19:00"
-    },
-    {
-      "net_load_kw": 824.4,
-      "recommended_reduction_kw": 97.32,
-      "action": "demand_response",
-      "timestamp": "10:00"
-    },
-    {
-      "net_load_kw": 600.2,
-      "recommended_reduction_kw": 30.06,
-      "action": "demand_response",
-      "timestamp": "20:15"
-    },
-    {
-      "net_load_kw": 588.0,
-      "recommended_reduction_kw": 26.4,
-      "action": "demand_response",
-      "timestamp": "17:30"
-    },
-    {
-      "net_load_kw": 632.8,
-      "recommended_reduction_kw": 39.84,
-      "action": "demand_response",
-      "timestamp": "23:45"
-    },
-    {
-      "net_load_kw": 891.8,
-      "recommended_reduction_kw": 117.54,
-      "action": "demand_response",
-      "timestamp": "12:15"
-    },
-    {
-      "net_load_kw": 847.8,
-      "recommended_reduction_kw": 104.34,
-      "action": "demand_response",
-      "timestamp": "13:30"
-    },
-    {
-      "net_load_kw": 865.8,
-      "recommended_reduction_kw": 109.74,
-      "action": "demand_response",
-      "timestamp": "13:15"
-    },
-    {
-      "net_load_kw": 621.5,
-      "recommended_reduction_kw": 36.45,
-      "action": "demand_response",
-      "timestamp": "16:45"
-    },
-    {
-      "net_load_kw": 896.3,
-      "recommended_reduction_kw": 118.89,
+      "net_load_kw": 876.2,
+      "recommended_reduction_kw": 112.86,
       "action": "demand_response",
       "timestamp": "11:30"
     },
     {
-      "net_load_kw": 727.8,
-      "recommended_reduction_kw": 68.34,
+      "net_load_kw": 830.7,
+      "recommended_reduction_kw": 99.21,
+      "action": "demand_response",
+      "timestamp": "10:00"
+    },
+    {
+      "net_load_kw": 532.8,
+      "recommended_reduction_kw": 9.84,
+      "action": "demand_response",
+      "timestamp": "18:30"
+    },
+    {
+      "net_load_kw": 805.7,
+      "recommended_reduction_kw": 91.71,
+      "action": "demand_response",
+      "timestamp": "09:45"
+    },
+    {
+      "net_load_kw": 581.0,
+      "recommended_reduction_kw": 24.3,
+      "action": "demand_response",
+      "timestamp": "17:45"
+    },
+    {
+      "net_load_kw": 523.4,
+      "recommended_reduction_kw": 7.02,
+      "action": "demand_response",
+      "timestamp": "03:15"
+    },
+    {
+      "net_load_kw": 841.0,
+      "recommended_reduction_kw": 102.3,
+      "action": "demand_response",
+      "timestamp": "13:30"
+    },
+    {
+      "net_load_kw": 639.9,
+      "recommended_reduction_kw": 41.97,
+      "action": "demand_response",
+      "timestamp": "01:00"
+    },
+    {
+      "net_load_kw": 881.9,
+      "recommended_reduction_kw": 114.57,
+      "action": "demand_response",
+      "timestamp": "12:45"
+    },
+    {
+      "net_load_kw": 720.3,
+      "recommended_reduction_kw": 66.09,
+      "action": "demand_response",
+      "timestamp": "08:30"
+    },
+    {
+      "net_load_kw": 840.0,
+      "recommended_reduction_kw": 102.0,
+      "action": "demand_response",
+      "timestamp": "14:00"
+    },
+    {
+      "net_load_kw": 686.4,
+      "recommended_reduction_kw": 55.92,
+      "action": "demand_response",
+      "timestamp": "17:00"
+    },
+    {
+      "net_load_kw": 693.8,
+      "recommended_reduction_kw": 58.14,
       "action": "demand_response",
       "timestamp": "21:45"
     },
     {
-      "net_load_kw": 760.2,
-      "recommended_reduction_kw": 78.06,
+      "net_load_kw": 687.2,
+      "recommended_reduction_kw": 56.16,
       "action": "demand_response",
-      "timestamp": "15:00"
+      "timestamp": "16:45"
     },
     {
-      "net_load_kw": 809.6,
-      "recommended_reduction_kw": 92.88,
+      "net_load_kw": 526.3,
+      "recommended_reduction_kw": 7.89,
+      "action": "demand_response",
+      "timestamp": "18:15"
+    },
+    {
+      "net_load_kw": 683.3,
+      "recommended_reduction_kw": 54.99,
+      "action": "demand_response",
+      "timestamp": "15:45"
+    },
+    {
+      "net_load_kw": 596.9,
+      "recommended_reduction_kw": 29.07,
+      "action": "demand_response",
+      "timestamp": "07:30"
+    },
+    {
+      "net_load_kw": 512.5,
+      "recommended_reduction_kw": 3.75,
+      "action": "demand_response",
+      "timestamp": "03:30"
+    },
+    {
+      "net_load_kw": 576.9,
+      "recommended_reduction_kw": 23.07,
+      "action": "demand_response",
+      "timestamp": "02:30"
+    },
+    {
+      "net_load_kw": 727.5,
+      "recommended_reduction_kw": 68.25,
+      "action": "demand_response",
+      "timestamp": "08:15"
+    },
+    {
+      "net_load_kw": 830.3,
+      "recommended_reduction_kw": 99.09,
+      "action": "demand_response",
+      "timestamp": "10:15"
+    },
+    {
+      "net_load_kw": 653.1,
+      "recommended_reduction_kw": 45.93,
+      "action": "demand_response",
+      "timestamp": "21:00"
+    },
+    {
+      "net_load_kw": 864.3,
+      "recommended_reduction_kw": 109.29,
+      "action": "demand_response",
+      "timestamp": "10:45"
+    },
+    {
+      "net_load_kw": 899.4,
+      "recommended_reduction_kw": 119.82,
+      "action": "demand_response",
+      "timestamp": "13:15"
+    },
+    {
+      "net_load_kw": 922.3,
+      "recommended_reduction_kw": 126.69,
+      "action": "demand_response",
+      "timestamp": "13:00"
+    },
+    {
+      "net_load_kw": 600.4,
+      "recommended_reduction_kw": 30.12,
+      "action": "demand_response",
+      "timestamp": "22:30"
+    },
+    {
+      "net_load_kw": 663.1,
+      "recommended_reduction_kw": 48.93,
+      "action": "demand_response",
+      "timestamp": "23:45"
+    },
+    {
+      "net_load_kw": 649.6,
+      "recommended_reduction_kw": 44.88,
+      "action": "demand_response",
+      "timestamp": "23:30"
+    },
+    {
+      "net_load_kw": 663.0,
+      "recommended_reduction_kw": 48.9,
+      "action": "demand_response",
+      "timestamp": "00:00"
+    },
+    {
+      "net_load_kw": 782.3,
+      "recommended_reduction_kw": 84.69,
+      "action": "demand_response",
+      "timestamp": "14:30"
+    },
+    {
+      "net_load_kw": 666.0,
+      "recommended_reduction_kw": 49.8,
+      "action": "demand_response",
+      "timestamp": "00:30"
+    },
+    {
+      "net_load_kw": 621.3,
+      "recommended_reduction_kw": 36.39,
+      "action": "demand_response",
+      "timestamp": "22:45"
+    },
+    {
+      "net_load_kw": 628.7,
+      "recommended_reduction_kw": 38.61,
+      "action": "demand_response",
+      "timestamp": "20:45"
+    },
+    {
+      "net_load_kw": 883.9,
+      "recommended_reduction_kw": 115.17,
+      "action": "demand_response",
+      "timestamp": "12:15"
+    },
+    {
+      "net_load_kw": 851.3,
+      "recommended_reduction_kw": 105.39,
+      "action": "demand_response",
+      "timestamp": "10:30"
+    },
+    {
+      "net_load_kw": 627.9,
+      "recommended_reduction_kw": 38.37,
+      "action": "demand_response",
+      "timestamp": "16:30"
+    },
+    {
+      "net_load_kw": 749.1,
+      "recommended_reduction_kw": 74.73,
+      "action": "demand_response",
+      "timestamp": "09:15"
+    },
+    {
+      "net_load_kw": 817.5,
+      "recommended_reduction_kw": 95.25,
       "action": "demand_response",
       "timestamp": "14:15"
     },
     {
-      "net_load_kw": 509.9,
-      "recommended_reduction_kw": 2.97,
+      "net_load_kw": 875.7,
+      "recommended_reduction_kw": 112.71,
       "action": "demand_response",
-      "timestamp": "03:30"
+      "timestamp": "11:00"
+    },
+    {
+      "net_load_kw": 567.0,
+      "recommended_reduction_kw": 20.1,
+      "action": "demand_response",
+      "timestamp": "07:15"
+    },
+    {
+      "net_load_kw": 599.0,
+      "recommended_reduction_kw": 29.7,
+      "action": "demand_response",
+      "timestamp": "20:30"
+    },
+    {
+      "net_load_kw": 575.1,
+      "recommended_reduction_kw": 22.53,
+      "action": "demand_response",
+      "timestamp": "07:00"
+    },
+    {
+      "net_load_kw": 645.8,
+      "recommended_reduction_kw": 43.74,
+      "action": "demand_response",
+      "timestamp": "00:45"
+    },
+    {
+      "net_load_kw": 714.5,
+      "recommended_reduction_kw": 64.35,
+      "action": "demand_response",
+      "timestamp": "08:45"
+    },
+    {
+      "net_load_kw": 565.1,
+      "recommended_reduction_kw": 19.53,
+      "action": "demand_response",
+      "timestamp": "18:00"
+    },
+    {
+      "net_load_kw": 570.0,
+      "recommended_reduction_kw": 21.0,
+      "action": "demand_response",
+      "timestamp": "19:30"
+    },
+    {
+      "net_load_kw": 577.6,
+      "recommended_reduction_kw": 23.28,
+      "action": "demand_response",
+      "timestamp": "19:45"
+    },
+    {
+      "net_load_kw": 607.6,
+      "recommended_reduction_kw": 32.28,
+      "action": "demand_response",
+      "timestamp": "01:45"
+    },
+    {
+      "net_load_kw": 527.1,
+      "recommended_reduction_kw": 8.13,
+      "action": "demand_response",
+      "timestamp": "18:45"
+    },
+    {
+      "net_load_kw": 572.1,
+      "recommended_reduction_kw": 21.63,
+      "action": "demand_response",
+      "timestamp": "20:00"
+    },
+    {
+      "net_load_kw": 669.6,
+      "recommended_reduction_kw": 50.88,
+      "action": "demand_response",
+      "timestamp": "21:15"
+    },
+    {
+      "net_load_kw": 744.7,
+      "recommended_reduction_kw": 73.41,
+      "action": "demand_response",
+      "timestamp": "09:00"
+    },
+    {
+      "net_load_kw": 770.0,
+      "recommended_reduction_kw": 81.0,
+      "action": "demand_response",
+      "timestamp": "15:00"
+    },
+    {
+      "net_load_kw": 588.6,
+      "recommended_reduction_kw": 26.58,
+      "action": "demand_response",
+      "timestamp": "17:30"
+    },
+    {
+      "net_load_kw": 828.7,
+      "recommended_reduction_kw": 98.61,
+      "action": "demand_response",
+      "timestamp": "13:45"
+    },
+    {
+      "net_load_kw": 778.2,
+      "recommended_reduction_kw": 83.46,
+      "action": "demand_response",
+      "timestamp": "09:30"
+    },
+    {
+      "net_load_kw": 908.5,
+      "recommended_reduction_kw": 122.55,
+      "action": "demand_response",
+      "timestamp": "11:45"
+    },
+    {
+      "net_load_kw": 592.0,
+      "recommended_reduction_kw": 27.6,
+      "action": "demand_response",
+      "timestamp": "22:15"
     },
     {
       "net_load_kw": 654.3,
       "recommended_reduction_kw": 46.29,
       "action": "demand_response",
-      "timestamp": "20:45"
+      "timestamp": "00:15"
     },
     {
-      "net_load_kw": 885.8,
-      "recommended_reduction_kw": 115.74,
+      "net_load_kw": 685.8,
+      "recommended_reduction_kw": 55.74,
       "action": "demand_response",
-      "timestamp": "12:45"
+      "timestamp": "21:30"
     },
     {
-      "net_load_kw": 904.4,
-      "recommended_reduction_kw": 121.32,
+      "net_load_kw": 534.8,
+      "recommended_reduction_kw": 10.44,
       "action": "demand_response",
-      "timestamp": "12:00"
+      "timestamp": "19:15"
     },
     {
-      "net_load_kw": 637.9,
-      "recommended_reduction_kw": 41.37,
+      "net_load_kw": 893.9,
+      "recommended_reduction_kw": 118.17,
       "action": "demand_response",
-      "timestamp": "01:15"
+      "timestamp": "11:15"
     },
     {
-      "net_load_kw": 597.4,
-      "recommended_reduction_kw": 29.22,
+      "net_load_kw": 797.5,
+      "recommended_reduction_kw": 89.25,
       "action": "demand_response",
-      "timestamp": "22:00"
-    },
-    {
-      "net_load_kw": 571.0,
-      "recommended_reduction_kw": 21.3,
-      "action": "demand_response",
-      "timestamp": "20:00"
-    },
-    {
-      "net_load_kw": 812.4,
-      "recommended_reduction_kw": 93.72,
-      "action": "demand_response",
-      "timestamp": "09:45"
-    },
-    {
-      "net_load_kw": 593.0,
-      "recommended_reduction_kw": 27.9,
-      "action": "demand_response",
-      "timestamp": "02:15"
-    },
-    {
-      "net_load_kw": 706.5,
-      "recommended_reduction_kw": 61.95,
-      "action": "demand_response",
-      "timestamp": "08:30"
-    },
-    {
-      "net_load_kw": 543.9,
-      "recommended_reduction_kw": 13.17,
-      "action": "demand_response",
-      "timestamp": "19:30"
+      "timestamp": "14:45"
     }
   ],
   "ess_summary": {
@@ -566,191 +572,192 @@
     "total_surplus_kw": 0
   },
   "dr_summary": {
-    "dr_event_count": 83
+    "dr_event_count": 84
   },
   "parallel_layer": {
     "approved_actions": [
-      "dr_55",
-      "dr_51",
-      "dr_73",
-      "dr_79",
-      "dr_77",
-      "dr_80",
-      "dr_1",
-      "dr_34",
-      "dr_20",
-      "dr_22",
-      "dr_11",
-      "dr_48",
-      "dr_12",
-      "dr_23",
-      "dr_16",
-      "dr_4",
-      "dr_76",
-      "dr_81",
-      "dr_62",
-      "ess_4",
-      "dr_0",
-      "dr_8",
-      "dr_31",
-      "dr_29",
-      "dr_69",
-      "dr_64",
-      "dr_45",
-      "dr_66",
-      "dr_7",
-      "dr_58",
-      "dr_49",
-      "dr_13",
-      "dr_43",
-      "dr_46",
-      "dr_6",
-      "dr_71",
-      "dr_78",
-      "dr_32",
-      "dr_28",
-      "dr_15",
-      "dr_39",
-      "dr_10",
-      "dr_2",
-      "dr_18",
-      "dr_19",
-      "dr_59",
-      "dr_30",
-      "dr_56",
-      "dr_42",
-      "dr_61",
-      "dr_60",
-      "dr_17",
-      "ess_3",
-      "dr_3",
-      "dr_25",
       "dr_52",
-      "dr_72",
-      "dr_24",
-      "dr_53",
-      "dr_50",
-      "ess_2",
-      "dr_37",
-      "dr_63",
-      "dr_27",
-      "dr_68",
+      "dr_12",
+      "dr_69",
+      "dr_8",
+      "ess_3",
+      "dr_6",
+      "dr_76",
+      "dr_64",
+      "dr_49",
       "dr_57",
-      "dr_82",
+      "dr_53",
       "dr_36",
+      "dr_50",
+      "dr_38",
+      "dr_9",
+      "dr_19",
+      "dr_5",
+      "dr_15",
+      "dr_80",
+      "ess_6",
+      "dr_20",
+      "dr_11",
+      "dr_81",
+      "dr_34",
+      "dr_28",
+      "dr_62",
+      "ess_1",
+      "dr_27",
+      "dr_59",
+      "dr_13",
+      "dr_42",
+      "dr_4",
+      "dr_39",
+      "dr_22",
+      "dr_44",
+      "ess_0",
+      "dr_56",
+      "dr_75",
+      "dr_55",
+      "dr_61",
+      "dr_51",
+      "dr_18",
+      "dr_14",
+      "dr_10",
+      "dr_21",
+      "dr_29",
+      "dr_72",
+      "dr_31",
       "dr_41",
       "dr_40",
-      "ess_0",
-      "dr_54",
-      "dr_33",
-      "dr_74",
-      "dr_47",
-      "dr_44",
-      "dr_14",
-      "ess_1",
-      "dr_70",
+      "dr_78",
+      "dr_83",
+      "dr_82",
+      "dr_0",
       "ess_5",
-      "dr_38",
-      "dr_35",
-      "dr_5",
-      "dr_75",
+      "dr_46",
+      "dr_2",
+      "dr_79",
+      "dr_71",
+      "dr_37",
+      "dr_30",
+      "dr_54",
+      "dr_25",
+      "dr_45",
+      "dr_32",
+      "dr_17",
+      "dr_70",
+      "dr_16",
+      "dr_3",
+      "dr_23",
+      "dr_60",
+      "dr_66",
       "dr_67",
+      "dr_7",
+      "dr_63",
+      "ess_4",
+      "dr_68",
+      "ess_2",
+      "dr_73",
+      "dr_24",
+      "dr_48",
+      "dr_58",
+      "dr_43",
       "dr_26",
-      "dr_9",
-      "dr_21",
+      "dr_35",
+      "dr_77",
+      "dr_1",
+      "dr_74",
       "dr_65",
-      "ess_6"
+      "dr_33",
+      "dr_47"
     ],
     "rejected_actions": [
-      "ess_72",
-      "ess_59",
-      "ess_26",
-      "ess_47",
-      "ess_76",
-      "ess_88",
-      "ess_81",
-      "ess_22",
-      "ess_79",
+      "ess_52",
+      "ess_56",
+      "ess_42",
+      "ess_21",
+      "ess_71",
+      "ess_68",
+      "ess_23",
+      "ess_33",
       "ess_16",
-      "ess_9",
-      "ess_35",
-      "ess_19",
-      "ess_27",
-      "ess_58",
       "ess_82",
+      "ess_24",
+      "ess_12",
+      "ess_89",
       "ess_85",
       "ess_60",
-      "ess_90",
-      "ess_53",
-      "ess_92",
-      "ess_44",
-      "ess_28",
-      "ess_55",
-      "ess_49",
-      "ess_74",
-      "ess_84",
-      "ess_57",
-      "ess_39",
-      "ess_30",
-      "ess_91",
-      "ess_32",
-      "ess_67",
-      "ess_77",
-      "ess_93",
-      "ess_70",
-      "ess_37",
-      "ess_13",
-      "ess_69",
-      "ess_14",
-      "ess_78",
-      "ess_17",
-      "ess_56",
-      "ess_68",
-      "ess_45",
+      "ess_58",
       "ess_7",
-      "ess_21",
-      "ess_63",
-      "ess_20",
-      "ess_86",
-      "ess_42",
-      "ess_15",
-      "ess_75",
-      "ess_51",
-      "ess_29",
-      "ess_46",
-      "ess_40",
-      "ess_73",
-      "ess_33",
-      "ess_41",
-      "ess_10",
-      "ess_89",
-      "ess_52",
-      "ess_66",
-      "ess_8",
       "ess_38",
-      "ess_87",
-      "ess_36",
-      "ess_34",
-      "ess_65",
-      "ess_24",
-      "ess_25",
-      "ess_12",
-      "ess_64",
-      "ess_54",
-      "ess_31",
-      "ess_94",
-      "ess_83",
-      "ess_80",
-      "ess_48",
-      "ess_61",
-      "ess_11",
+      "ess_47",
       "ess_62",
-      "ess_23",
-      "ess_50",
-      "ess_18",
+      "ess_11",
+      "ess_83",
+      "ess_15",
+      "ess_61",
+      "ess_40",
+      "ess_48",
+      "ess_28",
+      "ess_45",
+      "ess_73",
+      "ess_46",
+      "ess_39",
+      "ess_84",
+      "ess_29",
+      "ess_25",
       "ess_95",
+      "ess_17",
+      "ess_49",
+      "ess_50",
+      "ess_74",
+      "ess_72",
+      "ess_8",
+      "ess_26",
+      "ess_75",
+      "ess_59",
+      "ess_51",
+      "ess_65",
+      "ess_14",
+      "ess_81",
+      "ess_34",
+      "ess_19",
+      "ess_53",
+      "ess_78",
+      "ess_55",
+      "ess_94",
+      "ess_20",
+      "ess_44",
+      "ess_86",
+      "ess_36",
+      "ess_35",
+      "ess_92",
+      "ess_70",
+      "ess_41",
+      "ess_79",
+      "ess_90",
+      "ess_10",
+      "ess_63",
+      "ess_88",
+      "ess_66",
+      "ess_76",
+      "ess_54",
+      "ess_69",
+      "ess_77",
+      "ess_30",
+      "ess_13",
+      "ess_87",
+      "ess_80",
+      "ess_93",
+      "ess_9",
+      "ess_22",
+      "ess_57",
+      "ess_37",
+      "ess_27",
+      "ess_64",
+      "ess_91",
+      "ess_18",
       "ess_43",
-      "ess_71"
+      "ess_67",
+      "ess_32",
+      "ess_31"
     ],
     "policy_violation_report": [
       "[ess_0] ESS discharge blocked: SoC <= 10.0%",
@@ -851,7 +858,7 @@
       "[ess_95] ESS discharge blocked: SoC <= 10.0%"
     ],
     "recommendations": [
-      "피크 시간대 부하 초과(151 kW). 가전 사용을 21:00 이후로 미루면 약 227 원 절약 예상."
+      "피크 시간대 부하 초과(163 kW). 가전 사용을 21:00 이후로 미루면 약 244 원 절약 예상."
     ]
   }
 }
