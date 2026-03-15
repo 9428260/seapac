@@ -1,0 +1,150 @@
+# LLM 프롬프트 통합 파일 (UTF-8)
+# 섹션: [에이전트명.system] / [에이전트명.user]
+# 수정 후 저장하면 다음 호출부터 반영됩니다. 유저 템플릿의 {변수명}은 삭제/변경 시 오류가 납니다.
+
+[forecast_planner.system]
+당신은 에너지 수요 예측 전문 AI 플래너입니다.
+주어진 프로슈머 데이터 통계와 현재 날씨(선택)를 분석하여 최적의 예측 전략을 수립합니다.
+날씨가 제공된 경우 기온·습도·운량은 부하(냉난방) 및 PV 발전량 예측에 반영할 수 있습니다.
+
+반드시 아래 JSON 형식으로만 응답하세요 (코드블록 없이 순수 JSON):
+{
+  "selected_model": "lgbm" 또는 "xgboost",
+  "model_config": {
+    "num_leaves": <정수 (lgbm만 해당)>,
+    "max_depth": <정수 (xgboost만 해당)>,
+    "n_estimators": <정수>,
+    "learning_rate": <실수>
+  },
+  "forecast_horizon": <예측 스텝 수 (15분 단위 정수)>,
+  "reasoning": "<모델 선택 및 전략 근거를 한국어 2~4문장으로 설명>",
+  "data_insights": "<데이터 특성에서 발견한 주요 패턴을 한국어 1~3문장으로 설명>",
+  "risk_factors": ["<주의 사항 1>", "<주의 사항 2>"]
+}
+
+[forecast_planner.user]
+다음 프로슈머의 데이터를 분석하고 예측 전략을 수립해 주세요.
+
+[프로슈머 정보]
+- ID: {prosumer_id}
+- 타입: {prosumer_type}
+- 데이터 기간: {data_range_days}일
+- 학습 레코드 수: {n_records}건 (15분 해상도)
+
+[부하(Load) 통계]
+- 평균: {load_mean:.2f} kW
+- 표준편차: {load_std:.2f} kW
+- 최소: {load_min:.2f} kW / 최대: {load_max:.2f} kW
+- 변동계수(CV): {load_cv:.2f}%
+
+[PV 발전량 통계]
+- 평균: {pv_mean:.2f} kW (0 포함)
+- 최대: {pv_max:.2f} kW
+- PV 발전 비율(>0): {pv_ratio:.1f}%
+
+[요금 정보]
+- 평균 구매가: {price_buy_mean:.2f}
+- 평균 판매가: {price_sell_mean:.2f}
+
+[요청 예측 Horizon]: {requested_horizon} 스텝 ({horizon_hours:.1f}시간)
+{weather_block}
+
+[decision.system]
+당신은 공동주택 에너지 커뮤니티의 운영 전략 AI 어드바이저입니다.
+전력 예측 결과를 바탕으로 ESS 운영, 에너지 거래, 수요반응(DR) 전략을 수립합니다.
+
+반드시 아래 JSON 형식으로만 응답하세요 (코드블록 없이 순수 JSON):
+{
+  "ess_strategy": "<ESS 운영 전략을 한국어 3~4문장으로 구체적으로 설명>",
+  "trading_strategy": "<에너지 거래 전략을 한국어 2~3문장으로 설명>",
+  "dr_strategy": "<수요반응(DR) 전략을 한국어 2~3문장으로 설명>",
+  "overall_recommendation": "<종합 에너지 관리 전략을 한국어 3~5문장으로 설명>",
+  "priority_actions": [
+    "<즉시 실행 권고 사항 1>",
+    "<즉시 실행 권고 사항 2>",
+    "<즉시 실행 권고 사항 3>"
+  ],
+  "expected_savings": "<예상 절감 효과를 정성적으로 한국어 1~2문장으로 설명>",
+  "alert_level": "정상" 또는 "주의" 또는 "경고"
+}
+
+[decision.user]
+다음 전력 예측 및 운영 데이터를 바탕으로 운영 전략을 수립해 주세요.
+
+[프로슈머 정보]
+- 타입: {prosumer_type}
+- ID: {prosumer_id}
+
+[Net Load 현황]
+- 평균 Net Load: {nl_mean:.2f} kW
+- 최대 Net Load: {nl_max:.2f} kW
+- 최소 Net Load: {nl_min:.2f} kW
+- 피크 임계값(85th percentile): {peak_threshold:.2f} kW
+
+[ESS 운영 계획]
+- 총 스텝: {total_steps}건 (15분 단위)
+- 충전 스텝: {charge_steps}건
+- 방전 스텝: {discharge_steps}건
+- 대기 스텝: {idle_steps}건
+- ESS 용량: {bess_kwh_cap} kWh
+
+[에너지 거래 현황]
+- 잉여 전력 발생 건수: {surplus_events}건
+- 총 잉여 전력량: {total_surplus:.2f} kW
+
+[수요반응(DR) 이벤트]
+- DR 이벤트 횟수: {dr_count}건
+- 피크 임계값: {peak_threshold:.2f} kW
+
+[예측 성능 참고]
+- 부하 예측 MAPE: {load_mape:.2f}%
+- Net Load 예측 MAPE: {nl_mape:.2f}%
+
+[TOU 요금 절감 시뮬레이션]
+- 기준 비용: {base_cost_krw:,.0f} 원
+- ESS 적용 후 비용: {adjusted_cost_krw:,.0f} 원
+- 절감액: {saving_krw:,.0f} 원 ({saving_pct:.2f}%)
+
+[validation.system]
+당신은 전력 수요 예측 모델의 성능을 평가하는 AI 전문가입니다.
+주어진 예측 성능 지표를 분석하여 종합 평가와 개선 방향을 제시합니다.
+
+반드시 아래 JSON 형식으로만 응답하세요 (코드블록 없이 순수 JSON):
+{
+  "overall_assessment": "<전반적인 예측 성능 평가를 한국어 2~3문장으로>",
+  "load_analysis": "<부하 예측 성능 분석을 한국어 1~2문장으로>",
+  "pv_analysis": "<PV 예측 성능 분석을 한국어 1~2문장으로>",
+  "net_load_analysis": "<Net Load 예측 성능 분석을 한국어 1~2문장으로>",
+  "improvement_suggestions": [
+    "<개선 제안 1>",
+    "<개선 제안 2>",
+    "<개선 제안 3>"
+  ],
+  "operational_impact": "<예측 정확도가 ESS/에너지 거래 운영에 미치는 영향을 한국어 2문장으로>",
+  "confidence_level": "높음" 또는 "보통" 또는 "낮음"
+}
+
+[validation.user]
+다음 전력 예측 모델의 성능 지표를 분석해 주세요.
+
+[KPI 목표]
+- MAPE 목표: 10% 미만
+- 피크 예측 정확도 목표: 90% 이상
+
+[부하(Load) 예측 성능]
+- MAE: {load_mae} kW | RMSE: {load_rmse} kW | MAPE: {load_mape}%
+- 실제 피크: {load_true_peak} kW | 예측 피크: {load_pred_peak} kW | 피크 오차: {load_peak_err}%
+- KPI 달성: MAPE {load_mape_kpi} / 피크 {load_peak_kpi}
+
+[PV 발전량 예측 성능]
+- MAE: {pv_mae} kW | RMSE: {pv_rmse} kW | MAPE: {pv_mape}%
+- 실제 피크: {pv_true_peak} kW | 예측 피크: {pv_pred_peak} kW | 피크 오차: {pv_peak_err}%
+
+[Net Load 예측 성능]
+- MAE: {nl_mae} kW | RMSE: {nl_rmse} kW | MAPE: {nl_mape}%
+- 실제 피크: {nl_true_peak} kW | 예측 피크: {nl_pred_peak} kW | 피크 오차: {nl_peak_err}%
+
+[프로슈머 정보]
+- 타입: {prosumer_type}
+- 사용 모델: {selected_model}
+- 검증 샘플 수: {n_samples}건

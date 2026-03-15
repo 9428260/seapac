@@ -1,0 +1,12 @@
+# Environment
+.env
+
+# Python bytecode
+*.pyc
+__pycache__/
+
+# Pickle data files
+*.pkl
+
+# Data
+ods132.json

@@ -1,0 +1,36 @@
+{
+  "phase": 4,
+  "n_steps": 96,
+  "grade": "B",
+  "kpis": {
+    "energy_cost": {
+      "total_grid_cost_krw": 1202867.0,
+      "grid_price_krw_per_kwh": 100.0
+    },
+    "trading_profit": {
+      "seller_revenue_krw": 337.0,
+      "buyer_saving_krw": 81.0,
+      "community_saving_krw": 418.0,
+      "total_matched_kwh": 4.42,
+      "total_trades": 7
+    },
+    "peak_reduction": {
+      "peak_kw": 904.4,
+      "baseline_peak_kw": 904.4,
+      "peak_reduction_pct": 0.0,
+      "peak_shaving_count": 79
+    },
+    "ess_degradation": {
+      "total_discharged_kwh": 1263.16,
+      "degradation_cost_per_kwh": 5.0,
+      "ess_degradation_cost_krw": 6316.0
+    },
+    "user_acceptance": {
+      "dr_events_total": 83,
+      "accepted_events": 62,
+      "acceptance_rate_pct": 75.0,
+      "note": "기본 수락율 적용"
+    }
+  },
+  "summary_text": "  [Energy Cost]    계통 구매 비용: 1,202,867 원  (단가 100.0 원/kWh)\n  [Trading Profit] 커뮤니티 절감: 418 원  (거래 7건, 4.4 kWh)\n  [Peak Reduction] 피크 904.4 kW  →  0.0% 감소 (기준 904.4 kW)\n  [ESS Degradation] 방전 1263.2 kWh  →  마모 비용 6,316 원\n  [User Acceptance] DR 이벤트 83건, 수락율 75.0%\n  ─────────────────────────────────────────\n  순 효과 (절감 - 마모): -5,898 원   →   평가 등급: B"
+}

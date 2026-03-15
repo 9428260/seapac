@@ -1,0 +1,2210 @@
+[
+  {
+    "time": "00:00",
+    "step": 0,
+    "community_state": {
+      "total_load": 651.3,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 651.3,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 49.2,
+      "capacity": 200.0,
+      "available_discharge": 74.5
+    }
+  },
+  {
+    "time": "00:15",
+    "step": 1,
+    "community_state": {
+      "total_load": 660.9,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 660.9,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "00:30",
+    "step": 2,
+    "community_state": {
+      "total_load": 654.5,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 654.5,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "00:45",
+    "step": 3,
+    "community_state": {
+      "total_load": 636.1,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 636.1,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "01:00",
+    "step": 4,
+    "community_state": {
+      "total_load": 632.3,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 632.3,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "01:15",
+    "step": 5,
+    "community_state": {
+      "total_load": 637.9,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 637.9,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "01:30",
+    "step": 6,
+    "community_state": {
+      "total_load": 617.2,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 617.2,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "01:45",
+    "step": 7,
+    "community_state": {
+      "total_load": 620.4,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 620.4,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "02:00",
+    "step": 8,
+    "community_state": {
+      "total_load": 589.5,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 589.5,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "02:15",
+    "step": 9,
+    "community_state": {
+      "total_load": 593.0,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 593.0,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "02:30",
+    "step": 10,
+    "community_state": {
+      "total_load": 569.6,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 569.6,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "02:45",
+    "step": 11,
+    "community_state": {
+      "total_load": 551.5,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 551.5,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "03:00",
+    "step": 12,
+    "community_state": {
+      "total_load": 541.8,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 541.8,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "03:15",
+    "step": 13,
+    "community_state": {
+      "total_load": 521.8,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 521.8,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "03:30",
+    "step": 14,
+    "community_state": {
+      "total_load": 509.9,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 509.9,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "03:45",
+    "step": 15,
+    "community_state": {
+      "total_load": 496.6,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 496.6,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "04:00",
+    "step": 16,
+    "community_state": {
+      "total_load": 485.8,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 485.8,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "04:15",
+    "step": 17,
+    "community_state": {
+      "total_load": 459.3,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 459.3,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "04:30",
+    "step": 18,
+    "community_state": {
+      "total_load": 465.3,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 465.3,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "04:45",
+    "step": 19,
+    "community_state": {
+      "total_load": 452.6,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 452.6,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "05:00",
+    "step": 20,
+    "community_state": {
+      "total_load": 449.2,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 449.2,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "05:15",
+    "step": 21,
+    "community_state": {
+      "total_load": 440.4,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 440.4,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "05:30",
+    "step": 22,
+    "community_state": {
+      "total_load": 439.5,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 439.5,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "05:45",
+    "step": 23,
+    "community_state": {
+      "total_load": 427.2,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 427.2,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "06:00",
+    "step": 24,
+    "community_state": {
+      "total_load": 463.4,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 463.4,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "06:15",
+    "step": 25,
+    "community_state": {
+      "total_load": 463.3,
+      "pv_generation": 26.5,
+      "surplus_energy": 0.0,
+      "deficit_energy": 436.8,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "06:30",
+    "step": 26,
+    "community_state": {
+      "total_load": 460.5,
+      "pv_generation": 60.6,
+      "surplus_energy": 0.0,
+      "deficit_energy": 399.9,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "06:45",
+    "step": 27,
+    "community_state": {
+      "total_load": 473.1,
+      "pv_generation": 94.2,
+      "surplus_energy": 0.0,
+      "deficit_energy": 378.8,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "07:00",
+    "step": 28,
+    "community_state": {
+      "total_load": 525.4,
+      "pv_generation": 108.5,
+      "surplus_energy": 0.0,
+      "deficit_energy": 416.9,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "07:15",
+    "step": 29,
+    "community_state": {
+      "total_load": 535.5,
+      "pv_generation": 137.1,
+      "surplus_energy": 0.0,
+      "deficit_energy": 398.5,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "07:30",
+    "step": 30,
+    "community_state": {
+      "total_load": 548.9,
+      "pv_generation": 179.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 370.0,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "07:45",
+    "step": 31,
+    "community_state": {
+      "total_load": 561.0,
+      "pv_generation": 254.8,
+      "surplus_energy": 0.0,
+      "deficit_energy": 306.2,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "08:00",
+    "step": 32,
+    "community_state": {
+      "total_load": 617.9,
+      "pv_generation": 256.1,
+      "surplus_energy": 0.0,
+      "deficit_energy": 361.8,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "08:15",
+    "step": 33,
+    "community_state": {
+      "total_load": 722.6,
+      "pv_generation": 289.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 433.6,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "08:30",
+    "step": 34,
+    "community_state": {
+      "total_load": 706.5,
+      "pv_generation": 293.4,
+      "surplus_energy": 0.0,
+      "deficit_energy": 413.1,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "08:45",
+    "step": 35,
+    "community_state": {
+      "total_load": 731.0,
+      "pv_generation": 320.3,
+      "surplus_energy": 0.0,
+      "deficit_energy": 410.7,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "09:00",
+    "step": 36,
+    "community_state": {
+      "total_load": 739.6,
+      "pv_generation": 325.1,
+      "surplus_energy": 0.0,
+      "deficit_energy": 414.5,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "09:15",
+    "step": 37,
+    "community_state": {
+      "total_load": 750.9,
+      "pv_generation": 352.7,
+      "surplus_energy": 0.0,
+      "deficit_energy": 398.2,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "09:30",
+    "step": 38,
+    "community_state": {
+      "total_load": 775.9,
+      "pv_generation": 370.7,
+      "surplus_energy": 0.0,
+      "deficit_energy": 405.2,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "09:45",
+    "step": 39,
+    "community_state": {
+      "total_load": 812.4,
+      "pv_generation": 371.7,
+      "surplus_energy": 0.0,
+      "deficit_energy": 440.7,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "10:00",
+    "step": 40,
+    "community_state": {
+      "total_load": 824.4,
+      "pv_generation": 378.2,
+      "surplus_energy": 0.0,
+      "deficit_energy": 446.2,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "10:15",
+    "step": 41,
+    "community_state": {
+      "total_load": 826.7,
+      "pv_generation": 383.4,
+      "surplus_energy": 0.0,
+      "deficit_energy": 443.3,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "10:30",
+    "step": 42,
+    "community_state": {
+      "total_load": 852.5,
+      "pv_generation": 407.1,
+      "surplus_energy": 0.0,
+      "deficit_energy": 445.4,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "10:45",
+    "step": 43,
+    "community_state": {
+      "total_load": 874.2,
+      "pv_generation": 462.5,
+      "surplus_energy": 0.0,
+      "deficit_energy": 411.7,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "11:00",
+    "step": 44,
+    "community_state": {
+      "total_load": 894.3,
+      "pv_generation": 419.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 475.3,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "11:15",
+    "step": 45,
+    "community_state": {
+      "total_load": 882.0,
+      "pv_generation": 420.9,
+      "surplus_energy": 0.0,
+      "deficit_energy": 461.1,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "11:30",
+    "step": 46,
+    "community_state": {
+      "total_load": 896.3,
+      "pv_generation": 452.7,
+      "surplus_energy": 0.0,
+      "deficit_energy": 443.7,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "11:45",
+    "step": 47,
+    "community_state": {
+      "total_load": 892.2,
+      "pv_generation": 448.6,
+      "surplus_energy": 0.0,
+      "deficit_energy": 443.6,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "12:00",
+    "step": 48,
+    "community_state": {
+      "total_load": 904.4,
+      "pv_generation": 457.9,
+      "surplus_energy": 0.0,
+      "deficit_energy": 446.5,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "12:15",
+    "step": 49,
+    "community_state": {
+      "total_load": 891.8,
+      "pv_generation": 463.5,
+      "surplus_energy": 0.0,
+      "deficit_energy": 428.4,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "12:30",
+    "step": 50,
+    "community_state": {
+      "total_load": 893.4,
+      "pv_generation": 488.2,
+      "surplus_energy": 0.0,
+      "deficit_energy": 405.2,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "12:45",
+    "step": 51,
+    "community_state": {
+      "total_load": 885.8,
+      "pv_generation": 489.2,
+      "surplus_energy": 0.0,
+      "deficit_energy": 396.6,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 47.5,
+      "capacity": 200.0,
+      "available_discharge": 71.2
+    }
+  },
+  {
+    "time": "13:00",
+    "step": 52,
+    "community_state": {
+      "total_load": 867.9,
+      "pv_generation": 460.4,
+      "surplus_energy": 0.0,
+      "deficit_energy": 407.5,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 50.4,
+      "capacity": 200.0,
+      "available_discharge": 76.8
+    }
+  },
+  {
+    "time": "13:15",
+    "step": 53,
+    "community_state": {
+      "total_load": 865.8,
+      "pv_generation": 460.4,
+      "surplus_energy": 0.0,
+      "deficit_energy": 405.4,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 53.4,
+      "capacity": 200.0,
+      "available_discharge": 82.5
+    }
+  },
+  {
+    "time": "13:30",
+    "step": 54,
+    "community_state": {
+      "total_load": 847.8,
+      "pv_generation": 442.6,
+      "surplus_energy": 0.0,
+      "deficit_energy": 405.2,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 56.4,
+      "capacity": 200.0,
+      "available_discharge": 88.2
+    }
+  },
+  {
+    "time": "13:45",
+    "step": 55,
+    "community_state": {
+      "total_load": 833.0,
+      "pv_generation": 425.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 408.1,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 59.3,
+      "capacity": 200.0,
+      "available_discharge": 93.7
+    }
+  },
+  {
+    "time": "14:00",
+    "step": 56,
+    "community_state": {
+      "total_load": 834.4,
+      "pv_generation": 407.3,
+      "surplus_energy": 0.0,
+      "deficit_energy": 427.0,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 59.3,
+      "capacity": 200.0,
+      "available_discharge": 93.7
+    }
+  },
+  {
+    "time": "14:15",
+    "step": 57,
+    "community_state": {
+      "total_load": 809.6,
+      "pv_generation": 407.3,
+      "surplus_energy": 0.0,
+      "deficit_energy": 402.4,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 59.3,
+      "capacity": 200.0,
+      "available_discharge": 93.7
+    }
+  },
+  {
+    "time": "14:30",
+    "step": 58,
+    "community_state": {
+      "total_load": 771.8,
+      "pv_generation": 390.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 381.8,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 59.2,
+      "capacity": 200.0,
+      "available_discharge": 93.5
+    }
+  },
+  {
+    "time": "14:45",
+    "step": 59,
+    "community_state": {
+      "total_load": 763.9,
+      "pv_generation": 362.1,
+      "surplus_energy": 0.0,
+      "deficit_energy": 401.9,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 59.2,
+      "capacity": 200.0,
+      "available_discharge": 93.5
+    }
+  },
+  {
+    "time": "15:00",
+    "step": 60,
+    "community_state": {
+      "total_load": 760.2,
+      "pv_generation": 318.2,
+      "surplus_energy": 0.0,
+      "deficit_energy": 442.0,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 59.2,
+      "capacity": 200.0,
+      "available_discharge": 93.5
+    }
+  },
+  {
+    "time": "15:15",
+    "step": 61,
+    "community_state": {
+      "total_load": 715.1,
+      "pv_generation": 305.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 410.2,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 59.2,
+      "capacity": 200.0,
+      "available_discharge": 93.5
+    }
+  },
+  {
+    "time": "15:30",
+    "step": 62,
+    "community_state": {
+      "total_load": 706.4,
+      "pv_generation": 276.1,
+      "surplus_energy": 0.0,
+      "deficit_energy": 430.3,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 59.2,
+      "capacity": 200.0,
+      "available_discharge": 93.5
+    }
+  },
+  {
+    "time": "15:45",
+    "step": 63,
+    "community_state": {
+      "total_load": 686.3,
+      "pv_generation": 260.8,
+      "surplus_energy": 0.0,
+      "deficit_energy": 425.5,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 59.2,
+      "capacity": 200.0,
+      "available_discharge": 93.5
+    }
+  },
+  {
+    "time": "16:00",
+    "step": 64,
+    "community_state": {
+      "total_load": 662.3,
+      "pv_generation": 254.4,
+      "surplus_energy": 0.0,
+      "deficit_energy": 408.0,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 59.2,
+      "capacity": 200.0,
+      "available_discharge": 93.5
+    }
+  },
+  {
+    "time": "16:15",
+    "step": 65,
+    "community_state": {
+      "total_load": 642.8,
+      "pv_generation": 216.3,
+      "surplus_energy": 0.0,
+      "deficit_energy": 426.5,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 59.2,
+      "capacity": 200.0,
+      "available_discharge": 93.5
+    }
+  },
+  {
+    "time": "16:30",
+    "step": 66,
+    "community_state": {
+      "total_load": 622.1,
+      "pv_generation": 179.2,
+      "surplus_energy": 0.0,
+      "deficit_energy": 442.9,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 59.2,
+      "capacity": 200.0,
+      "available_discharge": 93.5
+    }
+  },
+  {
+    "time": "16:45",
+    "step": 67,
+    "community_state": {
+      "total_load": 621.5,
+      "pv_generation": 155.1,
+      "surplus_energy": 0.0,
+      "deficit_energy": 466.4,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 59.2,
+      "capacity": 200.0,
+      "available_discharge": 93.5
+    }
+  },
+  {
+    "time": "17:00",
+    "step": 68,
+    "community_state": {
+      "total_load": 603.2,
+      "pv_generation": 118.1,
+      "surplus_energy": 0.0,
+      "deficit_energy": 485.1,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 59.2,
+      "capacity": 200.0,
+      "available_discharge": 93.5
+    }
+  },
+  {
+    "time": "17:15",
+    "step": 69,
+    "community_state": {
+      "total_load": 589.6,
+      "pv_generation": 91.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 498.6,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 59.2,
+      "capacity": 200.0,
+      "available_discharge": 93.5
+    }
+  },
+  {
+    "time": "17:30",
+    "step": 70,
+    "community_state": {
+      "total_load": 588.0,
+      "pv_generation": 59.4,
+      "surplus_energy": 0.0,
+      "deficit_energy": 528.6,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 58.8,
+      "capacity": 200.0,
+      "available_discharge": 92.7
+    }
+  },
+  {
+    "time": "17:45",
+    "step": 71,
+    "community_state": {
+      "total_load": 588.4,
+      "pv_generation": 29.4,
+      "surplus_energy": 0.0,
+      "deficit_energy": 558.9,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 58.4,
+      "capacity": 200.0,
+      "available_discharge": 92.0
+    }
+  },
+  {
+    "time": "18:00",
+    "step": 72,
+    "community_state": {
+      "total_load": 502.1,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 502.1,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 57.8,
+      "capacity": 200.0,
+      "available_discharge": 90.8
+    }
+  },
+  {
+    "time": "18:15",
+    "step": 73,
+    "community_state": {
+      "total_load": 508.0,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 508.0,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 57.1,
+      "capacity": 200.0,
+      "available_discharge": 89.5
+    }
+  },
+  {
+    "time": "18:30",
+    "step": 74,
+    "community_state": {
+      "total_load": 515.7,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 515.7,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 57.1,
+      "capacity": 200.0,
+      "available_discharge": 89.5
+    }
+  },
+  {
+    "time": "18:45",
+    "step": 75,
+    "community_state": {
+      "total_load": 525.1,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 525.1,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 56.7,
+      "capacity": 200.0,
+      "available_discharge": 88.7
+    }
+  },
+  {
+    "time": "19:00",
+    "step": 76,
+    "community_state": {
+      "total_load": 518.9,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 518.9,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 56.1,
+      "capacity": 200.0,
+      "available_discharge": 87.6
+    }
+  },
+  {
+    "time": "19:15",
+    "step": 77,
+    "community_state": {
+      "total_load": 540.4,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 540.4,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 56.0,
+      "capacity": 200.0,
+      "available_discharge": 87.4
+    }
+  },
+  {
+    "time": "19:30",
+    "step": 78,
+    "community_state": {
+      "total_load": 543.9,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 543.9,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 56.0,
+      "capacity": 200.0,
+      "available_discharge": 87.4
+    }
+  },
+  {
+    "time": "19:45",
+    "step": 79,
+    "community_state": {
+      "total_load": 557.6,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 557.6,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 56.0,
+      "capacity": 200.0,
+      "available_discharge": 87.4
+    }
+  },
+  {
+    "time": "20:00",
+    "step": 80,
+    "community_state": {
+      "total_load": 571.0,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 571.0,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 56.0,
+      "capacity": 200.0,
+      "available_discharge": 87.4
+    }
+  },
+  {
+    "time": "20:15",
+    "step": 81,
+    "community_state": {
+      "total_load": 600.2,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 600.2,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 56.0,
+      "capacity": 200.0,
+      "available_discharge": 87.4
+    }
+  },
+  {
+    "time": "20:30",
+    "step": 82,
+    "community_state": {
+      "total_load": 616.9,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 616.9,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 55.7,
+      "capacity": 200.0,
+      "available_discharge": 86.8
+    }
+  },
+  {
+    "time": "20:45",
+    "step": 83,
+    "community_state": {
+      "total_load": 654.3,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 654.3,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 55.7,
+      "capacity": 200.0,
+      "available_discharge": 86.8
+    }
+  },
+  {
+    "time": "21:00",
+    "step": 84,
+    "community_state": {
+      "total_load": 684.7,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 684.7,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 55.7,
+      "capacity": 200.0,
+      "available_discharge": 86.8
+    }
+  },
+  {
+    "time": "21:15",
+    "step": 85,
+    "community_state": {
+      "total_load": 688.2,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 688.2,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 55.7,
+      "capacity": 200.0,
+      "available_discharge": 86.8
+    }
+  },
+  {
+    "time": "21:30",
+    "step": 86,
+    "community_state": {
+      "total_load": 705.9,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 705.9,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 55.7,
+      "capacity": 200.0,
+      "available_discharge": 86.8
+    }
+  },
+  {
+    "time": "21:45",
+    "step": 87,
+    "community_state": {
+      "total_load": 727.8,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 727.8,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 55.7,
+      "capacity": 200.0,
+      "available_discharge": 86.8
+    }
+  },
+  {
+    "time": "22:00",
+    "step": 88,
+    "community_state": {
+      "total_load": 597.4,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 597.4,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 55.7,
+      "capacity": 200.0,
+      "available_discharge": 86.8
+    }
+  },
+  {
+    "time": "22:15",
+    "step": 89,
+    "community_state": {
+      "total_load": 648.8,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 648.8,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 55.7,
+      "capacity": 200.0,
+      "available_discharge": 86.8
+    }
+  },
+  {
+    "time": "22:30",
+    "step": 90,
+    "community_state": {
+      "total_load": 664.4,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 664.4,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 55.6,
+      "capacity": 200.0,
+      "available_discharge": 86.6
+    }
+  },
+  {
+    "time": "22:45",
+    "step": 91,
+    "community_state": {
+      "total_load": 638.1,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 638.1,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 55.5,
+      "capacity": 200.0,
+      "available_discharge": 86.5
+    }
+  },
+  {
+    "time": "23:00",
+    "step": 92,
+    "community_state": {
+      "total_load": 656.2,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 656.2,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 55.1,
+      "capacity": 200.0,
+      "available_discharge": 85.7
+    }
+  },
+  {
+    "time": "23:15",
+    "step": 93,
+    "community_state": {
+      "total_load": 627.3,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 627.3,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 54.8,
+      "capacity": 200.0,
+      "available_discharge": 85.1
+    }
+  },
+  {
+    "time": "23:30",
+    "step": 94,
+    "community_state": {
+      "total_load": 628.2,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 628.2,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 54.3,
+      "capacity": 200.0,
+      "available_discharge": 84.2
+    }
+  },
+  {
+    "time": "23:45",
+    "step": 95,
+    "community_state": {
+      "total_load": 632.8,
+      "pv_generation": 0.0,
+      "surplus_energy": 0.0,
+      "deficit_energy": 632.8,
+      "peak_risk": "HIGH"
+    },
+    "market_state": {
+      "grid_price": null,
+      "community_trade_price_range": [
+        80.0,
+        110.0
+      ]
+    },
+    "ess_state": {
+      "soc": 53.6,
+      "capacity": 200.0,
+      "available_discharge": 82.8
+    }
+  }
+]
