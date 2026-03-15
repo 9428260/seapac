@@ -657,9 +657,16 @@ def run_agentscope_decision(
     eco_saver   = EcoSaverAgentAS(peak_threshold_kw)
     coordinator = MarketCoordinatorAgentAS(policy)
 
-    return asyncio.run(
+    decisions = asyncio.run(
         _run_single_step_async(state_json, policy, seller, storage, eco_saver, coordinator)
     )
+    # Self-Critic Agent: LLM이 자기 전략을 반박하도록 설계 (단일 스텝)
+    from seapac_agents.self_critic import run_self_critic
+    try:
+        self_critic_out = run_self_critic(decisions, state_context=None, use_llm=True)
+    except Exception:
+        self_critic_out = run_self_critic(decisions, use_llm=False)
+    return {**(decisions or {}), "self_critic_output": self_critic_out.to_dict()}
 
 
 def run_agentscope_decision_series(
@@ -700,7 +707,7 @@ def run_agentscope_decision_series(
             trading_recommendations.extend(d.get("trading_recommendations", []))
             demand_response_events.extend(d.get("demand_response_events", []))
 
-        return {
+        decisions = {
             "ess_schedule": ess_schedule,
             "trading_recommendations": trading_recommendations,
             "demand_response_events": demand_response_events,
@@ -713,5 +720,13 @@ def run_agentscope_decision_series(
             },
             "dr_summary": {"dr_event_count": len(demand_response_events)},
         }
+        # Self-Critic Agent: LLM이 자기 전략을 반박하도록 설계
+        from seapac_agents.self_critic import run_self_critic, SelfCriticOutput
+        try:
+            self_critic_out = run_self_critic(decisions, state_context=None, use_llm=True)
+        except Exception:
+            self_critic_out = run_self_critic(decisions, use_llm=False)
+        decisions["self_critic_output"] = self_critic_out.to_dict()
+        return decisions
 
     return asyncio.run(_run_all())

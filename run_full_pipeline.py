@@ -946,6 +946,20 @@ def _write_json(path: Path, obj: Any) -> None:
 # 메인
 # ─────────────────────────────────────────────────────────────────
 
+def _save_mesa_trajectory(run_id: int, df: Any, args: argparse.Namespace) -> None:
+    """Dashboard MESA 그리드/궤적 화면용 스텝별 지표 JSON 저장."""
+    out_dir = Path(args.output_dir or "output")
+    if not out_dir.is_absolute():
+        out_dir = Path.cwd() / out_dir
+    out_dir.mkdir(parents=True, exist_ok=True)
+    path = out_dir / f"run_{run_id}_mesa_trajectory.json"
+    try:
+        df.to_json(path, orient="records", date_format="iso", default_handler=str)
+        log.info("   MESA 궤적 저장: %s", path)
+    except Exception as e:
+        log.warning("   MESA 궤적 저장 실패: %s", e)
+
+
 def _record_stage(run_id: int, order: int, stage_r: StageResult, db_path: Path | None) -> None:
     """Persist one stage to dashboard DB if available."""
     if not _DASHBOARD_AVAILABLE or run_id is None:
@@ -1020,6 +1034,9 @@ def main() -> None:
     pipeline.add(stage_r)
     stage_order += 1
     _record_stage(run_id, stage_order, stage_r, db_path)
+    # Dashboard용: run_id가 있으면 MESA 궤적(스텝별 지표) JSON 저장 → 그리드/궤적 화면에서 사용
+    if run_id is not None and df is not None:
+        _save_mesa_trajectory(run_id, df, args)
     if not stage_r.ok or df is None:
         log.error("MESA 실패 — 파이프라인 중단")
         pipeline.total_elapsed_sec = time.perf_counter() - pipeline_t0

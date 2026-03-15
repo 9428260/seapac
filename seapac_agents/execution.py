@@ -3,8 +3,10 @@ Step 4 — Action Execution Engine (PRD: seapac_agentic_prd.md)
 
 검증된 에이전트 결정(decisions)을 Mesa 시뮬레이션에 적용하는 실행 단계.
 
-Execution Flow (PRD):
-  Agent Proposal → Policy Validation → Coordinator Approval → Mesa Update
+Simulation-first Agent architecture (execute → simulate → approve):
+  1. Execute: 제안(decisions)을 액션으로 빌드
+  2. Simulate: Mesa 시뮬레이션으로 결과 산출
+  3. Approve: 시뮬레이션 결과 + 정책 검증으로 최종 승인 여부 결정
 
 Supported actions (PRD):
   - TradeAction
@@ -181,7 +183,42 @@ class ExecutionResult:
     dataframe: pd.DataFrame | None = None
     approved: bool = True
     validation_errors: list[str] = field(default_factory=list)
+    simulation_approval_errors: list[str] = field(default_factory=list)
     model: ALFPSimulationModel | None = None
+
+
+def approve_after_simulation(
+    summary: dict,
+    *,
+    max_peak_load_kw: float | None = None,
+    min_ess_soc_pct: float | None = None,
+    max_ess_soc_pct: float | None = None,
+) -> tuple[bool, list[str]]:
+    """
+    Simulation-first: 시뮬레이션 결과를 바탕으로 승인 여부 결정.
+
+    Returns:
+        (approved, list of rejection reasons)
+    """
+    errors: list[str] = []
+    peak_kw = summary.get("peak_load_kw")
+    if max_peak_load_kw is not None and peak_kw is not None:
+        try:
+            if float(peak_kw) > max_peak_load_kw:
+                errors.append(f"peak_load_kw {peak_kw} > max_peak_load_kw {max_peak_load_kw}")
+        except (TypeError, ValueError):
+            pass
+    soc = summary.get("final_soc_pct")
+    if soc is not None and not (isinstance(soc, float) and soc != soc):
+        try:
+            s = float(soc)
+            if min_ess_soc_pct is not None and s < min_ess_soc_pct:
+                errors.append(f"final_soc_pct {s} < min {min_ess_soc_pct}")
+            if max_ess_soc_pct is not None and s > max_ess_soc_pct:
+                errors.append(f"final_soc_pct {s} > max {max_ess_soc_pct}")
+        except (TypeError, ValueError):
+            pass
+    return (len(errors) == 0, errors)
 
 
 def run_execution(
@@ -197,37 +234,29 @@ def run_execution(
     max_charge_kw: float = 100.0,
     max_discharge_kw: float = 100.0,
     strict_validation: bool = False,
+    max_peak_load_kw: float | None = None,
+    min_ess_soc_pct: float | None = 10.0,
+    max_ess_soc_pct: float | None = 95.0,
 ) -> ExecutionResult:
     """
-    Step 4 실행: Agent Proposal → Policy Validation → Coordinator Approval → Mesa Update.
+    Step 4 실행 — Simulation-first: execute → simulate → approve.
+
+    1. Execute: decisions를 액션으로 빌드
+    2. Simulate: Mesa 시뮬레이션 실행
+    3. Approve: 정책 검증 + 시뮬레이션 결과 기반 승인
 
     Args:
-        decisions: ALFP 또는 Step 3 에이전트 결정 (ess_schedule, trading_recommendations, demand_response_events 포함)
-        data_path: Mesa 시뮬레이션용 데이터 pkl 경로
-        n_steps: 시뮬레이션 스텝 수
-        phase: Mesa phase (1~4, 기본 4 = 전체 기능)
-        prosumer_ids: 프로슈머 ID 목록 (None이면 전체)
-        seed: 난수 시드
-        ess_capacity_kwh, ess_peak_threshold_kw: ESS 파라미터
-        max_charge_kw, max_discharge_kw: 정책 검증용 상한
-        strict_validation: True면 검증 오류 시 Mesa 실행 스킵
+        decisions: ALFP 또는 Step 3 에이전트 결정
+        max_peak_load_kw: 시뮬레이션 승인 시 피크 부하 상한 (None이면 미검사)
+        min_ess_soc_pct, max_ess_soc_pct: 시뮬레이션 종료 시 SoC 허용 범위
 
     Returns:
-        ExecutionResult (summary, dataframe, validation_errors 등)
+        ExecutionResult (approved = 정책 검증 통과 AND 시뮬레이션 승인)
     """
-    # 1) Build actions from decisions
+    # ── 1) Execute: 제안을 액션으로 빌드 ─────────────────────────────
     ess_actions, trade_actions, dr_actions = build_actions_from_decisions(decisions)
 
-    # 2) Policy Validation
-    ess_errors, trade_errors, dr_errors = validate_all_actions(
-        ess_actions, trade_actions, dr_actions,
-        max_charge_kw=max_charge_kw, max_discharge_kw=max_discharge_kw,
-    )
-    approved, validation_errors = approve_actions(ess_errors, trade_errors, dr_errors, strict=strict_validation)
-
-    # 3) Coordinator Approval (통과로 간주) → 4) Mesa Update
-    # 검증 실패(strict)여도 Mesa 시뮬레이션은 실행하여 결과(summary, dataframe)를 항상 생성하고,
-    # run_execution.py 등에서 Mesa 시뮬레이션 결과를 사용할 수 있도록 함. approved=False로 검증 실패 표시.
+    # ── 2) Simulate: Mesa 시뮬레이션 실행 ─────────────────────────────
     model = ALFPSimulationModel(
         phase=phase,
         data_path=data_path,
@@ -241,13 +270,32 @@ def run_execution(
     df = model.run()
     summary = model.summary()
     summary["execution_stage"] = "Step4_ActionExecution"
-    summary["validation_approved"] = approved
+
+    # ── 3) Approve: 정책 검증 + 시뮬레이션 결과 기반 승인 ─────────────
+    ess_errors, trade_errors, dr_errors = validate_all_actions(
+        ess_actions, trade_actions, dr_actions,
+        max_charge_kw=max_charge_kw, max_discharge_kw=max_discharge_kw,
+    )
+    policy_approved, validation_errors = approve_actions(
+        ess_errors, trade_errors, dr_errors, strict=strict_validation
+    )
+    sim_approved, simulation_approval_errors = approve_after_simulation(
+        summary,
+        max_peak_load_kw=max_peak_load_kw,
+        min_ess_soc_pct=min_ess_soc_pct,
+        max_ess_soc_pct=max_ess_soc_pct,
+    )
+    approved = policy_approved and sim_approved
+    summary["validation_approved"] = policy_approved
+    summary["simulation_approved"] = sim_approved
     summary["validation_errors_count"] = len(validation_errors)
+    summary["simulation_approval_errors_count"] = len(simulation_approval_errors)
 
     return ExecutionResult(
         summary=summary,
         dataframe=df,
         approved=approved,
         validation_errors=validation_errors,
+        simulation_approval_errors=simulation_approval_errors,
         model=model,
     )

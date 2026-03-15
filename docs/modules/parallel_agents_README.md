@@ -1,6 +1,6 @@
 # Final Parallel Execution Layer (SEAPAC)
 
-PRD: **docs/prd/seapac_parallel_agents_prd.md**
+PRD: [seapac_parallel_agents_prd.md](../prd/seapac_parallel_agents_prd.md)
 
 ## 개요
 

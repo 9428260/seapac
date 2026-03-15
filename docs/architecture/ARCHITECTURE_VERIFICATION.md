@@ -60,7 +60,7 @@
 | **Policy/Trust Agent** | ✅ (Policy) | **PolicyAgentAS** — ESS/거래/DR 제약 검증·클램핑 |
 | **Trust Agent (이상거래 감시)** | ❌ | PRD의 “Trust Agent” 역할(이상거래 감시·감사)은 별도 구현 없음. PolicyAgent가 제약 검증만 수행 |
 
-**참고**: PRD에는 “AgentScope” 기반으로 명시되어 있으나, 실제 코드는 **AgentScope 라이브러리 미사용** — 동일 5개 에이전트를 **독립 Python 클래스**(AgentBase 상속)로 구현. `docs/PRD_IMPLEMENTATION_STATUS.md` 참고.
+**참고**: PRD에는 “AgentScope” 기반으로 명시되어 있으나, 실제 코드는 **AgentScope 라이브러리 미사용** — 동일 5개 에이전트를 **독립 Python 클래스**(AgentBase 상속)로 구현. [PRD_IMPLEMENTATION_STATUS.md](PRD_IMPLEMENTATION_STATUS.md) 참고.
 
 ---
 

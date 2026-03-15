@@ -102,7 +102,7 @@ Supported actions: - TradeAction - ESSAction - DemandResponseAction
 
 - **Module**: `seapac_agents/execution.py` — Action types, policy validation, `run_execution(decisions, ...)` → Mesa update.
 - **CLI**: `simulation/run_execution.py` — Run execution stage with `--use-alfp` (decisions from ALFP) or `--decisions-file` (JSON). Optionally `--output-dir` and `--save-csv` for Step 5 Evaluation input.
-- **Doc**: `docs/seapac_agents_README_RUN_EXECUTION.md` — Usage and pipeline position.
+- **Doc**: [seapac_agents_README_RUN_EXECUTION.md](../modules/seapac_agents_README_RUN_EXECUTION.md) — Usage and pipeline position.
 
 ------------------------------------------------------------------------
 

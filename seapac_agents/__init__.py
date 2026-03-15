@@ -33,7 +33,9 @@ from seapac_agents.execution import (
     DemandResponseAction,
     ExecutionResult,
     run_execution,
+    approve_after_simulation,
 )
+from seapac_agents.self_critic import run_self_critic, SelfCriticOutput
 from seapac_agents.evaluation import (
     EvaluationConfig,
     EvaluationReport,
@@ -61,6 +63,9 @@ __all__ = [
     "DemandResponseAction",
     "ExecutionResult",
     "run_execution",
+    "approve_after_simulation",
+    "run_self_critic",
+    "SelfCriticOutput",
     # Step 5
     "EvaluationConfig",
     "EvaluationReport",

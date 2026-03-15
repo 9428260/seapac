@@ -1,6 +1,6 @@
 # PRD 파이프라인 구현 현황 및 점검 결과
 
-PRD: [seapac_agentic_prd.md](prd/seapac_agentic_prd.md)  
+PRD: [seapac_agentic_prd.md](../prd/seapac_agentic_prd.md)  
 파이프라인: `Mesa Simulation → Step 2 State Translator → Step 3 Multi-Agent Decision → Step 4 Action Execution → Step 5 Evaluation`
 
 ---

@@ -1,7 +1,7 @@
 # ALFP Skills 사용 현황 설명
 
-- **Skills 사용 방법·데이터 수정 방법**: `docs/SKILLS_AND_DATA_GUIDE.md`  
-- **Skills 동작을 현실 세계(전력·요금·ESS)와 비교**: `docs/alfp_skills_README_SKILLS_REAL_WORLD.md`
+- **Skills 사용 방법·데이터 수정 방법**: [SKILLS_AND_DATA_GUIDE.md](../guides/SKILLS_AND_DATA_GUIDE.md)
+- **Skills 동작을 현실 세계(전력·요금·ESS)와 비교**: [alfp_skills_README_SKILLS_REAL_WORLD.md](alfp_skills_README_SKILLS_REAL_WORLD.md)
 - **스킬·에이전트 파라미터를 소스 수정 없이 변경**: `alfp/config/skills_config.json` 수정 → [설정 가이드](alfp_config_README_SKILLS_CONFIG.md)
 
 ---
@@ -75,7 +75,7 @@
 
 ## 3. PRD와의 관계
 
-`docs/prd/deepagents_energy_forecast_prd.md` 8장 Skills Design에 맞춰, 아래처럼 연동되어 있습니다.
+[prd/deepagents_energy_forecast_prd.md](../prd/deepagents_energy_forecast_prd.md) 8장 Skills Design에 맞춰, 아래처럼 연동되어 있습니다.
 
 - **EnergyForecastSkill**: ForecastPlanner fallback 모델 선택, Load/PV 예측 결과 생성, Validation 예측 평가  
 - **ESSOptimizationSkill**: DecisionAgent ESS peak shaving 스케줄 및 요약  

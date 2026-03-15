@@ -10,6 +10,7 @@ Run:
 
 from __future__ import annotations
 
+import json
 import logging
 import os
 import subprocess
@@ -282,6 +283,21 @@ def run_detail_by_search():
     return redirect(url_for("index") + "#history")
 
 
+@app.route("/api/runs/<int:run_id>/mesa_trajectory")
+def api_mesa_trajectory(run_id: int):
+    """MESA 시뮬레이션 스텝별 궤적(지표) JSON. Dashboard에서 그리드/궤적 차트용."""
+    path = PROJECT_ROOT / _output_dir() / f"run_{run_id}_mesa_trajectory.json"
+    if not path.is_file():
+        return jsonify({"error": "not_found", "message": "MESA 궤적 데이터 없음"}), 404
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        return jsonify({"trajectory": data})
+    except Exception as e:
+        log.warning("mesa_trajectory read error run_id=%s: %s", run_id, e)
+        return jsonify({"error": "read_error", "message": str(e)}), 500
+
+
 @app.route("/runs/<int:run_id>")
 def run_detail(run_id: int):
     """Show one run and its stages (architecture step results). Langchain DeepAgent 단계는 탭1에서 조회."""
@@ -291,7 +307,7 @@ def run_detail(run_id: int):
         abort(404)
     stages = run.get("stages", [])
     tabs = _stages_for_tabs(stages)
-    # ALFP(Stage 1) 실행 시 DB에 기록된 Agent별 단계 로그 조회 (docs/ALFP_AGENT_STEP_LOGGING.md)
+    # ALFP(Stage 1) 실행 시 DB에 기록된 Agent별 단계 로그 조회 (docs/alfp/ALFP_AGENT_STEP_LOGGING.md)
     db_path = _db_path()
     alfp_agent_steps = get_alfp_agent_steps(run_id, stage_order=1, db_path=db_path)
     if alfp_agent_steps is None:

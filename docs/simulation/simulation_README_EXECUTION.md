@@ -1,9 +1,9 @@
 # Step 4 — Action Execution Engine (실행 단계)
 
-PRD: [seapac_agentic_prd.md](prd/seapac_agentic_prd.md) Step 4
+PRD: [seapac_agentic_prd.md](../prd/seapac_agentic_prd.md) Step 4
 
 **실행 스크립트와 실행 엔진은 `seapac_agents`로 이전되었습니다.**  
-자세한 사용법은 **[seapac_agents_README_RUN_EXECUTION.md](seapac_agents_README_RUN_EXECUTION.md)** 를 참고하세요.
+자세한 사용법은 **[seapac_agents_README_RUN_EXECUTION.md](../modules/seapac_agents_README_RUN_EXECUTION.md)** 를 참고하세요.
 
 ## 구성 (seapac_agents)
 

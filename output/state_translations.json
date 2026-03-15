@@ -592,9 +592,9 @@
       ]
     },
     "ess_state": {
-      "soc": 48.7,
+      "soc": 48.6,
       "capacity": 200.0,
-      "available_discharge": 73.5
+      "available_discharge": 73.3
     }
   },
   {
@@ -615,9 +615,9 @@
       ]
     },
     "ess_state": {
-      "soc": 46.4,
+      "soc": 46.2,
       "capacity": 200.0,
-      "available_discharge": 69.2
+      "available_discharge": 68.8
     }
   },
   {
@@ -684,9 +684,9 @@
       ]
     },
     "ess_state": {
-      "soc": 43.5,
+      "soc": 43.6,
       "capacity": 200.0,
-      "available_discharge": 63.6
+      "available_discharge": 63.8
     }
   },
   {
@@ -707,9 +707,9 @@
       ]
     },
     "ess_state": {
-      "soc": 42.9,
+      "soc": 43.3,
       "capacity": 200.0,
-      "available_discharge": 62.5
+      "available_discharge": 63.3
     }
   },
   {
@@ -730,9 +730,9 @@
       ]
     },
     "ess_state": {
-      "soc": 42.2,
+      "soc": 42.9,
       "capacity": 200.0,
-      "available_discharge": 61.2
+      "available_discharge": 62.5
     }
   },
   {
@@ -2064,9 +2064,9 @@
       ]
     },
     "ess_state": {
-      "soc": 57.0,
+      "soc": 56.9,
       "capacity": 200.0,
-      "available_discharge": 89.3
+      "available_discharge": 89.1
     }
   },
   {
@@ -2087,9 +2087,9 @@
       ]
     },
     "ess_state": {
-      "soc": 56.9,
+      "soc": 56.8,
       "capacity": 200.0,
-      "available_discharge": 89.1
+      "available_discharge": 88.9
     }
   },
   {
@@ -2110,9 +2110,9 @@
       ]
     },
     "ess_state": {
-      "soc": 56.9,
+      "soc": 56.8,
       "capacity": 200.0,
-      "available_discharge": 89.1
+      "available_discharge": 88.9
     }
   },
   {
@@ -2133,9 +2133,9 @@
       ]
     },
     "ess_state": {
-      "soc": 56.9,
+      "soc": 56.8,
       "capacity": 200.0,
-      "available_discharge": 89.1
+      "available_discharge": 88.9
     }
   },
   {
@@ -2156,9 +2156,9 @@
       ]
     },
     "ess_state": {
-      "soc": 56.9,
+      "soc": 56.8,
       "capacity": 200.0,
-      "available_discharge": 89.1
+      "available_discharge": 88.9
     }
   },
   {
@@ -2179,9 +2179,9 @@
       ]
     },
     "ess_state": {
-      "soc": 56.9,
+      "soc": 56.8,
       "capacity": 200.0,
-      "available_discharge": 89.1
+      "available_discharge": 88.9
     }
   },
   {
@@ -2202,9 +2202,9 @@
       ]
     },
     "ess_state": {
-      "soc": 56.9,
+      "soc": 56.8,
       "capacity": 200.0,
-      "available_discharge": 89.1
+      "available_discharge": 88.9
     }
   }
 ]

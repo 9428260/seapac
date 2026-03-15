@@ -1,6 +1,6 @@
 # CDA (Continuous Double Auction) Energy Market
 
-`docs/prd/cda_energy_market_prd.md`에 따른 CDA 기반 전력 시장 구현.  
+[prd/cda_energy_market_prd.md](../prd/cda_energy_market_prd.md)에 따른 CDA 기반 전력 시장 구현.  
 **seapac_agents**의 **MarketCoordinator**와 **Execution**을 대체하여 사용할 수 있습니다.
 
 ## 구조
