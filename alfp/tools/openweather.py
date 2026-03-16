@@ -38,6 +38,7 @@ SEOUL_MONTHLY_WEATHER = {
 }
 
 BASE_URL = "https://api.openweathermap.org/data/2.5/weather"
+FORECAST_URL = "https://api.openweathermap.org/data/2.5/forecast"
 
 
 def get_current_weather(
@@ -172,6 +173,87 @@ def get_weather_for_dataframe(
             df.loc[today_mask, "weather_wind_speed_ms"] = current_weather.get("wind_speed_ms", df.loc[today_mask, "weather_wind_speed_ms"].iloc[0])
 
     return df
+
+
+def get_weather_forecast_for_dataframe(
+    df: pd.DataFrame,
+    horizon_steps: int = 4,
+    timestamp_column: str = "timestamp",
+) -> pd.DataFrame:
+    """
+    단기 운영 모드용 날씨 예보형 feature를 추가합니다.
+
+    현재 구현은 외부 예보 API가 없을 때도 동작하도록 월별 평균 기반 forecast proxy를 사용합니다.
+    향후 실제 forecast API 연동 시 이 함수를 교체하면 됩니다.
+    """
+    df = get_weather_for_dataframe(df, timestamp_column=timestamp_column)
+    out = df.copy()
+    ts = pd.to_datetime(out[timestamp_column])
+    if getattr(ts.dt, "tz", None) is not None:
+        ts = ts.dt.tz_localize(None)
+
+    forecast = get_weather_forecast(horizon_steps=horizon_steps)
+    out["weather_forecast_temp_c"] = forecast["temp_c"]
+    out["weather_forecast_humidity_pct"] = forecast["humidity_pct"]
+    out["weather_forecast_clouds_pct"] = forecast["clouds_pct"]
+    out["weather_forecast_wind_speed_ms"] = forecast["wind_speed_ms"]
+    out["weather_forecast_horizon_steps"] = int(horizon_steps)
+    return out
+
+
+def get_weather_forecast(
+    api_key: Optional[str] = None,
+    city: Optional[str] = None,
+    horizon_steps: int = 4,
+) -> dict[str, Any]:
+    """
+    OpenWeather forecast API(3시간 간격)를 사용해 단기 예보를 조회한다.
+    15분 단위 step은 가장 가까운 forecast slot으로 근사한다.
+    """
+    api_key = api_key or os.environ.get("OPENWEATHER_API_KEY")
+    city = city or os.environ.get("OPENWEATHER_CITY", "Seoul")
+    horizon_hours = max(1, horizon_steps) * 0.25
+
+    if not api_key:
+        month = datetime.now().month
+        out = dict(SEOUL_MONTHLY_WEATHER[month])
+        out["source"] = "monthly_avg_forecast"
+        out["horizon_hours"] = horizon_hours
+        return out
+
+    try:
+        import urllib.request
+        import json
+
+        url = f"{FORECAST_URL}?appid={api_key}&units=metric&q={city}"
+        req = urllib.request.Request(url)
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            data = json.loads(resp.read().decode())
+        items = data.get("list") or []
+        if not items:
+            raise ValueError("forecast list empty")
+        target = datetime.utcnow().timestamp() + (horizon_hours * 3600)
+        best = min(
+            items,
+            key=lambda item: abs(float(item.get("dt", 0)) - target),
+        )
+        main = best.get("main", {})
+        wind = best.get("wind", {})
+        clouds = best.get("clouds", {})
+        return {
+            "temp_c": float(main.get("temp", 15)),
+            "humidity_pct": int(main.get("humidity", 60)),
+            "clouds_pct": int(clouds.get("all", 50)),
+            "wind_speed_ms": float(wind.get("speed", 2.5)),
+            "source": "openweather_forecast_api",
+            "horizon_hours": horizon_hours,
+        }
+    except Exception:
+        month = datetime.now().month
+        out = dict(SEOUL_MONTHLY_WEATHER[month])
+        out["source"] = "monthly_avg_forecast"
+        out["horizon_hours"] = horizon_hours
+        return out
 
 
 def get_current_weather_tool(city: str = "Seoul") -> str:

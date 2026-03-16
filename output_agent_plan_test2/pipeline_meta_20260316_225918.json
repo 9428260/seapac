@@ -1,0 +1,59 @@
+{
+  "run_timestamp": "20260316_225918",
+  "args": {
+    "data_path": "data/test_5days.pkl",
+    "measure_date": null,
+    "operating_mode": "day_ahead",
+    "live_ingest_path": null,
+    "llm_mode": "forecast",
+    "alfp_mode": "forecast_only",
+    "prosumer": "bus_48_Commercial",
+    "prosumers": null,
+    "steps": 96,
+    "phase": 4,
+    "peak_threshold": 500.0,
+    "ess_capacity": 200.0,
+    "grid_price": 100.0,
+    "seed": 42,
+    "skip_alfp": false,
+    "use_parallel": false,
+    "use_cda": true,
+    "use_cda_negotiation": false,
+    "output_dir": "output_agent_plan_test2",
+    "save_json": true,
+    "log_file": "logs/pipeline_20260316_225914.log",
+    "log_dir": "logs",
+    "verbose": false,
+    "audit_log": null
+  },
+  "stages": [
+    {
+      "name": "[ALFP] 전력 사용량 예측",
+      "ok": true,
+      "elapsed_sec": 2.532,
+      "summary": {
+        "예측 MAPE": "14.69%  (KPI ✗)",
+        "선택 모델": "xgboost",
+        "예측 Horizon": "96 steps",
+        "예측 계획 근거": "재계획: 이전 모델 lgbm → xgboost 전환 (규칙 fallback)"
+      },
+      "error": ""
+    },
+    {
+      "name": "Step3-P  Agent Plan (Forecast-based)",
+      "ok": true,
+      "elapsed_sec": 0.663,
+      "summary": {
+        "계획 방식": "Rule-based Agent Plan",
+        "계획 목표": "전력거래 및 Storage 운영 최적화: Policy 제약 → Trading / Storage 실행",
+        "전력거래 권고": "0건",
+        "ESS 스케줄": "16건",
+        "정책 위반": "44건",
+        "실행 에이전트": "Policy / Trading / Storage"
+      },
+      "error": ""
+    }
+  ],
+  "total_elapsed_sec": 3.208,
+  "ok": true
+}

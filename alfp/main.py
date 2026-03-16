@@ -4,11 +4,13 @@ ALFP - Agentic Load Forecast Platform
 """
 
 import json
+import os
 import sys
 import time
 from pathlib import Path
 
 from alfp.data.loader import load_dataset, get_prosumer_list, describe_dataset
+from alfp.llm import set_llm_mode, get_llm_mode
 from alfp.pipeline.graph import run_pipeline
 
 
@@ -40,18 +42,19 @@ def print_metrics(metrics: dict):
 
 
 def print_llm_plan(plan: dict):
-    """LLM ForecastPlanner 결과 출력."""
+    """ForecastPlanner 근거 출력."""
     reasoning = plan.get("llm_reasoning", "")
     insights = plan.get("llm_data_insights", "")
     risks = plan.get("llm_risk_factors", [])
+    prefix = "LLM " if plan.get("llm_used") else ""
     if reasoning:
-        print(f"\n  [LLM 모델 선택 근거]")
+        print(f"\n  [{prefix}모델 선택 근거]")
         print(f"  {reasoning}")
     if insights:
-        print(f"\n  [LLM 데이터 인사이트]")
+        print(f"\n  [{prefix}데이터 인사이트]")
         print(f"  {insights}")
     if risks:
-        print(f"\n  [LLM 위험 요소]")
+        print(f"\n  [{prefix}위험 요소]")
         for r in risks:
             print(f"    • {r}")
 
@@ -117,6 +120,10 @@ def run(
     prosumer_id: str = "bus_48_Commercial",
     data_path: str = "data/train_2026_seoul.pkl",
     forecast_horizon: int = 96,
+    execution_mode: str = "full",
+    operating_mode: str = "day_ahead",
+    live_ingest_path: str | None = None,
+    llm_mode: str | None = None,
     verbose: bool = True,
     run_id: int | None = None,
     db_path: str | None = None,
@@ -128,13 +135,24 @@ def run(
         prosumer_id: 예측할 프로슈머 ID
         data_path: 학습 데이터 경로
         forecast_horizon: 예측 horizon (스텝 수, 15분 단위)
+        execution_mode: "full" | "forecast_only"
+        operating_mode: "day_ahead" | "short_horizon"
+        live_ingest_path: 외부 측정값 CSV/JSON 경로
+        llm_mode: off | forecast | forecast_plan | core | market | plan | all
         verbose: 상세 로그 출력 여부
         run_id: Dashboard run_id (지정 시 Agent별 단계를 DB에 기록)
         db_path: Dashboard DB 경로 (run_id와 함께 사용)
     """
+    if llm_mode:
+        set_llm_mode(llm_mode)
     print_section("Agentic Load Forecast Platform (ALFP)")
     print(f"  데이터: {data_path}")
     print(f"  프로슈머: {prosumer_id}")
+    print(f"  실행 모드: {execution_mode}")
+    print(f"  운영 모드: {operating_mode}")
+    print(f"  LLM 모드: {get_llm_mode()}")
+    if live_ingest_path:
+        print(f"  외부 ingest: {live_ingest_path}")
     print(f"  예측 Horizon: {forecast_horizon} 스텝 ({forecast_horizon*15//60}시간 {forecast_horizon*15%60}분)")
 
     start = time.time()
@@ -147,6 +165,9 @@ def run(
         prosumer_id=prosumer_id,
         data_path=data_path,
         forecast_horizon=forecast_horizon,
+        execution_mode=execution_mode,
+        operating_mode=operating_mode,
+        live_ingest_path=live_ingest_path,
         run_id=run_id,
         db_path=db_path,
     )
@@ -166,7 +187,7 @@ def run(
     # 예측 계획 출력
     print_section("예측 계획 (ForecastPlannerAgent)")
     plan = result.get("forecast_plan", {})
-    skip_keys = {"llm_reasoning", "llm_data_insights", "llm_risk_factors"}
+    skip_keys = {"llm_used", "llm_reasoning", "llm_data_insights", "llm_risk_factors"}
     for k, v in plan.items():
         if k not in skip_keys:
             print(f"  {k}: {v}")
@@ -177,9 +198,9 @@ def run(
     print_metrics(result.get("validation_metrics", {}))
     print_llm_validation(result.get("validation_metrics", {}))
 
-    # 의사결정 출력
-    print_section("운영 의사결정 (DecisionAgent)")
-    print_decisions(result.get("decisions", {}))
+    if execution_mode != "forecast_only":
+        print_section("운영 의사결정 (DecisionAgent)")
+        print_decisions(result.get("decisions", {}))
 
     print_section(f"완료 ({elapsed:.1f}초)")
 
@@ -207,6 +228,34 @@ if __name__ == "__main__":
         help="예측 horizon (15분 단위 스텝 수, 기본 96=24시간)",
     )
     parser.add_argument(
+        "--execution-mode",
+        choices=["full", "forecast_only"],
+        default="full",
+        help="ALFP 실행 범위 (전체 또는 예측 전용)",
+    )
+    parser.add_argument(
+        "--forecast-only",
+        action="store_true",
+        help="ALFP를 예측/검증까지만 실행하고 의사결정 이후 단계는 생략",
+    )
+    parser.add_argument(
+        "--operating-mode",
+        choices=["day_ahead", "short_horizon"],
+        default="day_ahead",
+        help="운영 모드 (기본 day_ahead, short_horizon=15분~1시간 운영)",
+    )
+    parser.add_argument(
+        "--live-ingest-path",
+        default=None,
+        help="외부 측정값 CSV/JSON 경로 (실시간 ingest overlay)",
+    )
+    parser.add_argument(
+        "--llm-mode",
+        choices=["off", "forecast", "forecast_plan", "core", "market", "plan", "all"],
+        default=os.environ.get("SEAPAC_LLM_MODE", "all"),
+        help="통합 LLM 모드",
+    )
+    parser.add_argument(
         "--list-prosumers",
         action="store_true",
         help="사용 가능한 프로슈머 목록 출력",
@@ -218,6 +267,7 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
+    execution_mode = "forecast_only" if args.forecast_only else args.execution_mode
 
     if args.list_prosumers:
         data = load_dataset(args.data)
@@ -228,9 +278,13 @@ if __name__ == "__main__":
             print(f"  {pid}")
         sys.exit(0)
 
-    run(
-        prosumer_id=args.prosumer,
-        data_path=args.data,
-        forecast_horizon=args.horizon,
+        run(
+            prosumer_id=args.prosumer,
+            data_path=args.data,
+            forecast_horizon=args.horizon,
+            execution_mode=execution_mode,
+            operating_mode=args.operating_mode,
+            live_ingest_path=args.live_ingest_path,
+            llm_mode=args.llm_mode,
         verbose=not args.quiet,
     )

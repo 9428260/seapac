@@ -1,64 +1,64 @@
 {
-  "last_run_at": "2026-03-15T13:01:37.353506Z",
+  "last_run_at": "2026-03-16T14:28:49.065911Z",
   "last_plan": {
-    "selected_model": "xgboost",
+    "selected_model": "lgbm",
     "forecast_horizon_steps": 96,
-    "llm_reasoning": "재계획: 이전 모델 lgbm → xgboost 전환 (규칙 fallback)"
+    "llm_reasoning": "Rural 지역의 데이터는 일반적으로 계절적 패턴과 날씨에 민감한 특성을 보입니다. LGBM은 적은 데이터에서도 효율적으로 학습하며, 부하와 PV 발전량의 상관관계를 잘 반영할 수 있는 모델입니다. 이전 런에서도 LGBM이 사용되었으므로 일관성을 유지하며 성능을 최적화할 수 있습니다."
   },
   "last_validation_metrics": {
     "kpi": {
       "MAPE_target": 10.0,
-      "MAPE_achieved": 4.55,
+      "MAPE_achieved": 4.58,
       "MAPE_pass": true,
       "peak_acc_target": 90.0,
-      "peak_acc_achieved": 98.05,
+      "peak_acc_achieved": 93.16,
       "peak_acc_pass": true
     },
     "load": {
-      "MAE": 0.691,
-      "RMSE": 0.8766,
-      "MAPE": 4.55,
+      "MAE": 0.7038,
+      "RMSE": 0.8457,
+      "MAPE": 4.58,
       "peak": {
-        "true_peak_kw": 18.502,
-        "pred_peak_kw": 18.863,
-        "peak_error_pct": 1.95
+        "true_peak_kw": 16.961,
+        "pred_peak_kw": 15.801,
+        "peak_error_pct": 6.84
       },
       "n_samples": 44,
-      "skill_mape": 4.55,
-      "skill_rmse": 0.8766
+      "skill_mape": 4.58,
+      "skill_rmse": 0.8457
     },
     "pv": {
-      "MAE": 0.5331,
-      "RMSE": 0.7676,
-      "MAPE": 12.25,
+      "MAE": 6.9208,
+      "RMSE": 7.2928,
+      "MAPE": 79.36,
       "peak": {
-        "true_peak_kw": 12.017,
-        "pred_peak_kw": 14.883,
-        "peak_error_pct": 23.85
+        "true_peak_kw": 17.461,
+        "pred_peak_kw": 6.705,
+        "peak_error_pct": 61.6
       },
       "n_samples": 44,
-      "skill_mape": 12.25,
-      "skill_rmse": 0.7676
+      "skill_mape": 79.36,
+      "skill_rmse": 7.2928
     },
     "net_load": {
-      "MAE": 0.8984,
-      "RMSE": 1.175,
-      "MAPE": 11.11,
+      "MAE": 6.5862,
+      "RMSE": 6.9182,
+      "MAPE": 37.38,
       "peak": {
-        "true_peak_kw": 18.502,
-        "pred_peak_kw": 18.601,
-        "peak_error_pct": 0.54
+        "true_peak_kw": 16.739,
+        "pred_peak_kw": 9.096,
+        "peak_error_pct": 45.66
       },
       "n_samples": 44,
-      "skill_mape": 11.11,
-      "skill_rmse": 1.175
+      "skill_mape": 37.38,
+      "skill_rmse": 6.9182
     }
   },
   "last_decisions_summary": {
     "ess_summary": {
-      "charge_steps": 4,
-      "discharge_steps": 7,
-      "idle_steps": 33
+      "charge_steps": 0,
+      "discharge_steps": 0,
+      "idle_steps": 44
     },
     "tariff_saving": {
       "base_cost_krw": 0,
@@ -67,9 +67,9 @@
       "saving_pct": 0.0
     },
     "dr_summary": {
-      "peak_threshold_kw": 15.81,
-      "dr_event_count": 7
+      "peak_threshold_kw": 9.1,
+      "dr_event_count": 0
     }
   },
-  "policy_gate_status": "REPLAN_REQUIRED"
+  "policy_gate_status": "APPROVED"
 }

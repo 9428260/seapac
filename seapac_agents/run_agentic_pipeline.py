@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -24,6 +25,7 @@ from pathlib import Path
 def _parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="SEAPAC Agentic Pipeline (Step 2~5)")
     p.add_argument("--data-path", default="data/train_2026_seoul.pkl", help="Mesa 학습 데이터 경로")
+    p.add_argument("--llm-mode", default=os.environ.get("SEAPAC_LLM_MODE", "all"), choices=["off", "forecast", "forecast_plan", "core", "market", "plan", "all"], help="통합 LLM 모드")
     p.add_argument("--steps", type=int, default=96, help="시뮬레이션 스텝 수 (기본 96 = 24h)")
     p.add_argument("--phase", type=int, default=4, choices=[1, 2, 3, 4], help="Mesa 시뮬레이션 단계")
     p.add_argument("--peak-threshold", type=float, default=500.0, help="피크 임계값 (kW)")
@@ -66,6 +68,9 @@ def _parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = _parse_args()
+    from alfp.llm import set_llm_mode, get_llm_mode
+    set_llm_mode(args.llm_mode)
+    print(f"\n[Config] LLM mode: {get_llm_mode()}")
 
     # ── Step 1: Mesa 시뮬레이션 (기준 Phase 실행) ─────────────────
     print("\n[Step 1] Mesa 시뮬레이션 초기 실행...")

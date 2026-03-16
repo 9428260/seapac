@@ -1,0 +1,248 @@
+{
+  "ess_schedule": [
+    {
+      "timestamp": "04:00",
+      "action": "discharge",
+      "power_kw": 50.0,
+      "soc_kwh": 100.0,
+      "net_load_kw": 52.11,
+      "reason": "피크 위험 HIGH → 방전 50.0kW"
+    },
+    {
+      "timestamp": "04:15",
+      "action": "discharge",
+      "power_kw": 50.0,
+      "soc_kwh": 100.0,
+      "net_load_kw": 50.82,
+      "reason": "피크 위험 HIGH → 방전 50.0kW"
+    },
+    {
+      "timestamp": "04:30",
+      "action": "discharge",
+      "power_kw": 50.0,
+      "soc_kwh": 100.0,
+      "net_load_kw": 51.24,
+      "reason": "피크 위험 HIGH → 방전 50.0kW"
+    },
+    {
+      "timestamp": "04:45",
+      "action": "discharge",
+      "power_kw": 50.0,
+      "soc_kwh": 100.0,
+      "net_load_kw": 49.06,
+      "reason": "피크 위험 HIGH → 방전 50.0kW"
+    },
+    {
+      "timestamp": "05:00",
+      "action": "discharge",
+      "power_kw": 50.0,
+      "soc_kwh": 100.0,
+      "net_load_kw": 48.13,
+      "reason": "피크 위험 HIGH → 방전 50.0kW"
+    },
+    {
+      "timestamp": "05:15",
+      "action": "discharge",
+      "power_kw": 50.0,
+      "soc_kwh": 100.0,
+      "net_load_kw": 44.2,
+      "reason": "피크 위험 HIGH → 방전 50.0kW"
+    },
+    {
+      "timestamp": "05:30",
+      "action": "discharge",
+      "power_kw": 50.0,
+      "soc_kwh": 100.0,
+      "net_load_kw": 43.77,
+      "reason": "피크 위험 HIGH → 방전 50.0kW"
+    },
+    {
+      "timestamp": "05:45",
+      "action": "discharge",
+      "power_kw": 50.0,
+      "soc_kwh": 100.0,
+      "net_load_kw": 44.36,
+      "reason": "피크 위험 HIGH → 방전 50.0kW"
+    },
+    {
+      "timestamp": "06:00",
+      "action": "discharge",
+      "power_kw": 50.0,
+      "soc_kwh": 100.0,
+      "net_load_kw": 44.3,
+      "reason": "피크 위험 HIGH → 방전 50.0kW"
+    },
+    {
+      "timestamp": "06:15",
+      "action": "discharge",
+      "power_kw": 50.0,
+      "soc_kwh": 100.0,
+      "net_load_kw": 43.86,
+      "reason": "피크 위험 HIGH → 방전 50.0kW"
+    },
+    {
+      "timestamp": "06:30",
+      "action": "discharge",
+      "power_kw": 50.0,
+      "soc_kwh": 100.0,
+      "net_load_kw": 41.72,
+      "reason": "피크 위험 HIGH → 방전 50.0kW"
+    },
+    {
+      "timestamp": "06:45",
+      "action": "discharge",
+      "power_kw": 50.0,
+      "soc_kwh": 100.0,
+      "net_load_kw": 41.98,
+      "reason": "피크 위험 HIGH → 방전 50.0kW"
+    },
+    {
+      "timestamp": "07:00",
+      "action": "discharge",
+      "power_kw": 50.0,
+      "soc_kwh": 100.0,
+      "net_load_kw": 40.11,
+      "reason": "피크 위험 HIGH → 방전 50.0kW"
+    },
+    {
+      "timestamp": "07:15",
+      "action": "discharge",
+      "power_kw": 50.0,
+      "soc_kwh": 100.0,
+      "net_load_kw": 39.66,
+      "reason": "피크 위험 HIGH → 방전 50.0kW"
+    },
+    {
+      "timestamp": "07:30",
+      "action": "discharge",
+      "power_kw": 50.0,
+      "soc_kwh": 100.0,
+      "net_load_kw": 39.49,
+      "reason": "피크 위험 HIGH → 방전 50.0kW"
+    },
+    {
+      "timestamp": "07:45",
+      "action": "discharge",
+      "power_kw": 50.0,
+      "soc_kwh": 100.0,
+      "net_load_kw": 38.65,
+      "reason": "피크 위험 HIGH → 방전 50.0kW"
+    }
+  ],
+  "trading_recommendations": [],
+  "demand_response_events": [],
+  "policy_violations": [
+    "거래 폐기: 수량 0.0 < 최소 0.2 kW",
+    "거래 폐기: 수량 0.0 < 최소 0.2 kW",
+    "거래 폐기: 수량 0.0 < 최소 0.2 kW",
+    "거래 폐기: 수량 0.0 < 최소 0.2 kW",
+    "거래 폐기: 수량 0.0 < 최소 0.2 kW",
+    "거래 폐기: 수량 0.0 < 최소 0.2 kW",
+    "거래 폐기: 수량 0.0 < 최소 0.2 kW",
+    "거래 폐기: 수량 0.0 < 최소 0.2 kW",
+    "거래 폐기: 수량 0.0 < 최소 0.2 kW",
+    "거래 폐기: 수량 0.0 < 최소 0.2 kW",
+    "거래 폐기: 수량 0.0 < 최소 0.2 kW",
+    "거래 폐기: 수량 0.0 < 최소 0.2 kW",
+    "거래 폐기: 수량 0.0 < 최소 0.2 kW",
+    "거래 폐기: 수량 0.0 < 최소 0.2 kW",
+    "거래 폐기: 수량 0.0 < 최소 0.2 kW",
+    "거래 폐기: 수량 0.0 < 최소 0.2 kW",
+    "거래 폐기: 수량 0.0 < 최소 0.2 kW",
+    "거래 폐기: 수량 0.0 < 최소 0.2 kW",
+    "거래 폐기: 수량 0.0 < 최소 0.2 kW",
+    "거래 폐기: 수량 0.0 < 최소 0.2 kW",
+    "거래 폐기: 수량 0.0 < 최소 0.2 kW",
+    "거래 폐기: 수량 0.0 < 최소 0.2 kW",
+    "거래 폐기: 수량 0.0 < 최소 0.2 kW",
+    "거래 폐기: 수량 0.0 < 최소 0.2 kW",
+    "거래 폐기: 수량 0.0 < 최소 0.2 kW",
+    "거래 폐기: 수량 0.0 < 최소 0.2 kW",
+    "거래 폐기: 수량 0.0 < 최소 0.2 kW",
+    "거래 폐기: 수량 0.0 < 최소 0.2 kW",
+    "거래 폐기: 수량 0.0 < 최소 0.2 kW",
+    "거래 폐기: 수량 0.0 < 최소 0.2 kW",
+    "거래 폐기: 수량 0.0 < 최소 0.2 kW",
+    "거래 폐기: 수량 0.0 < 최소 0.2 kW",
+    "거래 폐기: 수량 0.0 < 최소 0.2 kW",
+    "거래 폐기: 수량 0.0 < 최소 0.2 kW",
+    "거래 폐기: 수량 0.0 < 최소 0.2 kW",
+    "거래 폐기: 수량 0.0 < 최소 0.2 kW",
+    "거래 폐기: 수량 0.0 < 최소 0.2 kW",
+    "거래 폐기: 수량 0.0 < 최소 0.2 kW",
+    "거래 폐기: 수량 0.0 < 최소 0.2 kW",
+    "거래 폐기: 수량 0.0 < 최소 0.2 kW",
+    "거래 폐기: 수량 0.0 < 최소 0.2 kW",
+    "거래 폐기: 수량 0.0 < 최소 0.2 kW",
+    "거래 폐기: 수량 0.0 < 최소 0.2 kW",
+    "거래 폐기: 수량 0.0 < 최소 0.2 kW"
+  ],
+  "ess_summary": {
+    "charge_steps": 0,
+    "discharge_steps": 16,
+    "idle_steps": 0
+  },
+  "trading_summary": {
+    "total_surplus_events": 0,
+    "total_surplus_kw": 0
+  },
+  "dr_summary": {
+    "dr_event_count": 0
+  },
+  "agent_plan": {
+    "plan_id": "2ad83cfc",
+    "objective": "전력거래 및 Storage 운영 최적화: Policy 제약 → Trading / Storage 실행",
+    "revision": 0,
+    "steps": [
+      {
+        "step_id": 1,
+        "agent_name": "policy",
+        "action": "제약 조건 설정 및 검증 준비",
+        "reason": "모든 에이전트 제안에 앞서 물리적·운영적 제약 조건을 먼저 확정합니다."
+      },
+      {
+        "step_id": 2,
+        "agent_name": "trading",
+        "action": "전력거래 권고 생성 (잉여 전력 판매 전략)",
+        "reason": "Policy 제약 조건 확정 후 잉여 전력 판매 전략을 수립합니다."
+      },
+      {
+        "step_id": 3,
+        "agent_name": "storage",
+        "action": "ESS 충방전 스케줄 생성 (TOU + 피크 억제)",
+        "reason": "Policy 제약 조건 확정 후 ESS 스케줄을 수립합니다."
+      }
+    ],
+    "execution_completed": true,
+    "simulation_approved": null,
+    "simulation_errors": [],
+    "simulation_skipped": true,
+    "revised": false,
+    "agent_logs": [
+      {
+        "step_id": 1,
+        "agent": "policy",
+        "status": "ok",
+        "constraints": {
+          "max_charge_kw": 50.0,
+          "max_discharge_kw": 50.0,
+          "ess_soc_min_pct": 10.0,
+          "ess_soc_max_pct": 95.0,
+          "min_trade_kw": 0.2
+        }
+      },
+      {
+        "step_id": 2,
+        "agent": "trading",
+        "status": "ok",
+        "trading_count": 0
+      },
+      {
+        "step_id": 3,
+        "agent": "storage",
+        "status": "ok",
+        "ess_schedule_count": 16
+      }
+    ]
+  }
+}

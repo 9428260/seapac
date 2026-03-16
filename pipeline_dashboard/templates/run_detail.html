@@ -133,6 +133,26 @@
   .agent-step-time { color: var(--muted); font-size: 0.85rem; margin-left: auto; }
   .agent-step-error { color: var(--fail); font-size: 0.85rem; margin: 0.35rem 0 0 1.75rem; }
   .agent-step-summary { margin: 0.35rem 0 0 1.75rem; padding-left: 1rem; font-size: 0.85rem; color: var(--muted); }
+  .deepagent-proof-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.75rem; margin-bottom: 1rem; }
+  .proof-card, .forecast-data-card {
+    background: var(--card); border-radius: 8px; padding: 1rem 1.1rem; border: 1px solid rgba(139, 148, 158, 0.15);
+  }
+  .proof-card h4, .forecast-data-card h4 { margin: 0 0 0.45rem 0; font-size: 0.95rem; color: var(--accent); }
+  .proof-card p, .forecast-data-card p { margin: 0.2rem 0; font-size: 0.86rem; color: var(--muted); }
+  .proof-list { margin: 0.25rem 0 0 1rem; padding-left: 1rem; font-size: 0.85rem; }
+  .llm-io-list { display: grid; gap: 0.75rem; margin-top: 0.75rem; }
+  .llm-io-entry { background: rgba(0,0,0,0.16); border: 1px solid rgba(139, 148, 158, 0.2); border-radius: 8px; padding: 0.85rem 1rem; }
+  .llm-io-meta { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; font-size: 0.82rem; color: var(--muted); }
+  .llm-io-kind { font-weight: 700; color: var(--accent); }
+  .llm-io-pre { margin: 0; white-space: pre-wrap; word-break: break-word; font-size: 0.82rem; line-height: 1.45; color: var(--text); }
+  .forecast-table-wrap { overflow-x: auto; margin-top: 0.75rem; }
+  .forecast-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+  .forecast-table th, .forecast-table td { padding: 0.45rem 0.6rem; text-align: left; border-bottom: 1px solid rgba(139, 148, 158, 0.2); }
+  .forecast-table th { color: var(--muted); font-weight: 600; }
+  .forecast-section-title { font-size: 1rem; margin: 1rem 0 0.5rem 0; }
+  .proof-badge { display: inline-block; padding: 0.22rem 0.5rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; }
+  .proof-badge.ok { background: rgba(63, 185, 80, 0.15); color: #3fb950; }
+  .proof-badge.off { background: rgba(210, 153, 34, 0.15); color: #d29922; }
   /* ALFP_AGENT_STEP_LOGGING.md UI: Langchain DeepAgent 단계 테이블 */
   .alfp-agent-steps-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 0.75rem; }
   .alfp-agent-steps-table th, .alfp-agent-steps-table td {
@@ -259,6 +279,20 @@
   .agentscope-agent-item .agent-name { font-weight: 600; color: var(--text); }
   .agentscope-agent-item .agent-role { color: var(--muted); font-size: 0.85rem; }
   .agentscope-agent-item .agent-result { font-weight: 500; color: var(--accent); text-align: right; white-space: nowrap; }
+  .agentscope-evidence-list { display: grid; gap: 0.75rem; margin-top: 1rem; }
+  .agentscope-evidence-item {
+    padding: 0.75rem 0.9rem; background: rgba(88, 166, 255, 0.04); border-radius: 6px;
+    border: 1px solid rgba(139, 148, 158, 0.15);
+  }
+  .agentscope-evidence-meta {
+    display: flex; flex-wrap: wrap; gap: 0.5rem 0.9rem; align-items: center; margin-bottom: 0.45rem;
+    font-size: 0.82rem; color: var(--muted);
+  }
+  .agentscope-evidence-title { font-weight: 600; color: var(--text); }
+  .agentscope-evidence-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.45rem 0.8rem; }
+  .agentscope-evidence-grid p { margin: 0; font-size: 0.84rem; color: var(--muted); }
+  .agentscope-evidence-grid strong { color: var(--text); }
+  .agentscope-evidence-notes { margin: 0.45rem 0 0 1rem; padding-left: 1rem; font-size: 0.82rem; color: var(--muted); }
   @media (max-width: 720px) {
     .agentscope-agent-item { grid-template-columns: 1fr; }
     .agentscope-agent-item .agent-result { text-align: left; white-space: normal; }
@@ -520,33 +554,37 @@
     <div class="sub-tabs" role="tablist">
       <a href="#" class="sub-tab {% if _sub == 'summary' %}active{% endif %}" data-subtab="sub-summary" data-sub="summary" role="tab" aria-selected="{% if _sub == 'summary' %}true{% else %}false{% endif %}">Summary</a>
       <a href="#" class="sub-tab {% if _sub == 'domain' %}active{% endif %}" data-subtab="sub-domain" data-sub="domain" role="tab" aria-selected="{% if _sub == 'domain' %}true{% else %}false{% endif %}">도메인 특화</a>
-      <a href="#" class="sub-tab {% if _sub == 'steps' %}active{% endif %}" data-subtab="sub-steps" data-sub="steps" role="tab" aria-selected="{% if _sub == 'steps' %}true{% else %}false{% endif %}">단계</a>
       <a href="#" class="sub-tab {% if _sub == 'result' %}active{% endif %}" data-subtab="sub-result" data-sub="result" role="tab" aria-selected="{% if _sub == 'result' %}true{% else %}false{% endif %}">결과</a>
     </div>
 
     {# 서브탭 Summary: 단계별 summary #}
     <div id="sub-summary" class="sub-panel {% if _sub == 'summary' %}active{% endif %}" role="tabpanel">
-      {% if (alfp_agent_steps or []) %}
-      <div class="alfp-agent-steps">
-        {% for step in (alfp_agent_steps or []) %}
-        <div class="agent-step {% if not step.ok %}agent-step-fail{% endif %}">
-          <div class="agent-step-header">
-            <span class="agent-step-order">{{ step.step_order }}</span>
-            <span class="agent-step-name">{{ step.agent_name }}</span>
-            {% if step.ok %}<span class="badge badge-success">✓</span>{% else %}<span class="badge badge-failure">✗</span>{% endif %}
-            <span class="agent-step-time">시작 {{ step.started_at }}{% if step.finished_at %} · 종료 {{ step.finished_at }}{% endif %}{% if step.elapsed_sec is not none %} · {{ "%.2f"|format(step.elapsed_sec) }}s{% endif %}</span>
-          </div>
-          {% if step.error_text %}<p class="agent-step-error">{{ step.error_text }}</p>{% endif %}
-          {% if step.summary and step.summary.items() %}
-          <ul class="agent-step-summary">{% for key, val in step.summary.items() %}<li><strong>{{ key }}</strong>: {{ val }}</li>{% endfor %}</ul>
+      {% if alfp_result %}
+      <div class="deepagent-proof-grid">
+        <div class="proof-card">
+          <h4>LangChain DeepAgent 실행 증빙</h4>
+          <p><span class="proof-badge ok">{{ (alfp_result.framework or {}).get('name', 'LangChain DeepAgent') }}</span></p>
+          <p>Agent step 로그: {{ (alfp_agent_steps or [])|length }}건</p>
+          <p>실행 메시지: {{ (alfp_result.framework or {}).get('message_count', 0) }}건</p>
+          <p>예측 전용 파이프라인으로 실행된 ALFP 단계입니다.</p>
+        </div>
+        <div class="proof-card">
+          <h4>DeepAgent 파이프라인</h4>
+          <ul class="proof-list">
+            {% for node in ((alfp_result.framework or {}).get('pipeline') or []) %}
+            <li>{{ node }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="proof-card">
+          <h4>LLM 연계 상태</h4>
+          {% if (alfp_result.framework or {}).get('llm_used_in_forecast_planner') %}
+          <p><span class="proof-badge ok">Forecast Planner LLM 사용</span></p>
           {% else %}
-          <p class="agent-step-summary" style="margin: 0.35rem 0 0 1.75rem; color: var(--muted);">summary 없음</p>
+          <p><span class="proof-badge off">Forecast Planner fallback</span></p>
           {% endif %}
         </div>
-        {% endfor %}
       </div>
-      {% else %}
-      <p class="no-content">기록된 Agent 단계가 없습니다.</p>
       {% endif %}
     </div>
 
@@ -554,66 +592,121 @@
     <div id="sub-domain" class="sub-panel {% if _sub == 'domain' %}active{% endif %}" role="tabpanel">
       <p class="agent-steps-doc-ref">PRD: langchain_deepagent_architecture_prd.md — Governance 및 전략 메모리 단계별 역할</p>
       {% if (alfp_domain_steps or []) %}
-      <div class="alfp-agent-steps domain-steps">
-        {% for step in (alfp_domain_steps or []) %}
-        <div class="agent-step domain-step {% if not step.ok %}agent-step-fail{% endif %}">
-          <div class="agent-step-header">
-            <span class="agent-step-order">{{ step.step_order }}</span>
-            <span class="agent-step-name domain-role-label">{{ step.role_label }}</span>
-            {% if step.ok %}<span class="badge badge-success">✓</span>{% else %}<span class="badge badge-failure">✗</span>{% endif %}
-            <span class="agent-step-time">시작 {{ step.started_at or '—' }}{% if step.finished_at %} · 종료 {{ step.finished_at }}{% endif %}{% if step.elapsed_sec is not none %} · {{ "%.2f"|format(step.elapsed_sec) }}s{% endif %}</span>
-          </div>
-          {% if step.error_text %}<p class="agent-step-error">{{ step.error_text }}</p>{% endif %}
-          {% if step.summary and step.summary.items() %}
-          <ul class="agent-step-summary">{% for key, val in step.summary.items() %}<li><strong>{{ key }}</strong>: {{ val }}</li>{% endfor %}</ul>
-          {% else %}
-          <p class="agent-step-summary" style="margin: 0.35rem 0 0 1.75rem; color: var(--muted);">summary 없음</p>
-          {% endif %}
+      <div class="deepagent-proof-grid">
+        <div class="proof-card">
+          <h4>도메인 특화 실행 증빙</h4>
+          <p><span class="proof-badge ok">Governance DeepAgent 실행</span></p>
+          <p>도메인 특화 단계: {{ (alfp_domain_steps or [])|length }}건</p>
+          <p>Evidence Curator부터 Strategy Memory까지 실제 실행 결과입니다.</p>
         </div>
-        {% endfor %}
+        <div class="proof-card">
+          <h4>실행된 역할</h4>
+          <ul class="proof-list">
+            {% for step in (alfp_domain_steps or []) %}
+            <li>{{ step.role_label }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="proof-card">
+          <h4>실행 상태</h4>
+          {% set _failed_domain = (alfp_domain_steps or [])|selectattr('ok', 'equalto', false)|list %}
+          {% if (_failed_domain|length) == 0 %}
+          <p><span class="proof-badge ok">전 단계 성공</span></p>
+          {% else %}
+          <p><span class="proof-badge off">일부 단계 실패</span></p>
+          {% endif %}
+          <p>검토 대상: 예측 결과, 정책 준수, sandbox 검증, 전략 메모리 저장</p>
+        </div>
       </div>
-      {% else %}
-      <p class="no-content">이번 Run에는 도메인 특화 단계 기록이 없습니다. (ALFP 파이프라인 실행 시 Evidence Curator, Critic, Policy Gate, Simulation Sandbox, Strategy Memory 단계가 기록됩니다.)</p>
       {% endif %}
-    </div>
-
-    {# 서브탭 단계: Langchain DeepAgent 단계 테이블 #}
-    <div id="sub-steps" class="sub-panel {% if _sub == 'steps' %}active{% endif %}" role="tabpanel">
-      <h3 class="agent-steps-title">Langchain DeepAgent 단계</h3>
-      {% if (alfp_agent_steps or []) %}
-      <table class="alfp-agent-steps-table" role="grid">
-        <thead>
-          <tr>
-            <th scope="col">순서</th>
-            <th scope="col">Agent명</th>
-            <th scope="col">상태</th>
-            <th scope="col">시작 시각</th>
-            <th scope="col">종료 시각</th>
-            <th scope="col">소요 시간</th>
-            <th scope="col">오류 메시지</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for step in (alfp_agent_steps or []) %}
-          <tr>
-            <td>{{ step.step_order }}</td>
-            <td><span class="agent-step-name">{{ step.agent_name }}</span></td>
-            <td>{% if step.ok %}<span class="badge badge-success">성공</span>{% else %}<span class="badge badge-failure">실패</span>{% endif %}</td>
-            <td>{{ step.started_at }}</td>
-            <td>{{ step.finished_at or '—' }}</td>
-            <td>{% if step.elapsed_sec is not none %}{{ "%.2f"|format(step.elapsed_sec) }}s{% else %}—{% endif %}</td>
-            <td>{% if step.error_text %}<span class="agent-step-error">{{ step.error_text }}</span>{% else %}—{% endif %}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-      {% else %}
-      <p class="no-content">기록된 Agent 단계가 없습니다.</p>
+      {% if not (alfp_domain_steps or []) %}
+      <div class="forecast-data-card">
+        <h4>도메인 특화 단계 안내</h4>
+        <p>PRD: `langchain_deepagent_architecture_prd.md` — Governance 및 전략 메모리 단계별 역할</p>
+        <p>이번 Run에는 도메인 특화 단계 기록이 없습니다.</p>
+        <p>ALFP 전체 파이프라인 실행 시 Evidence Curator, Critic, Policy Gate, Simulation Sandbox, Strategy Memory 단계가 기록됩니다.</p>
+      </div>
       {% endif %}
     </div>
 
     {# 서브탭 결과: 단계별 결과 영역 #}
     <div id="sub-result" class="sub-panel {% if _sub == 'result' %}active{% endif %}" role="tabpanel">
+      {% if alfp_result %}
+      <div class="forecast-data-card">
+        <h4>입력 데이터</h4>
+        <p>Prosumer: {{ (alfp_result.input_data or {}).get('prosumer_id', '—') }} / {{ (alfp_result.input_data or {}).get('prosumer_type', '—') }}</p>
+        <p>학습 레코드: {{ (alfp_result.input_data or {}).get('n_train_records', '—') }}건 / 기간: {{ (alfp_result.input_data or {}).get('data_range_days', '—') }}일</p>
+        <p>Feature 수: {{ ((alfp_result.input_data or {}).get('feature_names') or [])|length }}개</p>
+        {% set _feature_sample = (alfp_result.input_data or {}).get('feature_sample') or [] %}
+        {% if _feature_sample %}
+        <div class="forecast-table-wrap">
+          <table class="forecast-table">
+            <thead>
+              <tr>
+                {% for key in _feature_sample[0].keys() %}
+                <th>{{ key }}</th>
+                {% endfor %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in _feature_sample %}
+              <tr>
+                {% for val in row.values() %}
+                <td>{{ val }}</td>
+                {% endfor %}
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="forecast-data-card">
+        <h4>예측 계획 및 성능</h4>
+        <p>선택 모델: {{ (alfp_result.forecast_plan or {}).get('selected_model', '—') }}</p>
+        <p>예측 Horizon: {{ (alfp_result.forecast_plan or {}).get('forecast_horizon_steps', '—') }} steps</p>
+        <p>Load MAPE: {{ ((alfp_result.validation_metrics or {}).get('load') or {}).get('MAPE', '—') }}%</p>
+        <p>Load RMSE: {{ ((alfp_result.validation_metrics or {}).get('load') or {}).get('RMSE', '—') }} kW</p>
+      </div>
+
+      <div class="forecast-data-card">
+        <h4>예측 데이터</h4>
+        <h5 class="forecast-section-title">Load Forecast</h5>
+        {% set _load_rows = ((alfp_result.forecast_outputs or {}).get('load_forecast') or []) %}
+        {% if _load_rows %}
+        <div class="forecast-table-wrap">
+          <table class="forecast-table">
+            <thead><tr>{% for key in _load_rows[0].keys() %}<th>{{ key }}</th>{% endfor %}</tr></thead>
+            <tbody>{% for row in _load_rows %}<tr>{% for val in row.values() %}<td>{{ val }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+          </table>
+        </div>
+        {% else %}<p>Load forecast 데이터 없음</p>{% endif %}
+
+        <h5 class="forecast-section-title">PV Forecast</h5>
+        {% set _pv_rows = ((alfp_result.forecast_outputs or {}).get('pv_forecast') or []) %}
+        {% if _pv_rows %}
+        <div class="forecast-table-wrap">
+          <table class="forecast-table">
+            <thead><tr>{% for key in _pv_rows[0].keys() %}<th>{{ key }}</th>{% endfor %}</tr></thead>
+            <tbody>{% for row in _pv_rows %}<tr>{% for val in row.values() %}<td>{{ val }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+          </table>
+        </div>
+        {% else %}<p>PV forecast 데이터 없음</p>{% endif %}
+
+        <h5 class="forecast-section-title">Net Load Forecast</h5>
+        {% set _net_rows = ((alfp_result.forecast_outputs or {}).get('net_load_forecast') or []) %}
+        {% if _net_rows %}
+        <div class="forecast-table-wrap">
+          <table class="forecast-table">
+            <thead><tr>{% for key in _net_rows[0].keys() %}<th>{{ key }}</th>{% endfor %}</tr></thead>
+            <tbody>{% for row in _net_rows %}<tr>{% for val in row.values() %}<td>{{ val }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+          </table>
+        </div>
+        {% else %}<p>Net load forecast 데이터 없음</p>{% endif %}
+      </div>
+      {% endif %}
+
       {% for s in (tab1_stages or []) %}
       <div class="stage">
         <div class="stage-name">{{ s.stage_name }} {% if s.ok %}<span class="badge badge-success">✓</span>{% else %}<span class="badge badge-failure">✗</span>{% endif %}</div>
@@ -720,7 +813,7 @@
       <div class="stage-meta">소요: {{ "%.2f"|format(s.elapsed_sec) }}s</div>
       {% if s.error_text %}<p style="color: var(--fail); font-size: 0.9rem;">{{ s.error_text }}</p>{% endif %}
       {% if s.summary %}
-      <div class="stage-summary"><ul>{% for key, val in s.summary.items() %}<li><strong>{{ key }}</strong>: {{ val }}</li>{% endfor %}</ul></div>
+      <div class="stage-summary"><ul>{% for key, val in s.summary.items() %}{% if key != 'trading_evidence' %}<li><strong>{{ key }}</strong>: {{ val }}</li>{% endif %}{% endfor %}</ul></div>
       {% endif %}
     </div>
     {% else %}
@@ -745,6 +838,40 @@
         </div>
         {% endfor %}
       </div>
+      {% if agentscope_trading_evidence %}
+      <div class="agentscope-evidence-list">
+        {% for e in (agentscope_trading_evidence or [])[:15] %}
+        <div class="agentscope-evidence-item">
+          <div class="agentscope-evidence-meta">
+            <span class="agentscope-evidence-title">전력거래 증빙</span>
+            <span>{{ e.time }}</span>
+            <span>피크위험 {{ e.peak_risk }}</span>
+          </div>
+          <div class="agentscope-evidence-grid">
+            <p><strong>원 제안</strong>: {{ e.seller_action }} / {{ e.seller_bid_quantity_kw }}kW / {{ e.seller_bid_price }}원</p>
+            <p><strong>검증 후</strong>: {{ e.validated_action }} / {{ e.validated_bid_quantity_kw }}kW / {{ e.validated_bid_price }}원</p>
+            <p><strong>시장 상태</strong>: 잉여 {{ e.surplus_energy_kw }}kW / 계통가 {{ e.grid_price }}원{% if (e.price_range or [])|length > 1 %} / P2P {{ e.price_range[0] }}~{{ e.price_range[1] }}원{% endif %}</p>
+            <p><strong>ESS 영향</strong>: {{ e.storage_action }} / {{ e.storage_power_kw }}kW</p>
+            <p><strong>최종 근거</strong>: {{ e.final_reason }}</p>
+          </div>
+          {% if e.conflict_resolution %}
+          <ul class="agentscope-evidence-notes">
+            {% for note in e.conflict_resolution %}
+            <li>조율: {{ note }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+          {% if e.policy_violations %}
+          <ul class="agentscope-evidence-notes">
+            {% for note in e.policy_violations %}
+            <li>정책 검증: {{ note }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
     </div>
     {% else %}
     <div class="agentscope-summary-section">
@@ -753,18 +880,6 @@
     </div>
     {% endif %}
 
-    {% for s in (tab3_stages or []) %}
-    <div class="stage">
-      <div class="stage-name">{{ s.stage_name }} {% if s.ok %}<span class="badge badge-success">✓</span>{% else %}<span class="badge badge-failure">✗</span>{% endif %}</div>
-      <div class="stage-meta">소요: {{ "%.2f"|format(s.elapsed_sec) }}s</div>
-      {% if s.error_text %}<p style="color: var(--fail); font-size: 0.9rem;">{{ s.error_text }}</p>{% endif %}
-      {% if s.summary %}
-      <div class="stage-summary"><ul>{% for key, val in s.summary.items() %}<li><strong>{{ key }}</strong>: {{ val }}</li>{% endfor %}</ul></div>
-      {% endif %}
-    </div>
-    {% else %}
-    <p class="no-content">해당 단계 결과가 없습니다.</p>
-    {% endfor %}
   </div>
 
   {# Tab 4: [CDA] 전력거래 — 상단에 실행/도메인 특화 영역 표시됨, 하단 단계별 결과에서 4번 탭 선택 시 요약만 #}

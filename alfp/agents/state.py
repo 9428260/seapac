@@ -11,7 +11,10 @@ class ALFPState(TypedDict, total=False):
     raw_data: Any                  # 로드된 pkl dict
     prosumer_id: str               # 예측 대상 프로슈머
     forecast_horizon: int          # 예측 스텝 수 (15분 단위)
+    execution_mode: str            # "full" | "forecast_only"
     data_path: str                 # pkl 파일 경로
+    operating_mode: str            # "day_ahead" | "short_horizon"
+    live_ingest_path: str          # 외부 측정값 파일 경로 (선택)
 
     # ── Multi-Step Reasoning / 재계획 ────────────────────
     plan_retry_count: int          # 재계획 횟수 (검증 실패 시 재진입)

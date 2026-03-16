@@ -82,13 +82,19 @@
   <div id="section-new-run" class="main-section">
     <h1>새 파이프라인 실행</h1>
     <div class="run-form">
-      <h2>전체 아키텍처 실행</h2>
-      <p class="hint" style="margin-bottom: 1rem;">테스트 데이터 1일(96스텝) 기준으로 ALFP → MESA → Step2~5 → Parallel Agents 를 실행합니다.</p>
+      <h2>파이프라인 실행</h2>
+      <p class="hint" id="run_scope_hint" style="margin-bottom: 1rem;">테스트 데이터 1일(96스텝) 기준으로 ALFP → MESA → Step2~5 → Parallel Agents 를 실행합니다. 기본 LLM 모드는 전체 단계 사용(`all`)입니다.</p>
       <form id="runForm">
+        <label>테스트 범위</label>
+        <select name="run_scope" id="run_scope">
+          <option value="forecast_only">전력 사용량 예측 테스트</option>
+          <option value="full_architecture" selected>전체 아키텍처 실행</option>
+        </select>
         <label>데이터</label>
         <select name="data_path" id="data_path">
           <option value="data/test_5days.pkl" selected>test_5days.pkl (2026-05-01~05, 5일)</option>
           <option value="data/trade_20260315.pkl">trade_20260315.pkl (전력거래 1일 96스텝)</option>
+          <option value="data/test_2026seoul_trade_day.pkl">test_2026seoul_trade_day.pkl (거래다발 1일 96스텝)</option>
           <option value="data/test_2026may_seoul.pkl">test_2026may_seoul.pkl (5월 1개월)</option>
           <option value="data/train_2026_seoul.pkl">train_2026_seoul.pkl (학습용)</option>
         </select>
@@ -101,7 +107,17 @@
           </div>
         </div>
         <p class="hint" id="prosumer_hint">데이터를 선택하면 해당 파일의 Prosumer 목록이 로드됩니다.</p>
-        <label>Measure date <span class="hint">(미설정 시 기준일자 5월 5일)</span></label>
+        <label>LLM mode <span class="hint">(기본: 전체 단계 LLM 실행)</span></label>
+        <select name="llm_mode" id="llm_mode">
+          <option value="off">off (LLM 미사용)</option>
+          <option value="forecast">forecast (예측 단계만)</option>
+          <option value="forecast_plan">forecast_plan (예측 + Agent Plan)</option>
+          <option value="core">core (ALFP 핵심 단계)</option>
+          <option value="market">market (시장/자기비평 포함)</option>
+          <option value="plan">plan (계획 단계 중심)</option>
+          <option value="all" selected>all (전체 단계 LLM 사용)</option>
+        </select>
+        <label>Measure date <span class="hint">(미설정 시 데이터 기준일 자동 추론)</span></label>
         <input type="date" name="measure_date" id="measure_date" value="2026-05-05" aria-label="Measure date">
         <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
           <button type="submit" id="runBtn">전체 아키텍처 실행</button>
@@ -210,6 +226,14 @@
         var dataPath = document.getElementById('data_path').value;
         var hint = document.getElementById('prosumer_hint');
         hint.textContent = '로딩 중…';
+        fetch('/api/measure-date?data_path=' + encodeURIComponent(dataPath))
+          .then(function(r) { return r.json(); })
+          .then(function(data) {
+            if (data.measure_date) {
+              document.getElementById('measure_date').value = data.measure_date;
+            }
+          })
+          .catch(function() {});
         fetch('/api/prosumers?data_path=' + encodeURIComponent(dataPath))
           .then(function(r) { return r.json(); })
           .then(function(data) {
@@ -252,6 +276,19 @@
         var chosen = getSelectedProsumers();
         var btn = document.getElementById('runBtn');
         var badge = document.getElementById('p2p-badge');
+        var scope = document.getElementById('run_scope').value;
+        var scopeHint = document.getElementById('run_scope_hint');
+        var llmMode = document.getElementById('llm_mode');
+        if (scope === 'forecast_only') {
+          llmMode.disabled = false;
+          if (['all', 'plan', 'market', 'core', 'forecast_plan'].indexOf(llmMode.value) >= 0) llmMode.value = 'forecast';
+          btn.textContent = '전력 사용량 예측 테스트 실행';
+          if (badge) badge.style.display = 'none';
+          if (scopeHint) scopeHint.textContent = '데모 데이터를 사용해 ALFP의 예측/검증까지만 실행합니다. 이 범위에서는 LLM 모드가 forecast로 자동 축소될 수 있습니다.';
+          return;
+        }
+        llmMode.disabled = false;
+        if (!llmMode.value) llmMode.value = 'all';
         if (chosen.length > 1) {
           btn.textContent = 'P2P 거래 파이프라인 실행 (' + chosen.length + '명)';
           if (badge) badge.style.display = 'inline-block';
@@ -259,7 +296,11 @@
           btn.textContent = '전체 아키텍처 실행';
           if (badge) badge.style.display = 'none';
         }
+        if (scopeHint) scopeHint.textContent = '테스트 데이터 1일(96스텝) 기준으로 ALFP → MESA → Step2~5 → Parallel Agents 를 실행합니다. 기본 권장값은 LLM mode=all 입니다.';
       }
+      document.getElementById('run_scope').addEventListener('change', function() {
+        updateRunButton();
+      });
       document.getElementById('prosumer').addEventListener('change', updateRunButton);
 
       document.getElementById('runForm').addEventListener('submit', async function(e) {
@@ -267,17 +308,23 @@
         var btn = document.getElementById('runBtn');
         var chosen = getSelectedProsumers();
         if (chosen.length === 0) chosen = ['bus_48_Commercial'];
-        var isP2P = chosen.length > 1;
+        var scope = document.getElementById('run_scope').value;
+        if (scope === 'forecast_only') chosen = [chosen[0]];
+        var isP2P = scope !== 'forecast_only' && chosen.length > 1;
         btn.disabled = true;
-        btn.textContent = isP2P ? 'P2P 거래 실행 중… (' + chosen.length + '명)' : '실행 중…';
+        btn.textContent = scope === 'forecast_only'
+          ? '전력 사용량 예측 테스트 실행 중…'
+          : (isP2P ? 'P2P 거래 실행 중… (' + chosen.length + '명)' : '실행 중…');
         try {
           var res = await fetch('/api/run', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
+              run_scope: scope,
               data_path: document.getElementById('data_path').value,
               steps: 96,
               prosumers: chosen,
+              llm_mode: document.getElementById('llm_mode').value,
               measure_date: document.getElementById('measure_date').value || null,
               run_date: (function(){ var d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); })(),
               use_parallel: true
@@ -285,7 +332,8 @@
           });
           var data = await res.json();
           if (data.run_id) {
-            if (data.p2p_mode) btn.textContent = 'P2P 거래 파이프라인 시작됨';
+            if (scope === 'forecast_only') btn.textContent = '전력 사용량 예측 테스트 시작됨';
+            else if (data.p2p_mode) btn.textContent = 'P2P 거래 파이프라인 시작됨';
             window.location.href = '/#history';
           } else {
             btn.textContent = '실행 실패';
@@ -303,6 +351,7 @@
           window.location.reload();
         }
       }, 15000);
+      updateRunButton();
     })();
   </script>
 {% endblock %}

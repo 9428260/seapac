@@ -175,6 +175,12 @@ def _community_saving_krw(model: "ALFPSimulationModel") -> float:
     return sum(a.cumulative_saving for a in prosumers)
 
 
+def _community_dr_reduction(model: "ALFPSimulationModel") -> float:
+    """이번 스텝 DR로 실제 감축된 부하 합계 (kW)."""
+    prosumers = list(model.agents_by_type.get(ProsumerAgent) or [])
+    return sum(getattr(a, "current_dr_reduction_kw", 0.0) for a in prosumers)
+
+
 # ─────────────────────────────────────────────────────────────────
 # 메인 모델
 # ─────────────────────────────────────────────────────────────────
@@ -282,6 +288,7 @@ class ALFPSimulationModel(mesa.Model):
                 "market_matched_kw":  _market_matched_kw,
                 "market_trade_count": _market_trades,
                 "cumulative_saving_krw": _community_saving_krw,
+                "dr_reduction_kw": _community_dr_reduction,
             },
             agent_reporters={
                 "prosumer_id":      lambda a: getattr(a, "prosumer_id", None),
@@ -292,6 +299,7 @@ class ALFPSimulationModel(mesa.Model):
                 "surplus_kw":       lambda a: getattr(a, "surplus_kw", None),
                 "forecast_mape":    lambda a: getattr(a, "forecast_mape", None),
                 "soc_pct":          lambda a: getattr(a, "soc_pct", None),
+                "dr_reduction_kw":  lambda a: getattr(a, "current_dr_reduction_kw", None),
             },
         )
 
@@ -364,6 +372,7 @@ class ALFPSimulationModel(mesa.Model):
         ess_agents = list(self.agents_by_type.get(ESSAgent) or [])
         mkt_agents = list(self.agents_by_type.get(EnergyMarketAgent) or [])
 
+        dr_series = df["dr_reduction_kw"] if "dr_reduction_kw" in df.columns else pd.Series(dtype=float)
         result: dict = {
             "phase": self.phase,
             "n_prosumers": len(prosumers),
@@ -372,6 +381,7 @@ class ALFPSimulationModel(mesa.Model):
             "avg_community_pv_kw": round(df["community_pv_kw"].mean(), 2),
             "peak_load_kw": round(df["community_load_kw"].max(), 2),
             "avg_forecast_mape_pct": round(df["avg_forecast_mape"].mean(), 2),
+            "total_dr_reduction_kwh": round(float((dr_series * 0.25).sum()), 2) if len(df) else 0.0,
         }
 
         if self.phase >= 3 and ess_agents:

@@ -10,7 +10,7 @@ from langchain_core.output_parsers import JsonOutputParser
 
 from alfp.agents.state import ALFPState
 from alfp.config import get_skills_config, get_system_prompt, get_user_prompt_template
-from alfp.llm import get_llm
+from alfp.llm import get_llm, is_llm_enabled
 from alfp.skills.ess_optimization import ESSOptimizationSkill
 from alfp.skills.tariff_analysis import TariffAnalysisSkill
 
@@ -218,18 +218,22 @@ def decision_agent(state: ALFPState) -> ALFPState:
             "saving_pct": cost_saving["saving_pct"],
         }
 
-        llm_temperature = get_skills_config().get("decision_agent", {}).get("llm_temperature", 0.2)
-        llm = get_llm(temperature=llm_temperature)
-        log.append("  GPT-4o 운영 전략 수립 중...")
-        system_prompt = get_system_prompt("decision")
-        user_template = get_user_prompt_template("decision")
-        response = llm.invoke([
-            SystemMessage(content=system_prompt),
-            HumanMessage(content=user_template.format(**prompt_data)),
-        ])
-        llm_strategy = JsonOutputParser().invoke(response.content)
-        log.append(f"  LLM 경보 수준: {llm_strategy.get('alert_level', 'N/A')}")
-        log.append(f"  LLM 종합 추천: {llm_strategy.get('overall_recommendation', '')[:80]}...")
+        if is_llm_enabled("alfp_decision"):
+            llm_temperature = get_skills_config().get("decision_agent", {}).get("llm_temperature", 0.2)
+            llm = get_llm(temperature=llm_temperature, stage="alfp_decision")
+            log.append("  GPT-4o 운영 전략 수립 중...")
+            system_prompt = get_system_prompt("decision")
+            user_template = get_user_prompt_template("decision")
+            response = llm.invoke([
+                SystemMessage(content=system_prompt),
+                HumanMessage(content=user_template.format(**prompt_data)),
+            ])
+            llm_strategy = JsonOutputParser().invoke(response.content)
+            log.append(f"  LLM 경보 수준: {llm_strategy.get('alert_level', 'N/A')}")
+            log.append(f"  LLM 종합 추천: {llm_strategy.get('overall_recommendation', '')[:80]}...")
+        else:
+            log.append("  LLM 비활성화 상태 - 규칙 기반 운영 의사결정만 생성")
+            llm_strategy = {}
 
     except Exception as e:
         errors.append(f"[DecisionAgent] LLM 오류: {e}")

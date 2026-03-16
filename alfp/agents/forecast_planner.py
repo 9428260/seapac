@@ -10,7 +10,7 @@ from langchain_core.output_parsers import JsonOutputParser
 
 from alfp.agents.state import ALFPState
 from alfp.config import get_skills_config, get_system_prompt, get_user_prompt_template
-from alfp.llm import get_llm
+from alfp.llm import get_llm, is_llm_enabled
 from alfp.tools.openweather import get_current_weather, get_current_weather_tool
 from alfp.skills.energy_forecast import EnergyForecastSkill
 
@@ -154,22 +154,30 @@ def forecast_planner_agent(state: ALFPState) -> ALFPState:
         replan_block = _build_replan_context(state)
         stats["weather_block"] = (replan_block + stats["weather_block"]) if replan_block else stats["weather_block"]
 
-        llm = get_llm(temperature=0.0)
-        parser = JsonOutputParser()
+        if is_llm_enabled("alfp_forecast_planner"):
+            llm = get_llm(temperature=0.0, stage="alfp_forecast_planner")
+            parser = JsonOutputParser()
 
-        system_prompt = get_system_prompt("forecast_planner")
-        user_template = get_user_prompt_template("forecast_planner")
-        messages = [
-            SystemMessage(content=system_prompt),
-            HumanMessage(content=user_template.format(**stats)),
-        ]
+            system_prompt = get_system_prompt("forecast_planner")
+            user_template = get_user_prompt_template("forecast_planner")
+            messages = [
+                SystemMessage(content=system_prompt),
+                HumanMessage(content=user_template.format(**stats)),
+            ]
 
-        log.append("  GPT-4o 호출 중... (날씨 정보 포함)")
-        response = llm.invoke(messages)
-        plan = parser.invoke(response.content)
-        log.append("  GPT-4o 응답 수신 완료")
-        if not isinstance(plan, dict):
-            raise TypeError(f"LLM 응답이 dict가 아님: {type(plan).__name__}")
+            log.append("  GPT-4o 호출 중... (날씨 정보 포함)")
+            response = llm.invoke(messages)
+            plan = parser.invoke(response.content)
+            log.append("  GPT-4o 응답 수신 완료")
+            if not isinstance(plan, dict):
+                raise TypeError(f"LLM 응답이 dict가 아님: {type(plan).__name__}")
+        else:
+            log.append("  LLM 비활성화 상태 - 규칙 기반 forecast fallback 사용")
+            plan = _fallback_plan(
+                stats,
+                prev_plan=state.get("forecast_plan"),
+                persistent=state.get("persistent_memory"),
+            )
 
     except Exception as e:
         errors.append(f"[ForecastPlannerAgent] LLM 오류 → fallback 적용: {e}")
@@ -197,6 +205,7 @@ def forecast_planner_agent(state: ALFPState) -> ALFPState:
         "prosumer_type": stats["prosumer_type"],
         "data_range_days": stats["data_range_days"],
         "n_train_records": stats["n_records"],
+        "llm_used": is_llm_enabled("alfp_forecast_planner"),
         "selected_model": selected_model,
         "forecast_horizon_steps": horizon,
         "forecast_horizon_hours": horizon / 4,

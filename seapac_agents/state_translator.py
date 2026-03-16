@@ -82,6 +82,22 @@ def translate_model_state(
     deficit_energy = round(max(net, 0.0), 1)
     peak_risk = _peak_risk_label(total_load, peak_threshold_kw)
 
+    prosumer_states = []
+    for a in prosumers:
+        surplus = round(max(a.current_pv_kw - a.current_load_kw, 0.0), 2)
+        deficit = round(max(a.current_load_kw - a.current_pv_kw, 0.0), 2)
+        prosumer_states.append({
+            "prosumer_id": a.prosumer_id,
+            "prosumer_type": a.prosumer_type,
+            "load_kw": round(a.current_load_kw, 2),
+            "pv_kw": round(a.current_pv_kw, 2),
+            "surplus_energy": surplus,
+            "deficit_energy": deficit,
+            "price_buy": round(a.current_price_buy, 2),
+            "price_sell": round(a.current_price_sell, 2),
+            "price_p2p": round(a.current_price_p2p, 2),
+        })
+
     community_state = {
         "total_load": total_load,
         "pv_generation": pv_generation,
@@ -127,6 +143,7 @@ def translate_model_state(
         "community_state": community_state,
         "market_state": market_state,
         "ess_state": ess_state,
+        "prosumer_states": prosumer_states,
     }
 
 
@@ -198,6 +215,88 @@ def translate_dataframe(
                 "community_trade_price_range": list(p2p_price_range),
             },
             "ess_state": ess_state,
+            "prosumer_states": [],
+        })
+    return results
+
+
+def translate_model_history(
+    model: "ALFPSimulationModel",
+    peak_threshold_kw: float = 500.0,
+    p2p_price_range: tuple[float, float] = (80.0, 110.0),
+) -> list[dict]:
+    """
+    DataCollector의 model/agent history를 사용해 step별 prosumer 상태를 포함한 JSON을 생성한다.
+    """
+    model_df = model.datacollector.get_model_vars_dataframe().reset_index(drop=True)
+    agent_df = model.datacollector.get_agent_vars_dataframe().reset_index()
+    from simulation.agents.prosumer import ProsumerAgent
+    prosumer_agents = {
+        a.prosumer_id: a for a in (model.agents_by_type.get(ProsumerAgent) or [])
+    }
+
+    step_col = "Step" if "Step" in agent_df.columns else ("step" if "step" in agent_df.columns else None)
+    if step_col is None:
+        return translate_dataframe(
+            model_df.assign(step=range(len(model_df))),
+            peak_threshold_kw=peak_threshold_kw,
+            p2p_price_range=p2p_price_range,
+        )
+
+    results = []
+    for step_idx, row in model_df.reset_index(drop=True).iterrows():
+        total_load = float(row.get("community_load_kw", 0.0))
+        pv_generation = float(row.get("community_pv_kw", 0.0))
+        net = total_load - pv_generation
+        prosumer_rows = agent_df[agent_df[step_col] == step_idx].copy()
+        prosumer_states = []
+        for _, arow in prosumer_rows.iterrows():
+            pid = arow.get("prosumer_id")
+            if pid is None:
+                continue
+            load_kw = float(arow.get("load_kw") or 0.0)
+            pv_kw = float(arow.get("pv_kw") or 0.0)
+            agent = prosumer_agents.get(pid)
+            price_buy = None
+            price_sell = None
+            price_p2p = None
+            if agent is not None and step_idx < len(agent.timeseries):
+                ts_row = agent.timeseries.iloc[step_idx]
+                price_buy = None if pd.isna(ts_row.get("price_buy")) else float(ts_row.get("price_buy"))
+                price_sell = None if pd.isna(ts_row.get("price_sell")) else float(ts_row.get("price_sell"))
+                price_p2p = None if pd.isna(ts_row.get("price_p2p")) else float(ts_row.get("price_p2p"))
+            prosumer_states.append({
+                "prosumer_id": pid,
+                "prosumer_type": arow.get("type", "Unknown"),
+                "load_kw": round(load_kw, 2),
+                "pv_kw": round(pv_kw, 2),
+                "surplus_energy": round(max(pv_kw - load_kw, 0.0), 2),
+                "deficit_energy": round(max(load_kw - pv_kw, 0.0), 2),
+                "price_buy": price_buy,
+                "price_sell": price_sell,
+                "price_p2p": price_p2p,
+            })
+
+        results.append({
+            "time": f"{int(row.get('hour', 0)):02d}:{(step_idx % 4) * 15:02d}",
+            "step": int(step_idx),
+            "community_state": {
+                "total_load": round(total_load, 1),
+                "pv_generation": round(pv_generation, 1),
+                "surplus_energy": round(max(-net, 0.0), 1),
+                "deficit_energy": round(max(net, 0.0), 1),
+                "peak_risk": _peak_risk_label(total_load, peak_threshold_kw),
+            },
+            "market_state": {
+                "grid_price": None,
+                "community_trade_price_range": list(p2p_price_range),
+            },
+            "ess_state": {
+                "soc": None if pd.isna(row.get("ess_soc_pct")) else float(row.get("ess_soc_pct")),
+                "capacity": None,
+                "available_discharge": None,
+            },
+            "prosumer_states": prosumer_states,
         })
     return results
 
@@ -241,6 +340,11 @@ def generate_summary(state_json: dict) -> str:
         lines.append(f"  ESS SoC: {soc}% (용량 {capacity} kWh, 방전 가용량 {avail} kWh)")
     else:
         lines.append("  ESS: 미설치")
+    prosumers = state_json.get("prosumer_states") or []
+    if prosumers:
+        sellers = sum(1 for p in prosumers if float(p.get("surplus_energy", 0)) > 0)
+        buyers = sum(1 for p in prosumers if float(p.get("deficit_energy", 0)) > 0)
+        lines.append(f"  Prosumer 상태: seller {sellers}명 / buyer {buyers}명")
 
     return "\n".join(lines)
 

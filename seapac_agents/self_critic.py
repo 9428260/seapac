@@ -77,7 +77,7 @@ First 3 ESS entries: {json.dumps((decisions.get("ess_schedule") or [])[:3], ensu
 First 2 trading: {json.dumps((decisions.get("trading_recommendations") or [])[:2], ensure_ascii=False)}
 
 Output JSON only (refutations, risk_score, recommendation)."""
-    llm = get_llm(temperature=0.2)
+    llm = get_llm(temperature=0.2, stage="seapac_self_critic")
     parser = JsonOutputParser()
     resp = llm.invoke([SystemMessage(content=system), HumanMessage(content=user)])
     text = resp.content if hasattr(resp, "content") else str(resp)

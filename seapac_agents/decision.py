@@ -75,6 +75,18 @@ def _load_prompt_messages() -> dict[str, str]:
 _PROMPTS = _load_prompt_messages()
 
 
+def _safe_float(value, default: float = 0.0) -> float:
+    """None/빈값/비수치 입력에도 안전하게 float 변환."""
+    try:
+        if value is None:
+            return float(default)
+        if isinstance(value, str) and not value.strip():
+            return float(default)
+        return float(value)
+    except (TypeError, ValueError):
+        return float(default)
+
+
 # ─────────────────────────────────────────────────────────────────
 # Policy-Agent
 # ─────────────────────────────────────────────────────────────────
@@ -131,29 +143,29 @@ class PolicyAgentAS(AgentBase):
         """ESS 제안 검증 및 클램핑."""
         errors = []
         action = proposal.get("action", "idle")
-        power = float(proposal.get("power_kw", 0.0))
-        soc = float(proposal.get("soc_pct", 50.0))
+        power = _safe_float(proposal.get("power_kw", 0.0), 0.0)
+        soc = _safe_float(proposal.get("soc_pct", 50.0), 50.0)
 
         if action == "charge":
             if soc >= self.ess_soc_max_pct:
                 errors.append(f"ESS 충전 차단: SoC {soc}% >= 최대 {self.ess_soc_max_pct}%")
-                return {**proposal, "action": "idle", "power_kw": 0.0}, errors
+                return {**proposal, "action": "idle", "power_kw": 0.0, "soc_pct": soc}, errors
             power = min(power, self.max_charge_kw)
         elif action == "discharge":
             if soc <= self.ess_soc_min_pct:
                 errors.append(f"ESS 방전 차단: SoC {soc}% <= 최소 {self.ess_soc_min_pct}%")
-                return {**proposal, "action": "idle", "power_kw": 0.0}, errors
+                return {**proposal, "action": "idle", "power_kw": 0.0, "soc_pct": soc}, errors
             power = min(power, self.max_discharge_kw)
         else:
             power = 0.0
 
-        return {**proposal, "action": action, "power_kw": round(power, 2)}, errors
+        return {**proposal, "action": action, "power_kw": round(power, 2), "soc_pct": soc}, errors
 
     def validate_trade(self, proposal: dict) -> tuple[dict | None, list[str]]:
         """거래 제안 검증."""
         errors = []
-        qty = float(proposal.get("bid_quantity_kw", 0.0))
-        price = float(proposal.get("bid_price", 0.0))
+        qty = _safe_float(proposal.get("bid_quantity_kw", 0.0), 0.0)
+        price = _safe_float(proposal.get("bid_price", 0.0), 0.0)
 
         if qty < self.min_trade_kw:
             errors.append(f"거래 폐기: 수량 {qty} < 최소 {self.min_trade_kw} kW")
@@ -166,7 +178,7 @@ class PolicyAgentAS(AgentBase):
     def validate_dr(self, proposal: dict) -> tuple[dict | None, list[str]]:
         """DR 제안 검증."""
         errors = []
-        reduction = float(proposal.get("recommended_reduction_kw", 0.0))
+        reduction = _safe_float(proposal.get("recommended_reduction_kw", 0.0), 0.0)
         if reduction < 0:
             errors.append(f"DR 폐기: reduction {reduction} < 0")
             return None, errors
@@ -468,6 +480,7 @@ class MarketCoordinatorAgentAS(AgentBase):
 
         # ── Policy 검증 ───────────────────────────────────────
         all_violations = []
+        conflict_notes: list[str] = []
 
         validated_storage, ess_errs = self.policy.validate_ess(storage_proposal)
         all_violations.extend(ess_errs)
@@ -489,14 +502,20 @@ class MarketCoordinatorAgentAS(AgentBase):
         if peak_risk == "HIGH" and validated_seller is not None:
             if ess_action == "discharge":
                 validated_seller = None
-                all_violations.append("HIGH 피크: ESS 방전 우선, P2P 판매 보류")
+                note = "HIGH 피크: ESS 방전 우선, P2P 판매 보류"
+                all_violations.append(note)
+                conflict_notes.append(note)
             elif ess_action == "charge":
                 sell_qty = float(validated_seller.get("bid_quantity_kw", 0))
                 if sell_qty > ess_power:
+                    adjusted_qty = round(sell_qty - ess_power, 2)
                     validated_seller = {
                         **validated_seller,
-                        "bid_quantity_kw": round(sell_qty - ess_power, 2),
+                        "bid_quantity_kw": adjusted_qty,
                     }
+                    conflict_notes.append(
+                        f"HIGH 피크 충전 병행: 판매수량 {sell_qty:.2f}→{adjusted_qty:.2f}kW 조정"
+                    )
 
         # ── 최종 decisions 구성 ───────────────────────────────
         ess_schedule = [{
@@ -517,6 +536,21 @@ class MarketCoordinatorAgentAS(AgentBase):
                 "action": validated_seller.get("action", "sell_p2p"),
             })
 
+        trading_evidence = [
+            _build_trading_evidence_entry(
+                state_json=state,
+                seller_proposal=seller_proposal,
+                validated_seller=validated_seller,
+                storage_proposal=storage_proposal,
+                validated_storage=validated_storage,
+                dr_proposals=dr_proposals,
+                validated_dr=validated_dr,
+                policy_violations=all_violations,
+                conflict_notes=conflict_notes,
+                trading_recommendations=trading_recommendations,
+            )
+        ]
+
         decisions = {
             "ess_schedule": ess_schedule,
             "ess_summary": {
@@ -532,6 +566,7 @@ class MarketCoordinatorAgentAS(AgentBase):
                     sum(r["surplus_kw"] for r in trading_recommendations), 2
                 ),
             },
+            "trading_evidence": trading_evidence,
             "demand_response_events": validated_dr,
             "dr_summary": {
                 "dr_event_count": len(validated_dr),
@@ -560,6 +595,51 @@ class MarketCoordinatorAgentAS(AgentBase):
 # ─────────────────────────────────────────────────────────────────
 
 _agentscope_initialized = False
+
+
+def _build_trading_evidence_entry(
+    state_json: dict,
+    seller_proposal: dict,
+    validated_seller: dict | None,
+    storage_proposal: dict,
+    validated_storage: dict,
+    dr_proposals: list[dict],
+    validated_dr: list[dict],
+    policy_violations: list[str],
+    conflict_notes: list[str],
+    trading_recommendations: list[dict],
+) -> dict:
+    """Step3 AgentScope 전력거래 의사결정 근거를 UI 표시용 구조로 정규화."""
+    cs = state_json.get("community_state") or {}
+    ms = state_json.get("market_state") or {}
+    final_trade = trading_recommendations[0] if trading_recommendations else {}
+    return {
+        "timestamp": state_json.get("timestamp") or state_json.get("time", ""),
+        "time": state_json.get("time", ""),
+        "peak_risk": cs.get("peak_risk", "LOW"),
+        "total_load_kw": float(cs.get("total_load", 0.0) or 0.0),
+        "pv_generation_kw": float(cs.get("pv_generation", 0.0) or 0.0),
+        "surplus_energy_kw": float(cs.get("surplus_energy", 0.0) or 0.0),
+        "deficit_energy_kw": float(cs.get("deficit_energy", 0.0) or 0.0),
+        "grid_price": float(ms.get("grid_price", 0.0) or 0.0),
+        "community_trade_price_range": list(ms.get("community_trade_price_range") or []),
+        "seller_proposal": seller_proposal or {},
+        "validated_seller": validated_seller or {},
+        "storage_proposal": storage_proposal or {},
+        "validated_storage": validated_storage or {},
+        "dr_proposals": dr_proposals or [],
+        "validated_dr": validated_dr or [],
+        "policy_violations": list(policy_violations or []),
+        "conflict_resolution": list(conflict_notes or []),
+        "final_trading_action": final_trade.get("action", "hold"),
+        "final_bid_price": float(final_trade.get("bid_price", 0.0) or 0.0),
+        "final_surplus_kw": float(final_trade.get("surplus_kw", 0.0) or 0.0),
+        "final_reason": (
+            (validated_seller or {}).get("reason")
+            or "; ".join(conflict_notes or [])
+            or ("거래 권고 없음" if not trading_recommendations else "거래 권고 생성")
+        ),
+    }
 
 
 def _init_agentscope() -> None:
@@ -697,6 +777,7 @@ def run_agentscope_decision_series(
     async def _run_all():
         ess_schedule: list[dict] = []
         trading_recommendations: list[dict] = []
+        trading_evidence: list[dict] = []
         demand_response_events: list[dict] = []
 
         for state in state_json_list:
@@ -705,11 +786,13 @@ def run_agentscope_decision_series(
             )
             ess_schedule.extend(d.get("ess_schedule", []))
             trading_recommendations.extend(d.get("trading_recommendations", []))
+            trading_evidence.extend(d.get("trading_evidence", []))
             demand_response_events.extend(d.get("demand_response_events", []))
 
         decisions = {
             "ess_schedule": ess_schedule,
             "trading_recommendations": trading_recommendations,
+            "trading_evidence": trading_evidence,
             "demand_response_events": demand_response_events,
             "ess_summary": {"total_steps": len(ess_schedule)},
             "trading_summary": {

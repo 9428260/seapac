@@ -25,22 +25,22 @@
   .plan-section dd { margin: 0; font-size: 0.95rem; }
   .plan-section .objective { font-style: italic; color: var(--muted); margin-bottom: 0.75rem; }
   .plan-section.hidden { display: none; }
+  .evidence-grid { display: grid; gap: 0.75rem; }
+  .evidence-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; margin-bottom: 1rem; }
+  .evidence-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(139, 148, 158, 0.18); border-radius: 8px; padding: 0.85rem 1rem; }
+  .evidence-card .label { display: block; font-size: 0.78rem; color: var(--muted); margin-bottom: 0.3rem; }
+  .evidence-card .value { font-size: 0.95rem; color: var(--text); }
+  .evidence-steps, .evidence-logs { display: grid; gap: 0.75rem; }
+  .evidence-item { background: rgba(255,255,255,0.02); border: 1px solid rgba(139, 148, 158, 0.18); border-radius: 8px; padding: 0.9rem 1rem; }
+  .evidence-item h4 { margin: 0 0 0.4rem 0; font-size: 0.96rem; color: var(--text); }
+  .evidence-item p { margin: 0.2rem 0; color: var(--muted); }
+  .evidence-item code { white-space: pre-wrap; }
 {% endblock %}
 {% block main_top %}
   <form class="search-bar" method="get" action="{{ url_for('agent_plans') }}" id="agent-plans-search">
     <span>
       <label for="search-run-id">Run ID</label>
       <input type="text" name="run_id" id="search-run-id" value="{{ search_run_id|e }}" placeholder="예: 1">
-    </span>
-    <span>
-      <label for="search-plan-type">Plan 유형</label>
-      <select name="plan_type" id="search-plan-type">
-        <option value="all" {% if search_plan_type == 'all' %}selected{% endif %}>전체</option>
-        <option value="trading" {% if search_plan_type == 'trading' %}selected{% endif %}>전력거래 계획</option>
-        <option value="eco_saver" {% if search_plan_type == 'eco_saver' %}selected{% endif %}>EcoSaver 계획</option>
-        <option value="storage" {% if search_plan_type == 'storage' %}selected{% endif %}>Storage 관리 계획</option>
-        <option value="policy" {% if search_plan_type == 'policy' %}selected{% endif %}>Policy 계획</option>
-      </select>
     </span>
     <span>
       <label for="search-measure-date">측정일</label>
@@ -58,66 +58,77 @@
   {% if run %}
   <p class="muted" style="margin-bottom: 1rem;">Run #{{ run.id }} ({{ run.created_at[:10] if run.created_at else '—' }}) 기준 계획 내용입니다.</p>
   {% else %}
-  <p class="muted" style="margin-bottom: 1rem;">Run ID를 입력하고 검색하면 해당 Run의 Step3/Step3.5 결과가 전력거래·EcoSaver·Storage·Policy 계획으로 표시됩니다.</p>
+  <p class="muted" style="margin-bottom: 1rem;">Run ID를 입력하고 검색하면 해당 Run의 Agent Plan 계획 수립 및 실행 증빙이 표시됩니다.</p>
   {% endif %}
 
-  {% set ps = plan_sections %}
-  {% if ps.trading.visible %}
-  <section class="plan-section" id="plan-trading">
-    <h3>전력거래 계획</h3>
-    {% if ps.trading.content %}
-    <p class="objective">{{ ps.trading.content.objective }}</p>
-    <dl>
-      <dt>거래 권고</dt>
-      <dd>{{ ps.trading.content.get('거래 권고', '—') }}</dd>
-    </dl>
-    {% endif %}
+  {% if plan_evidence and plan_evidence.available %}
+  <section class="plan-section" id="plan-evidence">
+    <h3>계획·실행 증빙</h3>
+    <p class="objective">{{ plan_evidence.objective }}</p>
+    <div class="evidence-meta">
+      <div class="evidence-card">
+        <span class="label">계획 방식</span>
+        <span class="value">{{ plan_evidence.planning_mode }}</span>
+      </div>
+      <div class="evidence-card">
+        <span class="label">LLM 연계</span>
+        <span class="value">{{ plan_evidence.llm_used }}</span>
+      </div>
+      <div class="evidence-card">
+        <span class="label">계획 ID</span>
+        <span class="value">{{ plan_evidence.plan_id }}</span>
+      </div>
+      <div class="evidence-card">
+        <span class="label">실행 상태</span>
+        <span class="value">{{ plan_evidence.execution_status }}</span>
+      </div>
+      <div class="evidence-card">
+        <span class="label">시뮬레이션 검증</span>
+        <span class="value">{{ plan_evidence.simulation_status }}</span>
+      </div>
+    </div>
+    <div class="evidence-grid">
+      <div class="evidence-steps">
+        {% for step in plan_evidence.steps %}
+        <article class="evidence-item">
+          <h4>Step {{ step.step_id }} · {{ step.agent_name }}</h4>
+          <p>작업: {{ step.action }}</p>
+          <p>근거: {{ step.reason }}</p>
+          <p>선행 단계: {{ step.depends_on|join(', ') if step.depends_on else '없음' }}</p>
+          <p>파라미터: <code>{{ step.parameters if step.parameters else '—' }}</code></p>
+          <p>실행 결과: {{ step.status }}{% if step.result != '—' %} · {{ step.result }}{% endif %}</p>
+        </article>
+        {% endfor %}
+      </div>
+      <div class="evidence-logs">
+        {% for log in plan_evidence.logs %}
+        <article class="evidence-item">
+          <h4>실행 로그 · Step {{ log.step_id }} · {{ log.agent }}</h4>
+          <p>상태: {{ log.status }}</p>
+          <p><code>{{ log }}</code></p>
+        </article>
+        {% endfor %}
+      </div>
+    </div>
   </section>
   {% endif %}
 
-  {% if ps.eco_saver.visible %}
-  <section class="plan-section" id="plan-eco-saver">
-    <h3>EcoSaver 계획</h3>
-    {% if ps.eco_saver.content %}
-    <p class="objective">{{ ps.eco_saver.content.get('설명', '') }}</p>
-    <dl>
-      <dt>EcoSaver 권고</dt>
-      <dd>{{ ps.eco_saver.content.get('권고', '—') }}</dd>
-    </dl>
+  {% for section_key, section in (plan_sections or {}).items() %}
+  {% if section.visible and section.content %}
+  <section class="plan-section" id="plan-section-{{ section_key }}">
+    <h3>{{ section.title }}</h3>
+    {% if section.content.get('objective') %}
+    <p class="objective">{{ section.content.get('objective') }}</p>
     {% endif %}
+    <dl>
+      {% for key, value in section.content.items() %}
+      {% if key != 'objective' %}
+      <dt>{{ key }}</dt>
+      <dd>{{ value }}</dd>
+      {% endif %}
+      {% endfor %}
+    </dl>
   </section>
   {% endif %}
-
-  {% if ps.storage.visible %}
-  <section class="plan-section" id="plan-storage">
-    <h3>Storage 관리 계획</h3>
-    {% if ps.storage.content %}
-    <dl>
-      <dt>ESS 스케줄</dt>
-      <dd>{{ ps.storage.content.get('ESS 스케줄', '—') }}</dd>
-      <dt>승인 액션</dt>
-      <dd>{{ ps.storage.content.get('승인', '—') }}</dd>
-      <dt>거절 액션</dt>
-      <dd>{{ ps.storage.content.get('거절', '—') }}</dd>
-      <dt>수정 액션</dt>
-      <dd>{{ ps.storage.content.get('수정', '—') }}</dd>
-    </dl>
-    {% endif %}
-  </section>
-  {% endif %}
-
-  {% if ps.policy.visible %}
-  <section class="plan-section" id="plan-policy">
-    <h3>Policy 계획</h3>
-    {% if ps.policy.content %}
-    <p class="objective">{{ ps.policy.content.get('설명', '') }}</p>
-    <dl>
-      <dt>정책 위반</dt>
-      <dd>{{ ps.policy.content.get('정책 위반', '—') }}</dd>
-      <dt>위험 점수</dt>
-      <dd>{{ ps.policy.content.get('위험 점수', '—') }}</dd>
-    </dl>
-    {% endif %}
-  </section>
-  {% endif %}
+  {% endfor %}
 {% endblock %}

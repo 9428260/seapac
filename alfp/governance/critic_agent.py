@@ -109,7 +109,7 @@ Analyze the given decision evidence and output JSON only:
 - confidence: {evidence.confidence_score}
 
 Output JSON only."""
-    llm = get_llm(temperature=0.2)
+    llm = get_llm(temperature=0.2, stage="governance_critic")
     parser = JsonOutputParser()
     resp = llm.invoke([SystemMessage(content=system), HumanMessage(content=user)])
     data = parser.invoke(resp.content)

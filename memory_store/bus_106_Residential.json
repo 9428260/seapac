@@ -1,64 +1,64 @@
 {
-  "last_run_at": "2026-03-15T13:01:38.029745Z",
+  "last_run_at": "2026-03-16T14:29:29.902084Z",
   "last_plan": {
     "selected_model": "xgboost",
     "forecast_horizon_steps": 96,
-    "llm_reasoning": "재계획: 이전 모델 lgbm → xgboost 전환 (규칙 fallback)"
+    "llm_reasoning": "이전 런에서 lgbm 모델이 사용되었으나 MAPE 목표를 달성하지 못했으므로, xgboost 모델로 변경하여 더 나은 성능을 기대합니다. xgboost는 복잡한 데이터 패턴을 잘 학습하며, 설정된 max_depth와 learning_rate는 과적합을 방지하면서도 충분한 학습을 보장합니다."
   },
   "last_validation_metrics": {
     "kpi": {
       "MAPE_target": 10.0,
-      "MAPE_achieved": 6.7,
-      "MAPE_pass": true,
+      "MAPE_achieved": 17.54,
+      "MAPE_pass": false,
       "peak_acc_target": 90.0,
-      "peak_acc_achieved": 92.71,
+      "peak_acc_achieved": 96.77,
       "peak_acc_pass": true
     },
     "load": {
-      "MAE": 0.8077,
-      "RMSE": 1.1279,
-      "MAPE": 6.7,
+      "MAE": 1.8711,
+      "RMSE": 2.2692,
+      "MAPE": 17.54,
       "peak": {
-        "true_peak_kw": 20.605,
-        "pred_peak_kw": 19.103,
-        "peak_error_pct": 7.29
+        "true_peak_kw": 19.141,
+        "pred_peak_kw": 18.523,
+        "peak_error_pct": 3.23
       },
       "n_samples": 44,
-      "skill_mape": 6.7,
-      "skill_rmse": 1.1279
+      "skill_mape": 17.54,
+      "skill_rmse": 2.2692
     },
     "pv": {
-      "MAE": 0.1428,
-      "RMSE": 0.1907,
-      "MAPE": 10.3,
+      "MAE": 6.946,
+      "RMSE": 7.2154,
+      "MAPE": 124.48,
       "peak": {
-        "true_peak_kw": 2.893,
-        "pred_peak_kw": 3.573,
-        "peak_error_pct": 23.5
+        "true_peak_kw": 19.137,
+        "pred_peak_kw": 6.233,
+        "peak_error_pct": 67.43
       },
       "n_samples": 44,
-      "skill_mape": 10.3,
-      "skill_rmse": 0.1907
+      "skill_mape": 124.48,
+      "skill_rmse": 7.2154
     },
     "net_load": {
-      "MAE": 0.8315,
-      "RMSE": 1.1279,
-      "MAPE": 7.22,
+      "MAE": 6.0344,
+      "RMSE": 6.847,
+      "MAPE": 34.75,
       "peak": {
-        "true_peak_kw": 20.605,
-        "pred_peak_kw": 19.03,
-        "peak_error_pct": 7.64
+        "true_peak_kw": 19.141,
+        "pred_peak_kw": 12.29,
+        "peak_error_pct": 35.79
       },
       "n_samples": 44,
-      "skill_mape": 7.22,
-      "skill_rmse": 1.1279
+      "skill_mape": 34.75,
+      "skill_rmse": 6.847
     }
   },
   "last_decisions_summary": {
     "ess_summary": {
-      "charge_steps": 1,
+      "charge_steps": 0,
       "discharge_steps": 7,
-      "idle_steps": 36
+      "idle_steps": 37
     },
     "tariff_saving": {
       "base_cost_krw": 0,
@@ -67,7 +67,7 @@
       "saving_pct": 0.0
     },
     "dr_summary": {
-      "peak_threshold_kw": 16.82,
+      "peak_threshold_kw": 11.61,
       "dr_event_count": 7
     }
   },

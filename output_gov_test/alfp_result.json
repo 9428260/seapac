@@ -1,0 +1,671 @@
+{
+  "framework": {
+    "name": "LangChain DeepAgent",
+    "pipeline": [
+      "data_loader",
+      "data_quality",
+      "feature_engineering",
+      "forecast_planner",
+      "load_forecast",
+      "pv_forecast",
+      "net_load_forecast",
+      "validation"
+    ],
+    "execution_mode": "forecast_only",
+    "llm_used_in_forecast_planner": true,
+    "llm_reasoning": "재계획: 이전 모델 lgbm → xgboost 전환 (규칙 fallback)",
+    "message_count": 44
+  },
+  "input_data": {
+    "prosumer_id": "bus_48_Commercial",
+    "prosumer_type": "Commercial",
+    "data_range_days": 3,
+    "n_train_records": 288,
+    "feature_names": [
+      "bess_soc_kwh",
+      "price_buy",
+      "price_sell",
+      "price_p2p",
+      "weather_temp_c",
+      "weather_humidity_pct",
+      "weather_clouds_pct",
+      "weather_wind_speed_ms",
+      "hour",
+      "minute",
+      "hour_frac",
+      "weekday",
+      "is_weekend",
+      "month",
+      "day_of_year",
+      "week_of_year",
+      "is_holiday",
+      "is_peak_hour",
+      "hour_sin",
+      "hour_cos",
+      "month_sin",
+      "month_cos",
+      "load_kw_lag1",
+      "load_kw_lag4"
+    ],
+    "feature_sample": [
+      {
+        "timestamp": "2026-05-03 00:00:00+09:00",
+        "prosumer_id": "bus_48_Commercial",
+        "prosumer_type": "Commercial",
+        "load_kw": 23.008,
+        "pv_kw": 0.0,
+        "price_buy": 95.542,
+        "price_sell": 59.236,
+        "weather_temp_c": 17.8,
+        "weather_clouds_pct": 50.0
+      },
+      {
+        "timestamp": "2026-05-03 00:15:00+09:00",
+        "prosumer_id": "bus_48_Commercial",
+        "prosumer_type": "Commercial",
+        "load_kw": 26.469,
+        "pv_kw": 0.0,
+        "price_buy": 96.934,
+        "price_sell": 60.099,
+        "weather_temp_c": 17.8,
+        "weather_clouds_pct": 50.0
+      },
+      {
+        "timestamp": "2026-05-03 00:30:00+09:00",
+        "prosumer_id": "bus_48_Commercial",
+        "prosumer_type": "Commercial",
+        "load_kw": 23.016,
+        "pv_kw": 0.0,
+        "price_buy": 99.077,
+        "price_sell": 61.428,
+        "weather_temp_c": 17.8,
+        "weather_clouds_pct": 50.0
+      },
+      {
+        "timestamp": "2026-05-03 00:45:00+09:00",
+        "prosumer_id": "bus_48_Commercial",
+        "prosumer_type": "Commercial",
+        "load_kw": 29.398,
+        "pv_kw": 0.0,
+        "price_buy": 115.961,
+        "price_sell": 71.896,
+        "weather_temp_c": 17.8,
+        "weather_clouds_pct": 50.0
+      },
+      {
+        "timestamp": "2026-05-03 01:00:00+09:00",
+        "prosumer_id": "bus_48_Commercial",
+        "prosumer_type": "Commercial",
+        "load_kw": 23.831,
+        "pv_kw": 0.0,
+        "price_buy": 95.0,
+        "price_sell": 58.9,
+        "weather_temp_c": 17.8,
+        "weather_clouds_pct": 50.0
+      },
+      {
+        "timestamp": "2026-05-03 01:15:00+09:00",
+        "prosumer_id": "bus_48_Commercial",
+        "prosumer_type": "Commercial",
+        "load_kw": 23.361,
+        "pv_kw": 0.0,
+        "price_buy": 98.687,
+        "price_sell": 61.186,
+        "weather_temp_c": 17.8,
+        "weather_clouds_pct": 50.0
+      },
+      {
+        "timestamp": "2026-05-03 01:30:00+09:00",
+        "prosumer_id": "bus_48_Commercial",
+        "prosumer_type": "Commercial",
+        "load_kw": 22.2,
+        "pv_kw": 0.0,
+        "price_buy": 95.019,
+        "price_sell": 58.912,
+        "weather_temp_c": 17.8,
+        "weather_clouds_pct": 50.0
+      },
+      {
+        "timestamp": "2026-05-03 01:45:00+09:00",
+        "prosumer_id": "bus_48_Commercial",
+        "prosumer_type": "Commercial",
+        "load_kw": 21.56,
+        "pv_kw": 0.0,
+        "price_buy": 95.0,
+        "price_sell": 58.9,
+        "weather_temp_c": 17.8,
+        "weather_clouds_pct": 50.0
+      },
+      {
+        "timestamp": "2026-05-03 02:00:00+09:00",
+        "prosumer_id": "bus_48_Commercial",
+        "prosumer_type": "Commercial",
+        "load_kw": 21.833,
+        "pv_kw": 0.0,
+        "price_buy": 95.0,
+        "price_sell": 58.9,
+        "weather_temp_c": 17.8,
+        "weather_clouds_pct": 50.0
+      },
+      {
+        "timestamp": "2026-05-03 02:15:00+09:00",
+        "prosumer_id": "bus_48_Commercial",
+        "prosumer_type": "Commercial",
+        "load_kw": 22.831,
+        "pv_kw": 0.0,
+        "price_buy": 95.0,
+        "price_sell": 58.9,
+        "weather_temp_c": 17.8,
+        "weather_clouds_pct": 50.0
+      },
+      {
+        "timestamp": "2026-05-03 02:30:00+09:00",
+        "prosumer_id": "bus_48_Commercial",
+        "prosumer_type": "Commercial",
+        "load_kw": 21.283,
+        "pv_kw": 0.0,
+        "price_buy": 97.027,
+        "price_sell": 60.157,
+        "weather_temp_c": 17.8,
+        "weather_clouds_pct": 50.0
+      },
+      {
+        "timestamp": "2026-05-03 02:45:00+09:00",
+        "prosumer_id": "bus_48_Commercial",
+        "prosumer_type": "Commercial",
+        "load_kw": 22.511,
+        "pv_kw": 0.0,
+        "price_buy": 99.475,
+        "price_sell": 61.674,
+        "weather_temp_c": 17.8,
+        "weather_clouds_pct": 50.0
+      }
+    ]
+  },
+  "forecast_plan": {
+    "prosumer_id": "bus_48_Commercial",
+    "prosumer_type": "Commercial",
+    "data_range_days": 3,
+    "n_train_records": 288,
+    "llm_used": true,
+    "selected_model": "xgboost",
+    "forecast_horizon_steps": 96,
+    "forecast_horizon_hours": 24.0,
+    "model_config": {
+      "max_depth": 6,
+      "n_estimators": 300,
+      "learning_rate": 0.05
+    },
+    "llm_reasoning": "재계획: 이전 모델 lgbm → xgboost 전환 (규칙 fallback)",
+    "llm_data_insights": "데이터 288건, 타입 Commercial",
+    "llm_risk_factors": []
+  },
+  "validation_metrics": {
+    "load": {
+      "label": "Load",
+      "MAE": 3.2593,
+      "RMSE": 4.8097,
+      "MAPE": 14.69,
+      "peak": {
+        "true_peak_kw": 51.593,
+        "pred_peak_kw": 52.112,
+        "peak_error_pct": 1.01
+      },
+      "n_samples": 44,
+      "skill_mape": 14.69,
+      "skill_rmse": 4.8097
+    },
+    "pv": {
+      "label": "PV",
+      "MAE": 1.3788,
+      "RMSE": 1.7573,
+      "MAPE": 14.05,
+      "peak": {
+        "true_peak_kw": 29.099,
+        "pred_peak_kw": 35.062,
+        "peak_error_pct": 20.49
+      },
+      "n_samples": 44,
+      "skill_mape": 14.05,
+      "skill_rmse": 1.7573
+    },
+    "net_load": {
+      "label": "NetLoad",
+      "MAE": 3.4105,
+      "RMSE": 4.7504,
+      "MAPE": 16.38,
+      "peak": {
+        "true_peak_kw": 32.739,
+        "pred_peak_kw": 31.837,
+        "peak_error_pct": 2.75
+      },
+      "n_samples": 44,
+      "skill_mape": 16.38,
+      "skill_rmse": 4.7504
+    },
+    "kpi": {
+      "MAPE_target": 10.0,
+      "MAPE_achieved": 14.69,
+      "MAPE_pass": false,
+      "peak_acc_target": 90.0,
+      "peak_acc_achieved": 98.99,
+      "peak_acc_pass": true
+    }
+  },
+  "forecast_outputs": {
+    "load_forecast": [
+      {
+        "timestamp": "2026-05-05 04:00:00",
+        "load_kw": 51.593,
+        "predicted_load_kw": 52.1121940612793
+      },
+      {
+        "timestamp": "2026-05-05 04:15:00",
+        "load_kw": 49.653,
+        "predicted_load_kw": 50.8189697265625
+      },
+      {
+        "timestamp": "2026-05-05 04:30:00",
+        "load_kw": 49.384,
+        "predicted_load_kw": 51.238861083984375
+      },
+      {
+        "timestamp": "2026-05-05 04:45:00",
+        "load_kw": 49.062,
+        "predicted_load_kw": 49.0633544921875
+      },
+      {
+        "timestamp": "2026-05-05 05:00:00",
+        "load_kw": 47.181,
+        "predicted_load_kw": 48.1320915222168
+      },
+      {
+        "timestamp": "2026-05-05 05:15:00",
+        "load_kw": 46.84,
+        "predicted_load_kw": 44.19534683227539
+      },
+      {
+        "timestamp": "2026-05-05 05:30:00",
+        "load_kw": 45.747,
+        "predicted_load_kw": 43.77120590209961
+      },
+      {
+        "timestamp": "2026-05-05 05:45:00",
+        "load_kw": 45.835,
+        "predicted_load_kw": 44.3554573059082
+      },
+      {
+        "timestamp": "2026-05-05 06:00:00",
+        "load_kw": 42.459,
+        "predicted_load_kw": 44.2965202331543
+      },
+      {
+        "timestamp": "2026-05-05 06:15:00",
+        "load_kw": 39.864,
+        "predicted_load_kw": 43.864341735839844
+      },
+      {
+        "timestamp": "2026-05-05 06:30:00",
+        "load_kw": 41.843,
+        "predicted_load_kw": 41.716346740722656
+      },
+      {
+        "timestamp": "2026-05-05 06:45:00",
+        "load_kw": 39.026,
+        "predicted_load_kw": 41.98014450073242
+      },
+      {
+        "timestamp": "2026-05-05 07:00:00",
+        "load_kw": 39.632,
+        "predicted_load_kw": 40.11397171020508
+      },
+      {
+        "timestamp": "2026-05-05 07:15:00",
+        "load_kw": 37.79,
+        "predicted_load_kw": 39.66413116455078
+      },
+      {
+        "timestamp": "2026-05-05 07:30:00",
+        "load_kw": 36.322,
+        "predicted_load_kw": 39.493377685546875
+      },
+      {
+        "timestamp": "2026-05-05 07:45:00",
+        "load_kw": 36.054,
+        "predicted_load_kw": 38.647212982177734
+      },
+      {
+        "timestamp": "2026-05-05 08:00:00",
+        "load_kw": 40.499,
+        "predicted_load_kw": 35.73438262939453
+      },
+      {
+        "timestamp": "2026-05-05 08:15:00",
+        "load_kw": 36.682,
+        "predicted_load_kw": 36.087989807128906
+      },
+      {
+        "timestamp": "2026-05-05 08:30:00",
+        "load_kw": 34.184,
+        "predicted_load_kw": 32.8360481262207
+      },
+      {
+        "timestamp": "2026-05-05 08:45:00",
+        "load_kw": 34.041,
+        "predicted_load_kw": 31.821517944335938
+      },
+      {
+        "timestamp": "2026-05-05 09:00:00",
+        "load_kw": 18.011,
+        "predicted_load_kw": 24.132530212402344
+      },
+      {
+        "timestamp": "2026-05-05 09:15:00",
+        "load_kw": 14.402,
+        "predicted_load_kw": 17.438928604125977
+      },
+      {
+        "timestamp": "2026-05-05 09:30:00",
+        "load_kw": 15.721,
+        "predicted_load_kw": 17.501924514770508
+      },
+      {
+        "timestamp": "2026-05-05 09:45:00",
+        "load_kw": 15.497,
+        "predicted_load_kw": 17.479352951049805
+      }
+    ],
+    "pv_forecast": [
+      {
+        "timestamp": "2026-05-05 04:00:00",
+        "pv_kw": 29.099,
+        "predicted_pv_kw": 35.06210708618164
+      },
+      {
+        "timestamp": "2026-05-05 04:15:00",
+        "pv_kw": 28.848,
+        "predicted_pv_kw": 30.64801788330078
+      },
+      {
+        "timestamp": "2026-05-05 04:30:00",
+        "pv_kw": 26.122,
+        "predicted_pv_kw": 29.737228393554688
+      },
+      {
+        "timestamp": "2026-05-05 04:45:00",
+        "pv_kw": 25.905,
+        "predicted_pv_kw": 24.71546173095703
+      },
+      {
+        "timestamp": "2026-05-05 05:00:00",
+        "pv_kw": 25.142,
+        "predicted_pv_kw": 23.176387786865234
+      },
+      {
+        "timestamp": "2026-05-05 05:15:00",
+        "pv_kw": 24.419,
+        "predicted_pv_kw": 22.385574340820312
+      },
+      {
+        "timestamp": "2026-05-05 05:30:00",
+        "pv_kw": 25.072,
+        "predicted_pv_kw": 21.833261489868164
+      },
+      {
+        "timestamp": "2026-05-05 05:45:00",
+        "pv_kw": 25.129,
+        "predicted_pv_kw": 21.508310317993164
+      },
+      {
+        "timestamp": "2026-05-05 06:00:00",
+        "pv_kw": 22.537,
+        "predicted_pv_kw": 21.449462890625
+      },
+      {
+        "timestamp": "2026-05-05 06:15:00",
+        "pv_kw": 20.739,
+        "predicted_pv_kw": 19.387062072753906
+      },
+      {
+        "timestamp": "2026-05-05 06:30:00",
+        "pv_kw": 21.746,
+        "predicted_pv_kw": 18.259204864501953
+      },
+      {
+        "timestamp": "2026-05-05 06:45:00",
+        "pv_kw": 19.583,
+        "predicted_pv_kw": 17.51055335998535
+      },
+      {
+        "timestamp": "2026-05-05 07:00:00",
+        "pv_kw": 16.353,
+        "predicted_pv_kw": 15.334661483764648
+      },
+      {
+        "timestamp": "2026-05-05 07:15:00",
+        "pv_kw": 13.606,
+        "predicted_pv_kw": 15.934752464294434
+      },
+      {
+        "timestamp": "2026-05-05 07:30:00",
+        "pv_kw": 11.663,
+        "predicted_pv_kw": 11.075118064880371
+      },
+      {
+        "timestamp": "2026-05-05 07:45:00",
+        "pv_kw": 9.886,
+        "predicted_pv_kw": 11.164048194885254
+      },
+      {
+        "timestamp": "2026-05-05 08:00:00",
+        "pv_kw": 7.76,
+        "predicted_pv_kw": 9.375568389892578
+      },
+      {
+        "timestamp": "2026-05-05 08:15:00",
+        "pv_kw": 5.807,
+        "predicted_pv_kw": 7.916933059692383
+      },
+      {
+        "timestamp": "2026-05-05 08:30:00",
+        "pv_kw": 3.646,
+        "predicted_pv_kw": 4.676618576049805
+      },
+      {
+        "timestamp": "2026-05-05 08:45:00",
+        "pv_kw": 1.974,
+        "predicted_pv_kw": 2.518679618835449
+      },
+      {
+        "timestamp": "2026-05-05 09:00:00",
+        "pv_kw": 0.0,
+        "predicted_pv_kw": 1.005915880203247
+      },
+      {
+        "timestamp": "2026-05-05 09:15:00",
+        "pv_kw": 0.0,
+        "predicted_pv_kw": 0.7706189155578613
+      },
+      {
+        "timestamp": "2026-05-05 09:30:00",
+        "pv_kw": 0.0,
+        "predicted_pv_kw": 0.7706189155578613
+      },
+      {
+        "timestamp": "2026-05-05 09:45:00",
+        "pv_kw": 0.0,
+        "predicted_pv_kw": 0.7706189155578613
+      }
+    ],
+    "net_load_forecast": [
+      {
+        "timestamp": "2026-05-05 04:00:00",
+        "load_kw": 51.593,
+        "pv_kw": 29.099,
+        "actual_net_load_kw": 22.494000000000003,
+        "predicted_net_load_kw": 17.050086975097656
+      },
+      {
+        "timestamp": "2026-05-05 04:15:00",
+        "load_kw": 49.653,
+        "pv_kw": 28.848,
+        "actual_net_load_kw": 20.805,
+        "predicted_net_load_kw": 20.17095184326172
+      },
+      {
+        "timestamp": "2026-05-05 04:30:00",
+        "load_kw": 49.384,
+        "pv_kw": 26.122,
+        "actual_net_load_kw": 23.262,
+        "predicted_net_load_kw": 21.501632690429688
+      },
+      {
+        "timestamp": "2026-05-05 04:45:00",
+        "load_kw": 49.062,
+        "pv_kw": 25.905,
+        "actual_net_load_kw": 23.156999999999996,
+        "predicted_net_load_kw": 24.34789276123047
+      },
+      {
+        "timestamp": "2026-05-05 05:00:00",
+        "load_kw": 47.181,
+        "pv_kw": 25.142,
+        "actual_net_load_kw": 22.038999999999998,
+        "predicted_net_load_kw": 24.955703735351562
+      },
+      {
+        "timestamp": "2026-05-05 05:15:00",
+        "load_kw": 46.84,
+        "pv_kw": 24.419,
+        "actual_net_load_kw": 22.421000000000003,
+        "predicted_net_load_kw": 21.809772491455078
+      },
+      {
+        "timestamp": "2026-05-05 05:30:00",
+        "load_kw": 45.747,
+        "pv_kw": 25.072,
+        "actual_net_load_kw": 20.675,
+        "predicted_net_load_kw": 21.937944412231445
+      },
+      {
+        "timestamp": "2026-05-05 05:45:00",
+        "load_kw": 45.835,
+        "pv_kw": 25.129,
+        "actual_net_load_kw": 20.706,
+        "predicted_net_load_kw": 22.84714698791504
+      },
+      {
+        "timestamp": "2026-05-05 06:00:00",
+        "load_kw": 42.459,
+        "pv_kw": 22.537,
+        "actual_net_load_kw": 19.922000000000004,
+        "predicted_net_load_kw": 22.847057342529297
+      },
+      {
+        "timestamp": "2026-05-05 06:15:00",
+        "load_kw": 39.864,
+        "pv_kw": 20.739,
+        "actual_net_load_kw": 19.124999999999996,
+        "predicted_net_load_kw": 24.477279663085938
+      },
+      {
+        "timestamp": "2026-05-05 06:30:00",
+        "load_kw": 41.843,
+        "pv_kw": 21.746,
+        "actual_net_load_kw": 20.097000000000005,
+        "predicted_net_load_kw": 23.457141876220703
+      },
+      {
+        "timestamp": "2026-05-05 06:45:00",
+        "load_kw": 39.026,
+        "pv_kw": 19.583,
+        "actual_net_load_kw": 19.443000000000005,
+        "predicted_net_load_kw": 24.46959114074707
+      },
+      {
+        "timestamp": "2026-05-05 07:00:00",
+        "load_kw": 39.632,
+        "pv_kw": 16.353,
+        "actual_net_load_kw": 23.278999999999996,
+        "predicted_net_load_kw": 24.77931022644043
+      },
+      {
+        "timestamp": "2026-05-05 07:15:00",
+        "load_kw": 37.79,
+        "pv_kw": 13.606,
+        "actual_net_load_kw": 24.183999999999997,
+        "predicted_net_load_kw": 23.72937774658203
+      },
+      {
+        "timestamp": "2026-05-05 07:30:00",
+        "load_kw": 36.322,
+        "pv_kw": 11.663,
+        "actual_net_load_kw": 24.659000000000002,
+        "predicted_net_load_kw": 28.418258666992188
+      },
+      {
+        "timestamp": "2026-05-05 07:45:00",
+        "load_kw": 36.054,
+        "pv_kw": 9.886,
+        "actual_net_load_kw": 26.168000000000003,
+        "predicted_net_load_kw": 27.483165740966797
+      },
+      {
+        "timestamp": "2026-05-05 08:00:00",
+        "load_kw": 40.499,
+        "pv_kw": 7.76,
+        "actual_net_load_kw": 32.739000000000004,
+        "predicted_net_load_kw": 26.358814239501953
+      },
+      {
+        "timestamp": "2026-05-05 08:15:00",
+        "load_kw": 36.682,
+        "pv_kw": 5.807,
+        "actual_net_load_kw": 30.875,
+        "predicted_net_load_kw": 28.171056747436523
+      },
+      {
+        "timestamp": "2026-05-05 08:30:00",
+        "load_kw": 34.184,
+        "pv_kw": 3.646,
+        "actual_net_load_kw": 30.537999999999997,
+        "predicted_net_load_kw": 28.1594295501709
+      },
+      {
+        "timestamp": "2026-05-05 08:45:00",
+        "load_kw": 34.041,
+        "pv_kw": 1.974,
+        "actual_net_load_kw": 32.067,
+        "predicted_net_load_kw": 29.302837371826172
+      },
+      {
+        "timestamp": "2026-05-05 09:00:00",
+        "load_kw": 18.011,
+        "pv_kw": 0.0,
+        "actual_net_load_kw": 18.011,
+        "predicted_net_load_kw": 23.12661361694336
+      },
+      {
+        "timestamp": "2026-05-05 09:15:00",
+        "load_kw": 14.402,
+        "pv_kw": 0.0,
+        "actual_net_load_kw": 14.402,
+        "predicted_net_load_kw": 16.668310165405273
+      },
+      {
+        "timestamp": "2026-05-05 09:30:00",
+        "load_kw": 15.721,
+        "pv_kw": 0.0,
+        "actual_net_load_kw": 15.721,
+        "predicted_net_load_kw": 16.731306076049805
+      },
+      {
+        "timestamp": "2026-05-05 09:45:00",
+        "load_kw": 15.497,
+        "pv_kw": 0.0,
+        "actual_net_load_kw": 15.497,
+        "predicted_net_load_kw": 16.7087345123291
+      }
+    ]
+  }
+}

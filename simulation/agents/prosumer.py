@@ -56,6 +56,7 @@ class ProsumerAgent(mesa.Agent):
         self.current_price_buy: float = 0.0
         self.current_price_sell: float = 0.0
         self.current_price_p2p: float = 0.0
+        self.current_dr_reduction_kw: float = 0.0
 
         # ── 예측 결과 ────────────────────────────────────────
         self.predicted_load_kw: float = 0.0
@@ -102,6 +103,26 @@ class ProsumerAgent(mesa.Agent):
         self.current_price_buy  = float(row.get("price_buy", 100.0))
         self.current_price_sell = float(row.get("price_sell", 60.0))
         self.current_price_p2p  = float(row.get("price_p2p", 80.0))
+        self.current_dr_reduction_kw = 0.0
+
+        # DR 권고를 실제 부하 감소로 반영한다. 감축량은 현재 step의 커뮤니티 부하 비중으로 배분한다.
+        dr_by_step = getattr(self.model, "_dr_by_step", None) or {}
+        if step in dr_by_step:
+            reduction = float((dr_by_step[step] or {}).get("recommended_reduction_kw", 0.0))
+            if reduction > 0:
+                total_step_load = float(
+                    self.timeseries.iloc[step]["load_kw"]
+                )
+                for peer in (self.model.agents_by_type.get(type(self)) or []):
+                    if peer is self:
+                        continue
+                    if step < len(peer.timeseries):
+                        total_step_load += float(peer.timeseries.iloc[step]["load_kw"])
+                if total_step_load > 0:
+                    share = self.current_load_kw / total_step_load
+                    applied = min(self.current_load_kw, reduction * share)
+                    self.current_load_kw = max(self.current_load_kw - applied, 0.0)
+                    self.current_dr_reduction_kw = applied
 
         self._load_history.append(self.current_load_kw)
         self._pv_history.append(self.current_pv_kw)

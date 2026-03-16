@@ -1,31 +1,31 @@
 {
-  "last_run_at": "2026-03-15T13:01:29.045729Z",
+  "last_run_at": "2026-03-16T14:29:32.192482Z",
   "last_plan": {
     "selected_model": "xgboost",
     "forecast_horizon_steps": 96,
-    "llm_reasoning": "재계획: 이전 모델 lgbm → xgboost 전환 (규칙 fallback)"
+    "llm_reasoning": "이전 런에서 xgboost 모델이 MAPE 목표를 달성했으나 피크 정확도가 부족했습니다. 따라서 xgboost를 유지하되, 모델의 복잡도를 조정하여 피크 예측 성능을 개선하고자 합니다. 날씨 데이터는 PV 발전량에 영향을 미치지 않으므로 부하 예측에만 집중합니다."
   },
   "last_validation_metrics": {
     "kpi": {
       "MAPE_target": 10.0,
-      "MAPE_achieved": 5.53,
+      "MAPE_achieved": 9.42,
       "MAPE_pass": true,
       "peak_acc_target": 90.0,
-      "peak_acc_achieved": 96.14,
-      "peak_acc_pass": true
+      "peak_acc_achieved": 79.68,
+      "peak_acc_pass": false
     },
     "load": {
-      "MAE": 2.8249,
-      "RMSE": 3.7905,
-      "MAPE": 5.53,
+      "MAE": 4.6969,
+      "RMSE": 5.796,
+      "MAPE": 9.42,
       "peak": {
-        "true_peak_kw": 65.875,
-        "pred_peak_kw": 63.33,
-        "peak_error_pct": 3.86
+        "true_peak_kw": 63.094,
+        "pred_peak_kw": 50.276,
+        "peak_error_pct": 20.32
       },
       "n_samples": 44,
-      "skill_mape": 5.53,
-      "skill_rmse": 3.7905
+      "skill_mape": 9.42,
+      "skill_rmse": 5.796
     },
     "pv": {
       "MAE": 0.0,
@@ -41,24 +41,24 @@
       "skill_rmse": 0.0
     },
     "net_load": {
-      "MAE": 2.8249,
-      "RMSE": 3.7905,
-      "MAPE": 5.53,
+      "MAE": 4.6969,
+      "RMSE": 5.796,
+      "MAPE": 9.42,
       "peak": {
-        "true_peak_kw": 65.875,
-        "pred_peak_kw": 63.33,
-        "peak_error_pct": 3.86
+        "true_peak_kw": 63.094,
+        "pred_peak_kw": 50.276,
+        "peak_error_pct": 20.32
       },
       "n_samples": 44,
-      "skill_mape": 5.53,
-      "skill_rmse": 3.7905
+      "skill_mape": 9.42,
+      "skill_rmse": 5.796
     }
   },
   "last_decisions_summary": {
     "ess_summary": {
       "charge_steps": 0,
-      "discharge_steps": 7,
-      "idle_steps": 37
+      "discharge_steps": 0,
+      "idle_steps": 44
     },
     "tariff_saving": {
       "base_cost_krw": 0,
@@ -67,9 +67,9 @@
       "saving_pct": 0.0
     },
     "dr_summary": {
-      "peak_threshold_kw": 57.71,
-      "dr_event_count": 7
+      "peak_threshold_kw": 50.28,
+      "dr_event_count": 0
     }
   },
-  "policy_gate_status": "REPLAN_REQUIRED"
+  "policy_gate_status": "APPROVED"
 }

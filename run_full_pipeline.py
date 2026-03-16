@@ -192,6 +192,10 @@ def _parse_args() -> argparse.Namespace:
     # 데이터
     p.add_argument("--data-path",   default="data/train_2026_seoul.pkl", help="학습 데이터 경로")
     p.add_argument("--measure-date", default=None, help="기준일자 YYYY-MM-DD (해당 날짜 데이터로 실행; 미설정 시 데이터 첫날)")
+    p.add_argument("--operating-mode", default="day_ahead", choices=["day_ahead", "short_horizon"], help="운영 모드 (day_ahead 또는 short_horizon)")
+    p.add_argument("--live-ingest-path", default=None, help="외부 측정값 CSV/JSON 경로 (실시간 ingest overlay)")
+    p.add_argument("--llm-mode", default=os.environ.get("SEAPAC_LLM_MODE", "all"), choices=["off", "forecast", "forecast_plan", "core", "market", "plan", "all"], help="통합 LLM 모드")
+    p.add_argument("--alfp-mode", default="full", choices=["full", "forecast_only"], help="ALFP 실행 범위 (전체 또는 예측 전용)")
     p.add_argument("--prosumer",    default="bus_48_Commercial",          help="ALFP 예측 프로슈머 ID (단일)")
     p.add_argument("--prosumers",   nargs="+",  default=None,             help="ALFP 예측 프로슈머 ID 목록 (다중 P2P 거래 모드; 지정 시 --prosumer 무시)")
     # 시뮬레이션
@@ -225,9 +229,9 @@ def stage_alfp(
     args: argparse.Namespace,
     run_id: int | None = None,
     db_path: Path | None = None,
-) -> tuple[StageResult, dict]:
+) -> tuple[StageResult, dict, dict]:
     """[ALFP decision] — LangGraph 부하 예측 및 운영 의사결정. run_id/db_path 있으면 Agent별 단계를 DB에 기록."""
-    label = "[ALFP] 부하 예측 및 운영 의사결정"
+    label = "[ALFP] 전력 사용량 예측" if getattr(args, "alfp_mode", "full") == "forecast_only" else "[ALFP] 부하 예측 및 운영 의사결정"
     t0 = _stage_start(label)
     try:
         from alfp.main import run as alfp_run
@@ -240,6 +244,10 @@ def stage_alfp(
             prosumer_id=args.prosumer,
             data_path=args.data_path,
             forecast_horizon=args.steps,
+            execution_mode=getattr(args, "alfp_mode", "full"),
+            operating_mode=args.operating_mode,
+            live_ingest_path=args.live_ingest_path,
+            llm_mode=args.llm_mode,
             verbose=args.verbose,
             run_id=run_id,
             db_path=str(db_path) if db_path else None,
@@ -257,28 +265,35 @@ def stage_alfp(
         mape_ok  = kpi.get("MAPE_pass", "N/A")
         mape_val = kpi.get("MAPE_achieved", float("nan"))
 
-        llm_strat = decisions.get("llm_strategy", {})
-        alert_lv  = llm_strat.get("alert_level", "N/A")
-        ess_strat = llm_strat.get("ess_strategy", "")[:80] if llm_strat.get("ess_strategy") else ""
-
+        plan = alfp_result.get("forecast_plan", {})
+        llm_reasoning = str(plan.get("llm_reasoning", ""))[:80]
         summary = {
-            "ESS 스케줄 건수":      n_ess,
-            "거래 권고 건수":        n_trade,
-            "DR 이벤트 건수":        n_dr,
-            "예측 MAPE":            f"{mape_val:.2f}%  (KPI {'✓' if mape_ok is True else '✗' if mape_ok is False else mape_ok})",
-            "LLM 경보 수준":        alert_lv,
-            "LLM ESS 전략 (요약)":  ess_strat or "(없음)",
+            "예측 MAPE": f"{mape_val:.2f}%  (KPI {'✓' if mape_ok is True else '✗' if mape_ok is False else mape_ok})",
+            "선택 모델": plan.get("selected_model", "N/A"),
+            "예측 Horizon": f"{plan.get('forecast_horizon_steps', args.steps)} steps",
+            "예측 계획 근거": llm_reasoning or "(미사용)",
         }
+        if getattr(args, "alfp_mode", "full") != "forecast_only":
+            llm_strat = decisions.get("llm_strategy", {})
+            alert_lv = llm_strat.get("alert_level", "N/A")
+            ess_strat = llm_strat.get("ess_strategy", "")[:80] if llm_strat.get("ess_strategy") else ""
+            summary.update({
+                "ESS 스케줄 건수": n_ess,
+                "거래 권고 건수": n_trade,
+                "DR 이벤트 건수": n_dr,
+                "LLM 경보 수준": alert_lv,
+                "LLM ESS 전략 (요약)": ess_strat or "(없음)",
+            })
 
         log.debug("   ALFP decisions keys: %s", list(decisions.keys()))
         if args.verbose and n_ess > 0:
             log.debug("   ESS 스케줄[0]: %s", decisions["ess_schedule"][0])
 
-        return _stage_end(label, t0, summary), decisions
+        return _stage_end(label, t0, summary), decisions, alfp_result
 
     except Exception as exc:
         log.exception("ALFP 실행 오류")
-        return _stage_error(label, t0, exc), {}
+        return _stage_error(label, t0, exc), {}, {}
 
 
 def _merge_alfp_decisions(results: list[tuple[str, dict]]) -> dict:
@@ -312,7 +327,7 @@ def stage_alfp_multi(
     prosumers: list[str],
     run_id: int | None = None,
     db_path: "Path | None" = None,
-) -> tuple["StageResult", dict]:
+) -> tuple["StageResult", dict, dict]:
     """
     [ALFP Multi-Prosumer] — 선택된 프로슈머 각각에 대해 ALFP를 병렬 실행하고 decisions를 병합.
     P2P 거래가 가능하도록 각 프로슈머의 ESS·거래·DR 계획을 통합.
@@ -324,14 +339,18 @@ def stage_alfp_multi(
     try:
         from alfp.main import run as alfp_run
 
-        def _run_one(prosumer_id: str) -> tuple[str, dict, bool]:
-            """(prosumer_id, decisions, ok)"""
+        def _run_one(prosumer_id: str) -> tuple[str, dict, dict, bool]:
+            """(prosumer_id, decisions, alfp_result, ok)"""
             log.info("   [ALFP/%s] 시작", prosumer_id)
             try:
                 result = alfp_run(
                     prosumer_id=prosumer_id,
                     data_path=args.data_path,
                     forecast_horizon=args.steps,
+                    execution_mode=getattr(args, "alfp_mode", "full"),
+                    operating_mode=args.operating_mode,
+                    live_ingest_path=args.live_ingest_path,
+                    llm_mode=args.llm_mode,
                     verbose=args.verbose,
                     run_id=run_id,
                     db_path=str(db_path) if db_path else None,
@@ -344,19 +363,20 @@ def stage_alfp_multi(
                     len(dec.get("trading_recommendations", [])),
                     len(dec.get("demand_response_events", [])),
                 )
-                return prosumer_id, dec, True
+                return prosumer_id, dec, result, True
             except Exception as e:
                 log.error("   [ALFP/%s] 오류: %s (%s)", prosumer_id, e, type(e).__name__)
                 log.exception("   [ALFP/%s] 상세:", prosumer_id)
-                return prosumer_id, {}, False
+                return prosumer_id, {}, {}, False
 
         # 프로슈머별 ALFP 병렬 실행
         with ThreadPoolExecutor(max_workers=len(prosumers), thread_name_prefix="alfp") as ex:
             futures = [ex.submit(_run_one, p) for p in prosumers]
             raw_results = [f.result() for f in futures]
 
-        ok_results = [(pid, dec) for pid, dec, ok in raw_results if ok]
-        fail_ids = [pid for pid, _, ok in raw_results if not ok]
+        ok_results = [(pid, dec) for pid, dec, _, ok in raw_results if ok]
+        ok_full_results = {pid: result for pid, _, result, ok in raw_results if ok}
+        fail_ids = [pid for pid, _, _, ok in raw_results if not ok]
 
         if fail_ids:
             log.warning("   ALFP 실패 프로슈머: %s (rule-based fallback 적용)", fail_ids)
@@ -376,10 +396,178 @@ def stage_alfp_multi(
             "P2P 거래 모드":       "✓ 활성화",
         }
 
-        return _stage_end(label, t0, summary), merged
+        return _stage_end(label, t0, summary), merged, {"prosumer_results": ok_full_results}
 
     except Exception as exc:
         log.exception("ALFP 다중 프로슈머 실행 오류")
+        return _stage_error(label, t0, exc), {}, {}
+
+
+def _peak_risk_label(current_load_kw: float, peak_threshold_kw: float) -> str:
+    if peak_threshold_kw <= 0:
+        return "LOW"
+    ratio = current_load_kw / peak_threshold_kw
+    if ratio < 0.70:
+        return "LOW"
+    if ratio < 0.85:
+        return "MEDIUM"
+    return "HIGH"
+
+
+def _alfp_forecast_to_state_json_list(
+    alfp_result: dict,
+    peak_threshold_kw: float,
+    ess_capacity_kwh: float,
+) -> list[dict]:
+    """ALFP forecast 결과를 Agent planner 입력 state_json_list로 변환."""
+    import pandas as pd
+
+    load_df = alfp_result.get("load_forecast")
+    pv_df = alfp_result.get("pv_forecast")
+    net_df = alfp_result.get("net_load_forecast")
+    feature_df = alfp_result.get("feature_df")
+    plan = alfp_result.get("forecast_plan") or {}
+    prosumer_id = plan.get("prosumer_id", "unknown")
+    prosumer_type = plan.get("prosumer_type", "Unknown")
+
+    if load_df is None or pv_df is None:
+        return []
+
+    merged = pd.merge(
+        load_df[["timestamp", "predicted_load_kw"]].assign(timestamp=lambda df: df["timestamp"].astype(str)),
+        pv_df[["timestamp", "predicted_pv_kw"]].assign(timestamp=lambda df: df["timestamp"].astype(str)),
+        on="timestamp",
+        how="inner",
+    )
+    if net_df is not None and "predicted_net_load_kw" in net_df.columns:
+        merged = pd.merge(
+            merged,
+            net_df[["timestamp", "predicted_net_load_kw"]].assign(timestamp=lambda df: df["timestamp"].astype(str)),
+            on="timestamp",
+            how="left",
+        )
+    if feature_df is not None:
+        cols = [c for c in ["timestamp", "price_buy", "price_sell", "price_p2p"] if c in feature_df.columns]
+        if cols:
+            merged = pd.merge(
+                merged,
+                feature_df[cols].assign(timestamp=lambda df: df["timestamp"].astype(str)).drop_duplicates("timestamp"),
+                on="timestamp",
+                how="left",
+            )
+
+    if merged.empty:
+        return []
+
+    dynamic_peak = float(merged["predicted_load_kw"].quantile(0.85))
+    threshold = peak_threshold_kw
+    if threshold <= 0 or threshold > float(merged["predicted_load_kw"].max()) * 2:
+        threshold = dynamic_peak
+
+    state_json_list: list[dict] = []
+    ess_soc_pct = 50.0
+    available_discharge = max((ess_soc_pct / 100.0 - 0.10) * ess_capacity_kwh * 0.95, 0.0)
+
+    for _, row in merged.iterrows():
+        ts = pd.Timestamp(row["timestamp"])
+        pred_load = float(row.get("predicted_load_kw", 0.0) or 0.0)
+        pred_pv = float(row.get("predicted_pv_kw", 0.0) or 0.0)
+        pred_net = float(row.get("predicted_net_load_kw", pred_load - pred_pv) or 0.0)
+        surplus = max(pred_pv - pred_load, 0.0)
+        deficit = max(pred_load - pred_pv, 0.0)
+        price_buy = float(row.get("price_buy", 100.0) or 100.0)
+        price_sell = float(row.get("price_sell", max(price_buy * 0.7, 1.0)) or max(price_buy * 0.7, 1.0))
+        p2p_floor = round(max(price_sell, 1.0), 2)
+        p2p_ceil = round(max(price_buy * 0.95, p2p_floor + 1.0), 2)
+
+        state_json_list.append({
+            "time": ts.strftime("%H:%M"),
+            "timestamp": str(ts),
+            "step": len(state_json_list),
+            "community_state": {
+                "total_load": round(pred_load, 2),
+                "pv_generation": round(pred_pv, 2),
+                "surplus_energy": round(surplus, 2),
+                "deficit_energy": round(deficit, 2),
+                "peak_risk": _peak_risk_label(pred_load, threshold),
+                "predicted_net_load_kw": round(pred_net, 2),
+            },
+            "market_state": {
+                "grid_price": round(price_buy, 2),
+                "community_trade_price_range": [p2p_floor, p2p_ceil],
+            },
+            "ess_state": {
+                "soc": ess_soc_pct,
+                "capacity": ess_capacity_kwh,
+                "available_discharge": round(available_discharge, 2),
+            },
+            "prosumer_states": [{
+                "prosumer_id": prosumer_id,
+                "prosumer_type": prosumer_type,
+                "load_kw": round(pred_load, 2),
+                "pv_kw": round(pred_pv, 2),
+                "surplus_energy": round(surplus, 2),
+                "deficit_energy": round(deficit, 2),
+                "price_buy": round(price_buy, 2),
+                "price_sell": round(price_sell, 2),
+                "price_p2p": p2p_floor,
+            }],
+        })
+    return state_json_list
+
+
+def stage_agent_plan_from_alfp(
+    args: argparse.Namespace,
+    alfp_result: dict,
+) -> tuple[StageResult, dict]:
+    """ALFP forecast_only 결과를 기반으로 policy/trading/storage agent 계획 및 실행."""
+    label = "Step3-P  Agent Plan (Forecast-based)"
+    t0 = _stage_start(label)
+    try:
+        from seapac_agents.agent_planner import run_agent_plan
+
+        state_json_list = _alfp_forecast_to_state_json_list(
+            alfp_result=alfp_result,
+            peak_threshold_kw=args.peak_threshold,
+            ess_capacity_kwh=args.ess_capacity,
+        )
+        if not state_json_list:
+            raise ValueError("ALFP forecast 결과에서 agent planner 입력 state를 구성하지 못했습니다.")
+
+        from alfp.llm import is_llm_enabled
+
+        use_llm_plan = is_llm_enabled("agent_plan")
+        decisions = run_agent_plan(
+            state_json_list=state_json_list,
+            alfp_decisions=alfp_result.get("decisions") or {},
+            peak_threshold_kw=args.peak_threshold,
+            max_charge_kw=min(50.0, args.ess_capacity / 4),
+            max_discharge_kw=min(50.0, args.ess_capacity / 4),
+            use_llm=use_llm_plan,
+            max_revisions=0,
+            verbose=args.verbose,
+        )
+        plan_meta = decisions.get("agent_plan") or {}
+        plan_steps = plan_meta.get("steps") or []
+        agent_logs = plan_meta.get("agent_logs") or []
+        planning_mode = str(plan_meta.get("planning_mode") or ("llm" if use_llm_plan else "rule_based"))
+        summary = {
+            "계획 방식": "LLM Agent Plan" if planning_mode == "llm" else "Rule-based Agent Plan",
+            "LLM 연계": "사용" if plan_meta.get("llm_used") else "미사용",
+            "계획 ID": plan_meta.get("plan_id", "—"),
+            "계획 목표": plan_meta.get("objective", "—"),
+            "전력거래 권고": f"{len(decisions.get('trading_recommendations') or [])}건",
+            "ESS 스케줄": f"{len(decisions.get('ess_schedule') or [])}건",
+            "정책 위반": f"{len(decisions.get('policy_violations') or [])}건",
+            "실행 에이전트": "Policy / Trading / Storage",
+            "계획 스텝": plan_steps,
+            "실행 로그": agent_logs,
+            "실행 완료": "완료" if plan_meta.get("execution_completed") else "미완료",
+            "시뮬레이션 검증": "건너뜀" if plan_meta.get("simulation_skipped") else ("승인" if plan_meta.get("simulation_approved") else "미승인"),
+        }
+        return _stage_end(label, t0, summary), decisions
+    except Exception as exc:
+        log.exception("Forecast-based Agent Plan 오류")
         return _stage_error(label, t0, exc), {}
 
 
@@ -449,21 +637,28 @@ def stage_mesa(
 def stage_state_translator(
     args: argparse.Namespace,
     df: Any,
+    model: Any | None = None,
 ) -> tuple[StageResult, list[dict]]:
     """Step2 — State Translator."""
     label = "Step2  State Translator"
     t0 = _stage_start(label)
     try:
-        from seapac_agents.state_translator import translate_dataframe, generate_summary
+        from seapac_agents.state_translator import translate_dataframe, translate_model_history, generate_summary
 
         log.info("   입력:  DataFrame %d rows × %d cols", df.shape[0], df.shape[1])
         log.info("   피크 임계: %.0f kW  /  ESS 용량: %.0f kWh", args.peak_threshold, args.ess_capacity)
 
-        state_json_list = translate_dataframe(
-            df,
-            peak_threshold_kw=args.peak_threshold,
-            ess_capacity_kwh=args.ess_capacity,
-        )
+        if model is not None:
+            state_json_list = translate_model_history(
+                model,
+                peak_threshold_kw=args.peak_threshold,
+            )
+        else:
+            state_json_list = translate_dataframe(
+                df,
+                peak_threshold_kw=args.peak_threshold,
+                ess_capacity_kwh=args.ess_capacity,
+            )
 
         # 첫 / 마지막 스텝 요약
         first_summary = generate_summary(state_json_list[0])  if state_json_list else ""
@@ -569,6 +764,9 @@ def stage_multi_agent_decision(
             "DR 이벤트":      f"{n_dr}건",
             "결정 모드":      "CDA+Negotiation" if getattr(args, "use_cda_negotiation", False) and args.use_cda else ("CDA 시장" if args.use_cda else "AgentScope"),
         }
+        if decisions.get("trading_evidence"):
+            summary["trading_evidence"] = decisions["trading_evidence"]
+            summary["거래 증빙"] = f"{len(decisions.get('trading_evidence') or [])}건"
         if decisions.get("strategy_reasoning_logs"):
             summary["strategy_reasoning_logs"] = decisions["strategy_reasoning_logs"]
         if decisions.get("negotiation_logs"):
@@ -991,18 +1189,23 @@ def stage_evaluation(
 
         rd = report.to_dict()
         kpis = rd.get("kpis", {})
+        energy_cost = kpis.get("energy_cost", {})
+        trading_profit = kpis.get("trading_profit", {})
+        peak_reduction = kpis.get("peak_reduction", {})
+        ess_degradation = kpis.get("ess_degradation", {})
+        user_acceptance = kpis.get("user_acceptance", {})
 
         log.info("   [출력] 에너지 비용: %.0f원  /  거래 수익: %.0f원  /  피크 감소: %.1f%%",
-                 kpis.get("energy_cost_krw", 0),
-                 kpis.get("trading_profit_krw", 0),
-                 kpis.get("peak_reduction_pct", 0))
+                 energy_cost.get("total_grid_cost_krw", 0),
+                 trading_profit.get("community_saving_krw", 0),
+                 peak_reduction.get("peak_reduction_pct", 0))
 
         summary = {
-            "에너지 비용":     f"{kpis.get('energy_cost_krw', 0):,.0f} 원",
-            "거래 수익":        f"{kpis.get('trading_profit_krw', 0):,.0f} 원",
-            "피크 감소율":      f"{kpis.get('peak_reduction_pct', 0):.1f} %",
-            "ESS 마모 비용":   f"{kpis.get('ess_degradation_cost_krw', 0):,.0f} 원",
-            "DR 수락율":       f"{kpis.get('dr_acceptance_rate', 0)*100:.0f} %",
+            "에너지 비용":     f"{energy_cost.get('total_grid_cost_krw', 0):,.0f} 원",
+            "거래 수익":        f"{trading_profit.get('community_saving_krw', 0):,.0f} 원",
+            "피크 감소율":      f"{peak_reduction.get('peak_reduction_pct', 0):.1f} %",
+            "ESS 마모 비용":   f"{ess_degradation.get('ess_degradation_cost_krw', 0):,.0f} 원",
+            "DR 수락율":       f"{user_acceptance.get('acceptance_rate_pct', 0):.0f} %",
             "종합 등급":        rd.get("grade", "N/A"),
         }
 
@@ -1059,6 +1262,12 @@ def _save_outputs(
         # Decisions
         _write_json(out_dir / "multi_agent_decisions.json", decisions)
 
+        if alfp_result:
+            alfp_snapshot = _build_alfp_dashboard_snapshot(alfp_result)
+            _write_json(out_dir / "alfp_result.json", alfp_snapshot)
+            if run_id is not None:
+                _write_json(out_dir / f"run_{run_id}_alfp_result.json", alfp_snapshot)
+
         # Evaluation report (공통 파일 + run별 파일로 Dashboard에서 run_id로 조회 가능)
         if eval_report is not None:
             _write_json(out_dir / "evaluation_report.json", eval_report.to_dict())
@@ -1104,9 +1313,142 @@ def _save_outputs(
     log.info("   출력 디렉토리: %s", out_dir)
 
 
+def _update_strategy_feedback(
+    args: argparse.Namespace,
+    decisions: dict,
+    exec_result: Any,
+    eval_report: Any,
+) -> None:
+    """Step4/5 실제 실행 결과를 최신 strategy memory entry에 반영한다."""
+    try:
+        from alfp.memory import update_latest_strategy_actual_result
+    except Exception:
+        return
+
+    if exec_result is None:
+        return
+
+    kpis = {}
+    grade = None
+    if eval_report is not None and hasattr(eval_report, "to_dict"):
+        eval_dict = eval_report.to_dict()
+        kpis = eval_dict.get("kpis", {}) or {}
+        grade = eval_dict.get("grade")
+
+    trading_profit = kpis.get("trading_profit", {}) or {}
+    peak_reduction = kpis.get("peak_reduction", {}) or {}
+    ess_degradation = kpis.get("ess_degradation", {}) or {}
+    actual_result = {
+        "execution_summary": getattr(exec_result, "summary", {}) or {},
+        "trading_feedback": {
+            "total_trades": trading_profit.get("total_trades", 0),
+            "total_matched_kwh": trading_profit.get("total_matched_kwh", 0),
+            "community_saving_krw": trading_profit.get("community_saving_krw", 0),
+        },
+        "peak_feedback": {
+            "peak_reduction_pct": peak_reduction.get("peak_reduction_pct", 0),
+        },
+        "ess_feedback": {
+            "ess_degradation_cost_krw": ess_degradation.get("ess_degradation_cost_krw", 0),
+            "total_dr_reduction_kwh": (getattr(exec_result, "summary", {}) or {}).get("total_dr_reduction_kwh", 0),
+        },
+        "decision_feedback": {
+            "trading_recommendations": len(decisions.get("trading_recommendations") or []),
+            "demand_response_events": len(decisions.get("demand_response_events") or []),
+        },
+        "grade": grade,
+    }
+    performance_score = {
+        "A": 0.95,
+        "B": 0.80,
+        "C": 0.60,
+        "D": 0.35,
+    }.get(str(grade or "").upper(), None)
+
+    prosumer_ids = list(args.prosumers or [])
+    if not prosumer_ids:
+        prosumer_ids = [args.prosumer]
+    for prosumer_id in prosumer_ids:
+        update_latest_strategy_actual_result(
+            prosumer_id,
+            actual_result=actual_result,
+            performance_score=performance_score,
+        )
+
+
 def _write_json(path: Path, obj: Any) -> None:
     with open(path, "w", encoding="utf-8") as f:
         json.dump(obj, f, ensure_ascii=False, indent=2, default=str)
+
+
+def _df_preview(df: Any, columns: list[str] | None = None, limit: int = 12) -> list[dict[str, Any]]:
+    if df is None or not hasattr(df, "to_dict"):
+        return []
+    work = df.copy()
+    if columns:
+        available = [c for c in columns if c in getattr(work, "columns", [])]
+        if available:
+            work = work[available]
+    if hasattr(work, "head"):
+        work = work.head(limit)
+    records = work.to_dict(orient="records")
+    return [{k: v for k, v in row.items()} for row in records]
+
+
+def _build_alfp_dashboard_snapshot(alfp_result: dict[str, Any]) -> dict[str, Any]:
+    plan = alfp_result.get("forecast_plan") or {}
+    metrics = alfp_result.get("validation_metrics") or {}
+    feature_df = alfp_result.get("feature_df")
+    load_df = alfp_result.get("load_forecast")
+    pv_df = alfp_result.get("pv_forecast")
+    net_df = alfp_result.get("net_load_forecast")
+    messages = alfp_result.get("messages") or []
+
+    return {
+        "framework": {
+            "name": "LangChain DeepAgent",
+            "pipeline": [
+                "data_loader",
+                "data_quality",
+                "feature_engineering",
+                "forecast_planner",
+                "load_forecast",
+                "pv_forecast",
+                "net_load_forecast",
+                "validation",
+            ],
+            "execution_mode": alfp_result.get("execution_mode") or "forecast_only",
+            "llm_used_in_forecast_planner": bool(plan.get("llm_used")),
+            "llm_reasoning": plan.get("llm_reasoning", ""),
+            "message_count": len(messages),
+        },
+        "input_data": {
+            "prosumer_id": plan.get("prosumer_id"),
+            "prosumer_type": plan.get("prosumer_type"),
+            "data_range_days": plan.get("data_range_days"),
+            "n_train_records": plan.get("n_train_records"),
+            "feature_names": (alfp_result.get("feature_names") or [])[:24],
+            "feature_sample": _df_preview(
+                feature_df,
+                columns=[
+                    "timestamp", "prosumer_id", "prosumer_type", "load_kw", "pv_kw",
+                    "price_buy", "price_sell", "weather_temp_c", "weather_clouds_pct",
+                ],
+                limit=12,
+            ),
+        },
+        "forecast_plan": plan,
+        "validation_metrics": metrics,
+        "forecast_outputs": {
+            "load_forecast": _df_preview(load_df, ["timestamp", "load_kw", "predicted_load_kw"], limit=24),
+            "pv_forecast": _df_preview(pv_df, ["timestamp", "pv_kw", "predicted_pv_kw"], limit=24),
+            "net_load_forecast": _df_preview(
+                net_df,
+                ["timestamp", "load_kw", "pv_kw", "actual_net_load_kw", "predicted_net_load_kw"],
+                limit=24,
+            ),
+        },
+    }
     log.info("   JSON 저장: %s", path)
 
 
@@ -1146,6 +1488,8 @@ def _record_stage(run_id: int, order: int, stage_r: StageResult, db_path: Path |
 
 def main() -> None:
     args = _parse_args()
+    from alfp.llm import set_llm_mode, get_llm_mode
+    set_llm_mode(args.llm_mode)
     # 로그 파일 미지정 시 logs 디렉토리에 실행 시각 기준 파일 생성
     if args.log_file is None:
         log_dir = Path(args.log_dir)
@@ -1176,6 +1520,8 @@ def main() -> None:
     log.info("  실행 시각: %s", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     log.info("  Phase=%d  Steps=%d  Parallel=%s  SkipALFP=%s",
              args.phase, args.steps, args.use_parallel, args.skip_alfp)
+    log.info("  LLM mode=%s", get_llm_mode())
+    log.info("  ALFP mode=%s", args.alfp_mode)
     if is_p2p_mode:
         log.info("  ★ P2P 거래 모드: 프로슈머 %d명 병렬 ALFP → 통합 MESA 실행", len(multi_prosumers))
         log.info("    참여 프로슈머: %s", multi_prosumers)
@@ -1195,22 +1541,45 @@ def main() -> None:
 
         if is_p2p_mode:
             # ── P2P 거래 모드: 다중 프로슈머 병렬 ALFP ────────────
-            stage_r, alfp_decisions = stage_alfp_multi(
+            stage_r, alfp_decisions, alfp_result = stage_alfp_multi(
                 args, multi_prosumers, run_id=run_id, db_path=db_path
             )
         else:
             # ── 단일 프로슈머 모드 ─────────────────────────────────
-            stage_r, alfp_decisions = stage_alfp(args, run_id=run_id, db_path=db_path)
+            stage_r, alfp_decisions, alfp_result = stage_alfp(args, run_id=run_id, db_path=db_path)
 
         pipeline.add(stage_r)
         stage_order += 1
         _record_stage(run_id, stage_order, stage_r, db_path)
-        alfp_result = alfp_decisions  # reference for saving
         if not stage_r.ok:
             log.warning("ALFP 실패 → rule-based fallback으로 계속합니다.")
             alfp_decisions = {}
     else:
         log.info("◎ ALFP 단계 건너뜀 (--skip-alfp)")
+
+    if args.alfp_mode == "forecast_only" and not args.skip_alfp:
+        stage_r, forecast_agent_decisions = stage_agent_plan_from_alfp(args, alfp_result or {})
+        pipeline.add(stage_r)
+        stage_order += 1
+        _record_stage(run_id, stage_order, stage_r, db_path)
+        if stage_r.ok:
+            alfp_decisions = forecast_agent_decisions
+        pipeline.total_elapsed_sec = time.perf_counter() - pipeline_t0
+        if _DASHBOARD_AVAILABLE and run_id is not None:
+            finish_run(run_id, pipeline.total_elapsed_sec, ok=pipeline.ok, db_path=db_path)
+        if args.output_dir or args.save_json:
+            _save_outputs(
+                args,
+                alfp_result,
+                [],
+                alfp_decisions,
+                None,
+                None,
+                pipeline,
+                run_id=run_id,
+            )
+        pipeline.print_summary()
+        return
 
     # ── [MESA] ────────────────────────────────────────────────────
     stage_r, df, model = stage_mesa(args, alfp_decisions or None)
@@ -1231,7 +1600,7 @@ def main() -> None:
     baseline_peak_kw = float(df["community_load_kw"].max()) if "community_load_kw" in df.columns else 0.0
 
     # ── Step2 State Translator ────────────────────────────────────
-    stage_r, state_json_list = stage_state_translator(args, df)
+    stage_r, state_json_list = stage_state_translator(args, df, model=model)
     pipeline.add(stage_r)
     stage_order += 1
     _record_stage(run_id, stage_order, stage_r, db_path)
@@ -1291,6 +1660,9 @@ def main() -> None:
     pipeline.add(stage_r)
     stage_order += 1
     _record_stage(run_id, stage_order, stage_r, db_path)
+
+    # ── 다음 라운드 전략 업데이트용 실제 피드백 저장 ──────────────
+    _update_strategy_feedback(args, decisions, exec_result, eval_report)
 
     # ── 결과 저장 ─────────────────────────────────────────────────
     pipeline.total_elapsed_sec = time.perf_counter() - pipeline_t0

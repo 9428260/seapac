@@ -7,7 +7,11 @@ import os
 import numpy as np
 import pandas as pd
 from alfp.agents.state import ALFPState
-from alfp.tools.openweather import get_current_weather, get_weather_for_dataframe
+from alfp.tools.openweather import (
+    get_current_weather,
+    get_weather_for_dataframe,
+    get_weather_forecast_for_dataframe,
+)
 
 # 한국 공휴일 (2026년 기준, 고정 공휴일)
 KR_HOLIDAYS_2026 = {
@@ -91,7 +95,7 @@ def build_features(df: pd.DataFrame) -> tuple[pd.DataFrame, list]:
         df["bess_soc_lag4"] = df["bess_soc_kwh"].shift(4)
 
     # ── 날씨 feature (OpenWeather) ──────────────────────
-    # weather_* 컬럼은 feature_engineering_agent에서 get_weather_for_dataframe()으로 미리 추가됨
+    # weather_* / weather_forecast_* 컬럼은 feature_engineering_agent에서 미리 추가됨
 
     # ── feature 컬럼 목록 (타겟 제외) ────────────────────
     exclude = {"timestamp", "bus", "prosumer_id", "prosumer_type", "split",
@@ -118,6 +122,8 @@ def feature_engineering_agent(state: ALFPState) -> ALFPState:
 
     df = state["clean_data"]
 
+    operating_mode = state.get("operating_mode", "day_ahead")
+
     # OpenWeather API 키가 있으면 현재 날씨를 가져와 오늘 구간에 반영
     current_weather = None
     if os.environ.get("OPENWEATHER_API_KEY"):
@@ -128,7 +134,14 @@ def feature_engineering_agent(state: ALFPState) -> ALFPState:
             errors.append(f"[FeatureEngineeringAgent] OpenWeather 조회 실패: {e}")
 
     try:
-        df = get_weather_for_dataframe(df, current_weather=current_weather)
+        if operating_mode == "short_horizon":
+            horizon_steps = max(1, min(int(state.get("forecast_horizon", 4) or 4), 4))
+            df = get_weather_forecast_for_dataframe(df, horizon_steps=horizon_steps)
+            if current_weather:
+                df = get_weather_for_dataframe(df, current_weather=current_weather)
+            log.append(f"  단기 운영 모드 날씨 예보 proxy 반영 ({horizon_steps} step)")
+        else:
+            df = get_weather_for_dataframe(df, current_weather=current_weather)
         feature_df, feature_names = build_features(df)
         log.append(f"  생성된 feature 수: {len(feature_names)} (날씨 4개 포함)")
         log.append(f"  학습 가능 레코드 수: {len(feature_df):,} (lag 제거 후)")

@@ -8,6 +8,8 @@ Buyer Agent (PRD §6) — CDA 구매 입찰 생성
 
 from __future__ import annotations
 
+from cda.online_pricing import adjust_price
+
 
 def generate_bids_from_state(
     state_json: dict,
@@ -27,10 +29,27 @@ def generate_bids_from_state(
     peak_risk = cs.get("peak_risk", "LOW")
     grid_price = float(ms.get("grid_price") or grid_price_default)
 
+    bids = []
+    prosumer_states = state_json.get("prosumer_states") or []
+    if prosumer_states:
+        for p in prosumer_states:
+            p_deficit = float(p.get("deficit_energy", 0.0))
+            if p_deficit <= 0:
+                continue
+            if peak_risk == "HIGH":
+                base_bid = min(grid_price * 1.1, max_bid_price)
+            elif peak_risk == "MEDIUM":
+                base_bid = min(grid_price * 0.95, max_bid_price)
+            else:
+                base_bid = max(grid_price * 0.9, min_bid_price)
+            bid_price = adjust_price(str(p.get("prosumer_id")), round(base_bid, 1), side="buy")
+            bids.append((str(p.get("prosumer_id")), bid_price, round(p_deficit, 2)))
+        if bids:
+            return bids
+
     if deficit <= 0:
         return []
 
-    # 피크 위험에 따라 구매 의향가 조정: HIGH면 그리드가보다 높게 입찰 가능
     if peak_risk == "HIGH":
         bid_price = min(grid_price * 1.1, max_bid_price)
     elif peak_risk == "MEDIUM":
@@ -38,5 +57,5 @@ def generate_bids_from_state(
     else:
         bid_price = max(grid_price * 0.9, min_bid_price)
 
-    bid_price = round(bid_price, 1)
+    bid_price = adjust_price("CommunityBuyer", round(bid_price, 1), side="buy")
     return [("CommunityBuyer", bid_price, round(deficit, 2))]

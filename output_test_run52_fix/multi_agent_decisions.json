@@ -1,0 +1,7200 @@
+{
+  "ess_schedule": [
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 155.39999999999998,
+      "timestamp": "14:30",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 702.8,
+      "timestamp": "00:15",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 152.19999999999993,
+      "timestamp": "13:15",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 652.1,
+      "timestamp": "23:00",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 476.6,
+      "timestamp": "16:00",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 432.00000000000006,
+      "timestamp": "09:45",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 663.1,
+      "timestamp": "00:45",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 511.9,
+      "timestamp": "18:15",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 527.7,
+      "timestamp": "03:45",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 153.0,
+      "timestamp": "11:30",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 542.2,
+      "timestamp": "19:30",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 634.1,
+      "timestamp": "21:00",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 457.5,
+      "timestamp": "06:00",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 327.1,
+      "timestamp": "08:00",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 616.2,
+      "timestamp": "02:15",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 143.70000000000005,
+      "timestamp": "13:30",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 592.5,
+      "timestamp": "17:30",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 144.5,
+      "timestamp": "13:45",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 136.60000000000002,
+      "timestamp": "15:15",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 558.1,
+      "timestamp": "19:45",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 653.7,
+      "timestamp": "01:00",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 144.10000000000002,
+      "timestamp": "12:30",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 649.2,
+      "timestamp": "23:30",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 430.9,
+      "timestamp": "05:45",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 141.60000000000002,
+      "timestamp": "12:00",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 632.1,
+      "timestamp": "20:45",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 558.2,
+      "timestamp": "17:45",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 150.0,
+      "timestamp": "11:45",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 154.0,
+      "timestamp": "11:00",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 640.0,
+      "timestamp": "01:30",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 507.3,
+      "timestamp": "18:30",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 581.5,
+      "timestamp": "20:00",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 635.6,
+      "timestamp": "22:15",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 564.1999999999999,
+      "timestamp": "17:15",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 140.5,
+      "timestamp": "11:15",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 371.4,
+      "timestamp": "07:45",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 353.4,
+      "timestamp": "08:30",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 530.5,
+      "timestamp": "18:00",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 148.19999999999993,
+      "timestamp": "15:30",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 592.7,
+      "timestamp": "22:00",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 147.89999999999998,
+      "timestamp": "13:00",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 438.1,
+      "timestamp": "05:15",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 373.29999999999995,
+      "timestamp": "08:15",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 590.8,
+      "timestamp": "03:00",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 155.0,
+      "timestamp": "12:15",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 413.4,
+      "timestamp": "07:00",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 463.90000000000003,
+      "timestamp": "09:00",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 701.0,
+      "timestamp": "00:30",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 148.89999999999998,
+      "timestamp": "14:00",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 612.0,
+      "timestamp": "22:45",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 416.59999999999997,
+      "timestamp": "07:30",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 600.9,
+      "timestamp": "20:15",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 517.8,
+      "timestamp": "17:00",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 437.8,
+      "timestamp": "05:00",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 602.5,
+      "timestamp": "20:30",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 146.0999999999999,
+      "timestamp": "15:45",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 717.5,
+      "timestamp": "00:00",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 156.0,
+      "timestamp": "10:00",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 523.8,
+      "timestamp": "03:30",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 151.60000000000002,
+      "timestamp": "10:15",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 156.20000000000005,
+      "timestamp": "14:45",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 522.8,
+      "timestamp": "16:45",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 683.3,
+      "timestamp": "21:30",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 482.7,
+      "timestamp": "04:00",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 138.5999999999999,
+      "timestamp": "10:45",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 141.20000000000005,
+      "timestamp": "15:00",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 580.3,
+      "timestamp": "02:45",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 624.6,
+      "timestamp": "22:30",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 458.8,
+      "timestamp": "04:30",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 449.8,
+      "timestamp": "04:45",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 460.7,
+      "timestamp": "09:30",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 158.79999999999995,
+      "timestamp": "12:45",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 625.6,
+      "timestamp": "02:00",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 626.2,
+      "timestamp": "02:30",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 549.5,
+      "timestamp": "03:15",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 615.4,
+      "timestamp": "01:45",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 138.60000000000002,
+      "timestamp": "14:15",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 640.5,
+      "timestamp": "23:45",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 460.99999999999994,
+      "timestamp": "09:15",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 434.90000000000003,
+      "timestamp": "06:15",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 521.9,
+      "timestamp": "19:00",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 628.0,
+      "timestamp": "01:15",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 371.09999999999997,
+      "timestamp": "07:15",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 539.5,
+      "timestamp": "19:15",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 425.1,
+      "timestamp": "05:30",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 499.59999999999997,
+      "timestamp": "16:30",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 395.0,
+      "timestamp": "06:45",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 666.0,
+      "timestamp": "21:15",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 468.6,
+      "timestamp": "04:15",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 663.5,
+      "timestamp": "23:15",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 159.70000000000005,
+      "timestamp": "10:30",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 413.5,
+      "timestamp": "06:30",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 503.3,
+      "timestamp": "16:15",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 508.5,
+      "timestamp": "18:45",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 417.50000000000006,
+      "timestamp": "08:45",
+      "reason": "ESS 미설치"
+    },
+    {
+      "action": "idle",
+      "power_kw": 0.0,
+      "soc_kwh": 0.0,
+      "net_load_kw": 707.6,
+      "timestamp": "21:45",
+      "reason": "ESS 미설치"
+    }
+  ],
+  "trading_recommendations": [
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "10:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "10:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "12:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "12:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 95.4,
+      "action": "sell_p2p",
+      "timestamp": "16:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "12:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "15:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "13:00"
+    },
+    {
+      "surplus_kw": 1.32,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:00"
+    },
+    {
+      "surplus_kw": 0.93,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "12:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "10:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "15:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "10:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 95.4,
+      "action": "sell_p2p",
+      "timestamp": "14:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 95.4,
+      "action": "sell_p2p",
+      "timestamp": "16:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "11:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "15:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "12:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "13:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "13:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "12:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "12:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "10:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "11:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "15:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 95.4,
+      "action": "sell_p2p",
+      "timestamp": "14:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "15:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 95.4,
+      "action": "sell_p2p",
+      "timestamp": "14:30"
+    },
+    {
+      "surplus_kw": 2.66,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "12:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "12:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "13:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "13:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "12:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "13:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "12:00"
+    },
+    {
+      "surplus_kw": 1.83,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "13:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "13:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "13:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 95.4,
+      "action": "sell_p2p",
+      "timestamp": "15:30"
+    },
+    {
+      "surplus_kw": 1.15,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "11:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "13:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "11:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "10:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "15:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "12:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "15:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "13:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "15:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 95.4,
+      "action": "sell_p2p",
+      "timestamp": "16:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "10:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "12:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "12:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "15:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "10:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "15:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "12:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "12:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "15:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "15:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "12:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "13:30"
+    },
+    {
+      "surplus_kw": 2.6,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "13:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 95.4,
+      "action": "sell_p2p",
+      "timestamp": "15:30"
+    },
+    {
+      "surplus_kw": 4.13,
+      "bid_price": 94.45,
+      "action": "sell_p2p",
+      "timestamp": "12:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 95.4,
+      "action": "sell_p2p",
+      "timestamp": "15:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "13:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "13:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "12:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "12:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "12:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 95.4,
+      "action": "sell_p2p",
+      "timestamp": "16:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "12:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "15:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:00"
+    },
+    {
+      "surplus_kw": 0.25,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "13:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "13:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 95.4,
+      "action": "sell_p2p",
+      "timestamp": "14:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "10:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "12:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "15:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "13:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "10:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "15:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 95.4,
+      "action": "sell_p2p",
+      "timestamp": "15:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 95.4,
+      "action": "sell_p2p",
+      "timestamp": "16:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "13:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "13:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "13:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "10:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "12:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "15:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:00"
+    },
+    {
+      "surplus_kw": 0.22,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "13:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "13:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "12:00"
+    },
+    {
+      "surplus_kw": 0.65,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "12:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "15:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 95.4,
+      "action": "sell_p2p",
+      "timestamp": "15:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "12:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "15:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "12:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "12:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "12:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 95.4,
+      "action": "sell_p2p",
+      "timestamp": "15:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "13:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "10:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "13:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 95.4,
+      "action": "sell_p2p",
+      "timestamp": "16:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "12:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 95.4,
+      "action": "sell_p2p",
+      "timestamp": "14:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "10:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 95.4,
+      "action": "sell_p2p",
+      "timestamp": "16:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "15:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "12:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "12:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "10:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "10:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "10:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 95.4,
+      "action": "sell_p2p",
+      "timestamp": "15:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "10:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "12:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "10:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "15:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 95.4,
+      "action": "sell_p2p",
+      "timestamp": "14:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "13:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:15"
+    },
+    {
+      "surplus_kw": 1.68,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "08:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 95.4,
+      "action": "sell_p2p",
+      "timestamp": "16:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "10:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 95.4,
+      "action": "sell_p2p",
+      "timestamp": "16:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "10:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "10:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "11:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 95.4,
+      "action": "sell_p2p",
+      "timestamp": "14:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "12:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "15:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "15:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "15:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "10:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "10:45"
+    },
+    {
+      "surplus_kw": 2.88,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "15:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "15:00"
+    },
+    {
+      "surplus_kw": 0.32,
+      "bid_price": 95.4,
+      "action": "sell_p2p",
+      "timestamp": "14:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "13:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "13:00"
+    },
+    {
+      "surplus_kw": 1.06,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "08:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "15:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "12:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "13:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "12:45"
+    },
+    {
+      "surplus_kw": 0.25,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "13:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "13:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "15:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 95.4,
+      "action": "sell_p2p",
+      "timestamp": "16:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "12:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "15:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "13:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "13:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "10:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "15:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "11:00"
+    },
+    {
+      "surplus_kw": 5.66,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "12:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "12:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "15:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 95.4,
+      "action": "sell_p2p",
+      "timestamp": "14:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 95.4,
+      "action": "sell_p2p",
+      "timestamp": "16:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "12:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 95.4,
+      "action": "sell_p2p",
+      "timestamp": "15:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "12:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "15:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "13:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "15:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 95.4,
+      "action": "sell_p2p",
+      "timestamp": "15:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "10:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "12:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "10:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "13:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "13:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "15:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "11:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "13:45"
+    },
+    {
+      "surplus_kw": 0.35,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "12:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "10:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "12:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "13:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "10:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "10:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "13:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 95.4,
+      "action": "sell_p2p",
+      "timestamp": "15:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "13:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "12:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "13:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 95.4,
+      "action": "sell_p2p",
+      "timestamp": "16:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "10:45"
+    },
+    {
+      "surplus_kw": 0.47,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "13:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "10:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 95.4,
+      "action": "sell_p2p",
+      "timestamp": "14:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "12:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "10:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "10:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 95.4,
+      "action": "sell_p2p",
+      "timestamp": "16:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "13:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "13:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "15:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "13:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "12:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:00"
+    },
+    {
+      "surplus_kw": 0.28,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "13:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "12:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "12:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "10:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "10:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "11:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "13:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 95.4,
+      "action": "sell_p2p",
+      "timestamp": "15:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "12:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "11:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "13:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "13:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "13:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "12:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "10:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "13:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "10:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "12:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "10:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "13:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "15:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "11:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "10:30"
+    },
+    {
+      "surplus_kw": 1.08,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "12:15"
+    },
+    {
+      "surplus_kw": 6.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "11:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "15:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "13:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "13:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "10:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "10:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 95.4,
+      "action": "sell_p2p",
+      "timestamp": "15:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "15:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "11:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "13:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "12:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "12:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "15:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "15:15"
+    },
+    {
+      "surplus_kw": 0.9,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "08:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "13:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "10:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "15:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "13:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "15:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "11:00"
+    },
+    {
+      "surplus_kw": 0.6,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "12:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 95.4,
+      "action": "sell_p2p",
+      "timestamp": "15:30"
+    },
+    {
+      "surplus_kw": 2.8,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "11:30"
+    },
+    {
+      "surplus_kw": 2.89,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "12:45"
+    },
+    {
+      "surplus_kw": 1.95,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "13:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "13:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "12:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "13:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "15:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "10:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 95.4,
+      "action": "sell_p2p",
+      "timestamp": "16:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "12:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 95.4,
+      "action": "sell_p2p",
+      "timestamp": "16:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "12:30"
+    },
+    {
+      "surplus_kw": 1.89,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "08:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "10:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "12:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:15"
+    },
+    {
+      "surplus_kw": 1.54,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "12:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "15:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "15:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 96.65,
+      "action": "sell_p2p",
+      "timestamp": "10:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "13:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 95.4,
+      "action": "sell_p2p",
+      "timestamp": "15:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 95.4,
+      "action": "sell_p2p",
+      "timestamp": "15:30"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "13:15"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "14:45"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 97.05,
+      "action": "sell_p2p",
+      "timestamp": "11:00"
+    },
+    {
+      "surplus_kw": 0.5,
+      "bid_price": 94.85,
+      "action": "sell_p2p",
+      "timestamp": "15:00"
+    }
+  ],
+  "demand_response_events": [
+    {
+      "net_load_kw": 816.9,
+      "recommended_reduction_kw": 95.07,
+      "action": "demand_response",
+      "timestamp": "14:00"
+    },
+    {
+      "net_load_kw": 539.5,
+      "recommended_reduction_kw": 11.85,
+      "action": "demand_response",
+      "timestamp": "19:15"
+    },
+    {
+      "net_load_kw": 749.2,
+      "recommended_reduction_kw": 74.76,
+      "action": "demand_response",
+      "timestamp": "09:00"
+    },
+    {
+      "net_load_kw": 585.5,
+      "recommended_reduction_kw": 25.65,
+      "action": "demand_response",
+      "timestamp": "17:45"
+    },
+    {
+      "net_load_kw": 626.2,
+      "recommended_reduction_kw": 37.86,
+      "action": "demand_response",
+      "timestamp": "02:30"
+    },
+    {
+      "net_load_kw": 873.7,
+      "recommended_reduction_kw": 112.11,
+      "action": "demand_response",
+      "timestamp": "11:00"
+    },
+    {
+      "net_load_kw": 668.3,
+      "recommended_reduction_kw": 50.49,
+      "action": "demand_response",
+      "timestamp": "08:15"
+    },
+    {
+      "net_load_kw": 894.7,
+      "recommended_reduction_kw": 118.41,
+      "action": "demand_response",
+      "timestamp": "12:15"
+    },
+    {
+      "net_load_kw": 879.2,
+      "recommended_reduction_kw": 113.76,
+      "action": "demand_response",
+      "timestamp": "12:30"
+    },
+    {
+      "net_load_kw": 798.2,
+      "recommended_reduction_kw": 89.46,
+      "action": "demand_response",
+      "timestamp": "09:45"
+    },
+    {
+      "net_load_kw": 640.5,
+      "recommended_reduction_kw": 42.15,
+      "action": "demand_response",
+      "timestamp": "23:45"
+    },
+    {
+      "net_load_kw": 694.4,
+      "recommended_reduction_kw": 58.32,
+      "action": "demand_response",
+      "timestamp": "15:30"
+    },
+    {
+      "net_load_kw": 508.5,
+      "recommended_reduction_kw": 2.55,
+      "action": "demand_response",
+      "timestamp": "18:45"
+    },
+    {
+      "net_load_kw": 699.3,
+      "recommended_reduction_kw": 59.79,
+      "action": "demand_response",
+      "timestamp": "08:30"
+    },
+    {
+      "net_load_kw": 635.6,
+      "recommended_reduction_kw": 40.68,
+      "action": "demand_response",
+      "timestamp": "22:15"
+    },
+    {
+      "net_load_kw": 870.5,
+      "recommended_reduction_kw": 111.15,
+      "action": "demand_response",
+      "timestamp": "13:00"
+    },
+    {
+      "net_load_kw": 530.5,
+      "recommended_reduction_kw": 9.15,
+      "action": "demand_response",
+      "timestamp": "18:00"
+    },
+    {
+      "net_load_kw": 521.9,
+      "recommended_reduction_kw": 6.57,
+      "action": "demand_response",
+      "timestamp": "19:00"
+    },
+    {
+      "net_load_kw": 681.8,
+      "recommended_reduction_kw": 54.54,
+      "action": "demand_response",
+      "timestamp": "15:45"
+    },
+    {
+      "net_load_kw": 655.4,
+      "recommended_reduction_kw": 46.62,
+      "action": "demand_response",
+      "timestamp": "16:30"
+    },
+    {
+      "net_load_kw": 579.0,
+      "recommended_reduction_kw": 23.7,
+      "action": "demand_response",
+      "timestamp": "08:00"
+    },
+    {
+      "net_load_kw": 733.6,
+      "recommended_reduction_kw": 70.08,
+      "action": "demand_response",
+      "timestamp": "15:00"
+    },
+    {
+      "net_load_kw": 558.1,
+      "recommended_reduction_kw": 17.43,
+      "action": "demand_response",
+      "timestamp": "19:45"
+    },
+    {
+      "net_load_kw": 527.7,
+      "recommended_reduction_kw": 8.31,
+      "action": "demand_response",
+      "timestamp": "03:45"
+    },
+    {
+      "net_load_kw": 724.7,
+      "recommended_reduction_kw": 67.41,
+      "action": "demand_response",
+      "timestamp": "08:45"
+    },
+    {
+      "net_load_kw": 886.5,
+      "recommended_reduction_kw": 115.95,
+      "action": "demand_response",
+      "timestamp": "11:15"
+    },
+    {
+      "net_load_kw": 645.4,
+      "recommended_reduction_kw": 43.62,
+      "action": "demand_response",
+      "timestamp": "17:30"
+    },
+    {
+      "net_load_kw": 581.5,
+      "recommended_reduction_kw": 24.45,
+      "action": "demand_response",
+      "timestamp": "20:00"
+    },
+    {
+      "net_load_kw": 556.9,
+      "recommended_reduction_kw": 17.07,
+      "action": "demand_response",
+      "timestamp": "07:45"
+    },
+    {
+      "net_load_kw": 835.2,
+      "recommended_reduction_kw": 100.56,
+      "action": "demand_response",
+      "timestamp": "10:15"
+    },
+    {
+      "net_load_kw": 652.1,
+      "recommended_reduction_kw": 45.63,
+      "action": "demand_response",
+      "timestamp": "16:45"
+    },
+    {
+      "net_load_kw": 642.8,
+      "recommended_reduction_kw": 42.84,
+      "action": "demand_response",
+      "timestamp": "17:15"
+    },
+    {
+      "net_load_kw": 790.9,
+      "recommended_reduction_kw": 87.27,
+      "action": "demand_response",
+      "timestamp": "14:15"
+    },
+    {
+      "net_load_kw": 678.2,
+      "recommended_reduction_kw": 53.46,
+      "action": "demand_response",
+      "timestamp": "16:00"
+    },
+    {
+      "net_load_kw": 775.6,
+      "recommended_reduction_kw": 82.68,
+      "action": "demand_response",
+      "timestamp": "14:45"
+    },
+    {
+      "net_load_kw": 903.0,
+      "recommended_reduction_kw": 120.9,
+      "action": "demand_response",
+      "timestamp": "11:30"
+    },
+    {
+      "net_load_kw": 901.9,
+      "recommended_reduction_kw": 120.57,
+      "action": "demand_response",
+      "timestamp": "11:45"
+    },
+    {
+      "net_load_kw": 640.0,
+      "recommended_reduction_kw": 42.0,
+      "action": "demand_response",
+      "timestamp": "01:30"
+    },
+    {
+      "net_load_kw": 522.5,
+      "recommended_reduction_kw": 6.75,
+      "action": "demand_response",
+      "timestamp": "07:00"
+    },
+    {
+      "net_load_kw": 616.2,
+      "recommended_reduction_kw": 34.86,
+      "action": "demand_response",
+      "timestamp": "02:15"
+    },
+    {
+      "net_load_kw": 707.6,
+      "recommended_reduction_kw": 62.28,
+      "action": "demand_response",
+      "timestamp": "21:45"
+    },
+    {
+      "net_load_kw": 628.0,
+      "recommended_reduction_kw": 38.4,
+      "action": "demand_response",
+      "timestamp": "01:15"
+    },
+    {
+      "net_load_kw": 780.5,
+      "recommended_reduction_kw": 84.15,
+      "action": "demand_response",
+      "timestamp": "09:30"
+    },
+    {
+      "net_load_kw": 701.0,
+      "recommended_reduction_kw": 60.3,
+      "action": "demand_response",
+      "timestamp": "00:30"
+    },
+    {
+      "net_load_kw": 615.4,
+      "recommended_reduction_kw": 34.62,
+      "action": "demand_response",
+      "timestamp": "01:45"
+    },
+    {
+      "net_load_kw": 663.5,
+      "recommended_reduction_kw": 49.05,
+      "action": "demand_response",
+      "timestamp": "23:15"
+    },
+    {
+      "net_load_kw": 533.8,
+      "recommended_reduction_kw": 10.14,
+      "action": "demand_response",
+      "timestamp": "07:15"
+    },
+    {
+      "net_load_kw": 888.5,
+      "recommended_reduction_kw": 116.55,
+      "action": "demand_response",
+      "timestamp": "12:45"
+    },
+    {
+      "net_load_kw": 666.0,
+      "recommended_reduction_kw": 49.8,
+      "action": "demand_response",
+      "timestamp": "21:15"
+    },
+    {
+      "net_load_kw": 663.1,
+      "recommended_reduction_kw": 48.93,
+      "action": "demand_response",
+      "timestamp": "00:45"
+    },
+    {
+      "net_load_kw": 602.5,
+      "recommended_reduction_kw": 30.75,
+      "action": "demand_response",
+      "timestamp": "20:30"
+    },
+    {
+      "net_load_kw": 717.5,
+      "recommended_reduction_kw": 65.25,
+      "action": "demand_response",
+      "timestamp": "00:00"
+    },
+    {
+      "net_load_kw": 860.3,
+      "recommended_reduction_kw": 108.09,
+      "action": "demand_response",
+      "timestamp": "13:15"
+    },
+    {
+      "net_load_kw": 625.6,
+      "recommended_reduction_kw": 37.68,
+      "action": "demand_response",
+      "timestamp": "02:00"
+    },
+    {
+      "net_load_kw": 851.5,
+      "recommended_reduction_kw": 105.45,
+      "action": "demand_response",
+      "timestamp": "13:30"
+    },
+    {
+      "net_load_kw": 683.6,
+      "recommended_reduction_kw": 55.08,
+      "action": "demand_response",
+      "timestamp": "16:15"
+    },
+    {
+      "net_load_kw": 590.8,
+      "recommended_reduction_kw": 27.24,
+      "action": "demand_response",
+      "timestamp": "03:00"
+    },
+    {
+      "net_load_kw": 783.3,
+      "recommended_reduction_kw": 84.99,
+      "action": "demand_response",
+      "timestamp": "14:30"
+    },
+    {
+      "net_load_kw": 867.3,
+      "recommended_reduction_kw": 110.19,
+      "action": "demand_response",
+      "timestamp": "10:45"
+    },
+    {
+      "net_load_kw": 523.8,
+      "recommended_reduction_kw": 7.14,
+      "action": "demand_response",
+      "timestamp": "03:30"
+    },
+    {
+      "net_load_kw": 573.8,
+      "recommended_reduction_kw": 22.14,
+      "action": "demand_response",
+      "timestamp": "07:30"
+    },
+    {
+      "net_load_kw": 886.5,
+      "recommended_reduction_kw": 115.95,
+      "action": "demand_response",
+      "timestamp": "12:00"
+    },
+    {
+      "net_load_kw": 592.7,
+      "recommended_reduction_kw": 27.81,
+      "action": "demand_response",
+      "timestamp": "22:00"
+    },
+    {
+      "net_load_kw": 623.5,
+      "recommended_reduction_kw": 37.05,
+      "action": "demand_response",
+      "timestamp": "17:00"
+    },
+    {
+      "net_load_kw": 634.1,
+      "recommended_reduction_kw": 40.23,
+      "action": "demand_response",
+      "timestamp": "21:00"
+    },
+    {
+      "net_load_kw": 763.8,
+      "recommended_reduction_kw": 79.14,
+      "action": "demand_response",
+      "timestamp": "09:15"
+    },
+    {
+      "net_load_kw": 549.5,
+      "recommended_reduction_kw": 14.85,
+      "action": "demand_response",
+      "timestamp": "03:15"
+    },
+    {
+      "net_load_kw": 864.2,
+      "recommended_reduction_kw": 109.26,
+      "action": "demand_response",
+      "timestamp": "10:30"
+    },
+    {
+      "net_load_kw": 624.6,
+      "recommended_reduction_kw": 37.38,
+      "action": "demand_response",
+      "timestamp": "22:30"
+    },
+    {
+      "net_load_kw": 542.2,
+      "recommended_reduction_kw": 12.66,
+      "action": "demand_response",
+      "timestamp": "19:30"
+    },
+    {
+      "net_load_kw": 511.9,
+      "recommended_reduction_kw": 3.57,
+      "action": "demand_response",
+      "timestamp": "18:15"
+    },
+    {
+      "net_load_kw": 580.3,
+      "recommended_reduction_kw": 24.09,
+      "action": "demand_response",
+      "timestamp": "02:45"
+    },
+    {
+      "net_load_kw": 652.1,
+      "recommended_reduction_kw": 45.63,
+      "action": "demand_response",
+      "timestamp": "23:00"
+    },
+    {
+      "net_load_kw": 828.8,
+      "recommended_reduction_kw": 98.64,
+      "action": "demand_response",
+      "timestamp": "13:45"
+    },
+    {
+      "net_load_kw": 653.7,
+      "recommended_reduction_kw": 46.11,
+      "action": "demand_response",
+      "timestamp": "01:00"
+    },
+    {
+      "net_load_kw": 726.0,
+      "recommended_reduction_kw": 67.8,
+      "action": "demand_response",
+      "timestamp": "15:15"
+    },
+    {
+      "net_load_kw": 810.3,
+      "recommended_reduction_kw": 93.09,
+      "action": "demand_response",
+      "timestamp": "10:00"
+    },
+    {
+      "net_load_kw": 600.9,
+      "recommended_reduction_kw": 30.27,
+      "action": "demand_response",
+      "timestamp": "20:15"
+    },
+    {
+      "net_load_kw": 649.2,
+      "recommended_reduction_kw": 44.76,
+      "action": "demand_response",
+      "timestamp": "23:30"
+    },
+    {
+      "net_load_kw": 507.3,
+      "recommended_reduction_kw": 2.19,
+      "action": "demand_response",
+      "timestamp": "18:30"
+    },
+    {
+      "net_load_kw": 683.3,
+      "recommended_reduction_kw": 54.99,
+      "action": "demand_response",
+      "timestamp": "21:30"
+    },
+    {
+      "net_load_kw": 702.8,
+      "recommended_reduction_kw": 60.84,
+      "action": "demand_response",
+      "timestamp": "00:15"
+    },
+    {
+      "net_load_kw": 632.1,
+      "recommended_reduction_kw": 39.63,
+      "action": "demand_response",
+      "timestamp": "20:45"
+    },
+    {
+      "net_load_kw": 612.0,
+      "recommended_reduction_kw": 33.6,
+      "action": "demand_response",
+      "timestamp": "22:45"
+    }
+  ],
+  "ess_summary": {
+    "total_steps": 96
+  },
+  "trading_summary": {
+    "total_surplus_events": 375,
+    "total_surplus_kw": 221.2
+  },
+  "dr_summary": {
+    "dr_event_count": 84
+  },
+  "cda_trades": [
+    {
+      "seller_agent": "bus_48_Commercial",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 1.89,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_127_Commercial",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 1.68,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_102_Commercial",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 1.06,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_78_Commercial",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.9,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_100_EnergyHub",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_102_Commercial",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_106_Residential",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_109_Rural",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_116_EnergyHub",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_127_Commercial",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_130_Rural",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_133_Industrial",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_134_EnergyHub",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_136_Industrial",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_138_Residential",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_140_Rural",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_48_Commercial",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_59_Rural",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_62_Residential",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_100_EnergyHub",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_102_Commercial",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_106_Residential",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_109_Rural",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_116_EnergyHub",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_127_Commercial",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_130_Rural",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_133_Industrial",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_134_EnergyHub",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_136_Industrial",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_138_Residential",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_140_Rural",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_48_Commercial",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_59_Rural",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_62_Residential",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_100_EnergyHub",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_102_Commercial",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_106_Residential",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_109_Rural",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_116_EnergyHub",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_127_Commercial",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_130_Rural",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_133_Industrial",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_134_EnergyHub",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_136_Industrial",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_138_Residential",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_140_Rural",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_48_Commercial",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_59_Rural",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_62_Residential",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_134_EnergyHub",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 6.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_100_EnergyHub",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_106_Residential",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_109_Rural",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_116_EnergyHub",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_130_Rural",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_133_Industrial",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_136_Industrial",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_138_Residential",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_140_Rural",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_59_Rural",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_62_Residential",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_102_Commercial",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_127_Commercial",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_48_Commercial",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_100_EnergyHub",
+      "buyer_agent": "bus_78_Commercial",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_102_Commercial",
+      "buyer_agent": "bus_78_Commercial",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_106_Residential",
+      "buyer_agent": "bus_78_Commercial",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_109_Rural",
+      "buyer_agent": "bus_78_Commercial",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_116_EnergyHub",
+      "buyer_agent": "bus_78_Commercial",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_127_Commercial",
+      "buyer_agent": "bus_78_Commercial",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_130_Rural",
+      "buyer_agent": "bus_78_Commercial",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_133_Industrial",
+      "buyer_agent": "bus_78_Commercial",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_134_EnergyHub",
+      "buyer_agent": "bus_78_Commercial",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_136_Industrial",
+      "buyer_agent": "bus_78_Commercial",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_138_Residential",
+      "buyer_agent": "bus_78_Commercial",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_140_Rural",
+      "buyer_agent": "bus_78_Commercial",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_48_Commercial",
+      "buyer_agent": "bus_78_Commercial",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_59_Rural",
+      "buyer_agent": "bus_78_Commercial",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_62_Residential",
+      "buyer_agent": "bus_78_Commercial",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_74_EnergyHub",
+      "buyer_agent": "bus_86_Residential",
+      "quantity_kw": 2.8,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_134_EnergyHub",
+      "buyer_agent": "bus_86_Residential",
+      "quantity_kw": 2.88,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_100_EnergyHub",
+      "buyer_agent": "bus_86_Residential",
+      "quantity_kw": 2.6,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_116_EnergyHub",
+      "buyer_agent": "bus_86_Residential",
+      "quantity_kw": 1.32,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_102_Commercial",
+      "buyer_agent": "bus_86_Residential",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_106_Residential",
+      "buyer_agent": "bus_86_Residential",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_109_Rural",
+      "buyer_agent": "bus_86_Residential",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_127_Commercial",
+      "buyer_agent": "bus_86_Residential",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_130_Rural",
+      "buyer_agent": "bus_86_Residential",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_133_Industrial",
+      "buyer_agent": "bus_86_Residential",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_136_Industrial",
+      "buyer_agent": "bus_86_Residential",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_138_Residential",
+      "buyer_agent": "bus_86_Residential",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_140_Rural",
+      "buyer_agent": "bus_86_Residential",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_48_Commercial",
+      "buyer_agent": "bus_86_Residential",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_59_Rural",
+      "buyer_agent": "bus_86_Residential",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_62_Residential",
+      "buyer_agent": "bus_86_Residential",
+      "quantity_kw": 0.25,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_62_Residential",
+      "buyer_agent": "bus_78_Commercial",
+      "quantity_kw": 0.25,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_74_EnergyHub",
+      "buyer_agent": "bus_78_Commercial",
+      "quantity_kw": 1.15,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_100_EnergyHub",
+      "buyer_agent": "bus_78_Commercial",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_102_Commercial",
+      "buyer_agent": "bus_78_Commercial",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_106_Residential",
+      "buyer_agent": "bus_78_Commercial",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_109_Rural",
+      "buyer_agent": "bus_78_Commercial",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_116_EnergyHub",
+      "buyer_agent": "bus_78_Commercial",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_127_Commercial",
+      "buyer_agent": "bus_78_Commercial",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_130_Rural",
+      "buyer_agent": "bus_78_Commercial",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_133_Industrial",
+      "buyer_agent": "bus_78_Commercial",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_134_EnergyHub",
+      "buyer_agent": "bus_78_Commercial",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_136_Industrial",
+      "buyer_agent": "bus_78_Commercial",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_138_Residential",
+      "buyer_agent": "bus_78_Commercial",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_140_Rural",
+      "buyer_agent": "bus_78_Commercial",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_48_Commercial",
+      "buyer_agent": "bus_78_Commercial",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_59_Rural",
+      "buyer_agent": "bus_78_Commercial",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_62_Residential",
+      "buyer_agent": "bus_78_Commercial",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_74_EnergyHub",
+      "buyer_agent": "bus_86_Residential",
+      "quantity_kw": 2.66,
+      "trade_price": 96.65,
+      "bid_price": 113.3,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_100_EnergyHub",
+      "buyer_agent": "bus_86_Residential",
+      "quantity_kw": 0.93,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_102_Commercial",
+      "buyer_agent": "bus_86_Residential",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_106_Residential",
+      "buyer_agent": "bus_86_Residential",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_109_Rural",
+      "buyer_agent": "bus_86_Residential",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_116_EnergyHub",
+      "buyer_agent": "bus_86_Residential",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_127_Commercial",
+      "buyer_agent": "bus_86_Residential",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_130_Rural",
+      "buyer_agent": "bus_86_Residential",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_133_Industrial",
+      "buyer_agent": "bus_86_Residential",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_134_EnergyHub",
+      "buyer_agent": "bus_86_Residential",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_136_Industrial",
+      "buyer_agent": "bus_86_Residential",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_138_Residential",
+      "buyer_agent": "bus_86_Residential",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_140_Rural",
+      "buyer_agent": "bus_86_Residential",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_48_Commercial",
+      "buyer_agent": "bus_86_Residential",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_59_Rural",
+      "buyer_agent": "bus_86_Residential",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_62_Residential",
+      "buyer_agent": "bus_86_Residential",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_74_EnergyHub",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 4.13,
+      "trade_price": 94.45,
+      "bid_price": 108.9,
+      "ask_price": 80.0
+    },
+    {
+      "seller_agent": "bus_116_EnergyHub",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 5.66,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_134_EnergyHub",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 1.08,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_100_EnergyHub",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_102_Commercial",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_106_Residential",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_109_Rural",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_127_Commercial",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_130_Rural",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_133_Industrial",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_136_Industrial",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_138_Residential",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_140_Rural",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_48_Commercial",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_59_Rural",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_62_Residential",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_134_EnergyHub",
+      "buyer_agent": "bus_74_EnergyHub",
+      "quantity_kw": 0.6,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_100_EnergyHub",
+      "buyer_agent": "bus_74_EnergyHub",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_102_Commercial",
+      "buyer_agent": "bus_74_EnergyHub",
+      "quantity_kw": 0.15,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_102_Commercial",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.35,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_106_Residential",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_109_Rural",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_116_EnergyHub",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_127_Commercial",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_130_Rural",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_133_Industrial",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_136_Industrial",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_138_Residential",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_140_Rural",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_48_Commercial",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_59_Rural",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_62_Residential",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_134_EnergyHub",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 2.89,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_109_Rural",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 1.54,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_74_EnergyHub",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.65,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_100_EnergyHub",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_102_Commercial",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_106_Residential",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_116_EnergyHub",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_127_Commercial",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_130_Rural",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_133_Industrial",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_136_Industrial",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_138_Residential",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_140_Rural",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_48_Commercial",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_59_Rural",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_62_Residential",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_100_EnergyHub",
+      "buyer_agent": "bus_74_EnergyHub",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_102_Commercial",
+      "buyer_agent": "bus_74_EnergyHub",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_106_Residential",
+      "buyer_agent": "bus_74_EnergyHub",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_109_Rural",
+      "buyer_agent": "bus_74_EnergyHub",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_116_EnergyHub",
+      "buyer_agent": "bus_74_EnergyHub",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_127_Commercial",
+      "buyer_agent": "bus_74_EnergyHub",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_130_Rural",
+      "buyer_agent": "bus_74_EnergyHub",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_133_Industrial",
+      "buyer_agent": "bus_74_EnergyHub",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_134_EnergyHub",
+      "buyer_agent": "bus_74_EnergyHub",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_136_Industrial",
+      "buyer_agent": "bus_74_EnergyHub",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_138_Residential",
+      "buyer_agent": "bus_74_EnergyHub",
+      "quantity_kw": 0.28,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_138_Residential",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.22,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_140_Rural",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_48_Commercial",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_59_Rural",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_62_Residential",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_100_EnergyHub",
+      "buyer_agent": "bus_74_EnergyHub",
+      "quantity_kw": 1.83,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_100_EnergyHub",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 1.95,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_102_Commercial",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_106_Residential",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_109_Rural",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_116_EnergyHub",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_127_Commercial",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_130_Rural",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_133_Industrial",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_134_EnergyHub",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_136_Industrial",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_138_Residential",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_140_Rural",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_48_Commercial",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_59_Rural",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_62_Residential",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_100_EnergyHub",
+      "buyer_agent": "bus_74_EnergyHub",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_102_Commercial",
+      "buyer_agent": "bus_74_EnergyHub",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_106_Residential",
+      "buyer_agent": "bus_74_EnergyHub",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_109_Rural",
+      "buyer_agent": "bus_74_EnergyHub",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_116_EnergyHub",
+      "buyer_agent": "bus_74_EnergyHub",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_127_Commercial",
+      "buyer_agent": "bus_74_EnergyHub",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_130_Rural",
+      "buyer_agent": "bus_74_EnergyHub",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_133_Industrial",
+      "buyer_agent": "bus_74_EnergyHub",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_134_EnergyHub",
+      "buyer_agent": "bus_74_EnergyHub",
+      "quantity_kw": 0.5,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_136_Industrial",
+      "buyer_agent": "bus_74_EnergyHub",
+      "quantity_kw": 0.03,
+      "trade_price": 97.05,
+      "bid_price": 113.3,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_136_Industrial",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.47,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_138_Residential",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_140_Rural",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_48_Commercial",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_59_Rural",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_62_Residential",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_100_EnergyHub",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_102_Commercial",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_106_Residential",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_109_Rural",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_116_EnergyHub",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_127_Commercial",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_130_Rural",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_133_Industrial",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_134_EnergyHub",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_136_Industrial",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_138_Residential",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_140_Rural",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_48_Commercial",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_59_Rural",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_62_Residential",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_100_EnergyHub",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_102_Commercial",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_106_Residential",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_109_Rural",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_116_EnergyHub",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_127_Commercial",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_130_Rural",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_133_Industrial",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_134_EnergyHub",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_136_Industrial",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_138_Residential",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_140_Rural",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_48_Commercial",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_59_Rural",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_62_Residential",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_100_EnergyHub",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_102_Commercial",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_106_Residential",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_109_Rural",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_116_EnergyHub",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_127_Commercial",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_130_Rural",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_133_Industrial",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_134_EnergyHub",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_136_Industrial",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_138_Residential",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_140_Rural",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_48_Commercial",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_59_Rural",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_62_Residential",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_100_EnergyHub",
+      "buyer_agent": "bus_74_EnergyHub",
+      "quantity_kw": 0.5,
+      "trade_price": 95.4,
+      "bid_price": 110.0,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_102_Commercial",
+      "buyer_agent": "bus_74_EnergyHub",
+      "quantity_kw": 0.5,
+      "trade_price": 95.4,
+      "bid_price": 110.0,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_106_Residential",
+      "buyer_agent": "bus_74_EnergyHub",
+      "quantity_kw": 0.5,
+      "trade_price": 95.4,
+      "bid_price": 110.0,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_109_Rural",
+      "buyer_agent": "bus_74_EnergyHub",
+      "quantity_kw": 0.5,
+      "trade_price": 95.4,
+      "bid_price": 110.0,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_116_EnergyHub",
+      "buyer_agent": "bus_74_EnergyHub",
+      "quantity_kw": 0.5,
+      "trade_price": 95.4,
+      "bid_price": 110.0,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_127_Commercial",
+      "buyer_agent": "bus_74_EnergyHub",
+      "quantity_kw": 0.5,
+      "trade_price": 95.4,
+      "bid_price": 110.0,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_130_Rural",
+      "buyer_agent": "bus_74_EnergyHub",
+      "quantity_kw": 0.5,
+      "trade_price": 95.4,
+      "bid_price": 110.0,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_133_Industrial",
+      "buyer_agent": "bus_74_EnergyHub",
+      "quantity_kw": 0.5,
+      "trade_price": 95.4,
+      "bid_price": 110.0,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_134_EnergyHub",
+      "buyer_agent": "bus_74_EnergyHub",
+      "quantity_kw": 0.5,
+      "trade_price": 95.4,
+      "bid_price": 110.0,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_136_Industrial",
+      "buyer_agent": "bus_74_EnergyHub",
+      "quantity_kw": 0.32,
+      "trade_price": 95.4,
+      "bid_price": 110.0,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_136_Industrial",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.18,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_138_Residential",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_140_Rural",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_48_Commercial",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_59_Rural",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_62_Residential",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_100_EnergyHub",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_102_Commercial",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_106_Residential",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_109_Rural",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_116_EnergyHub",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_127_Commercial",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_130_Rural",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_133_Industrial",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_134_EnergyHub",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_136_Industrial",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_138_Residential",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_140_Rural",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_48_Commercial",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_59_Rural",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_62_Residential",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_100_EnergyHub",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_102_Commercial",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_106_Residential",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_109_Rural",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_116_EnergyHub",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_127_Commercial",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_130_Rural",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_133_Industrial",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_134_EnergyHub",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_136_Industrial",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_138_Residential",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_140_Rural",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_48_Commercial",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_59_Rural",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_62_Residential",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_100_EnergyHub",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_102_Commercial",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_106_Residential",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_109_Rural",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_116_EnergyHub",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_127_Commercial",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_130_Rural",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_133_Industrial",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_134_EnergyHub",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_136_Industrial",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_138_Residential",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_140_Rural",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_48_Commercial",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_59_Rural",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_62_Residential",
+      "buyer_agent": "bus_67_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_100_EnergyHub",
+      "buyer_agent": "bus_86_Residential",
+      "quantity_kw": 0.5,
+      "trade_price": 95.4,
+      "bid_price": 110.0,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_102_Commercial",
+      "buyer_agent": "bus_86_Residential",
+      "quantity_kw": 0.5,
+      "trade_price": 95.4,
+      "bid_price": 110.0,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_106_Residential",
+      "buyer_agent": "bus_86_Residential",
+      "quantity_kw": 0.5,
+      "trade_price": 95.4,
+      "bid_price": 110.0,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_109_Rural",
+      "buyer_agent": "bus_86_Residential",
+      "quantity_kw": 0.5,
+      "trade_price": 95.4,
+      "bid_price": 110.0,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_116_EnergyHub",
+      "buyer_agent": "bus_86_Residential",
+      "quantity_kw": 0.5,
+      "trade_price": 95.4,
+      "bid_price": 110.0,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_127_Commercial",
+      "buyer_agent": "bus_86_Residential",
+      "quantity_kw": 0.5,
+      "trade_price": 95.4,
+      "bid_price": 110.0,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_130_Rural",
+      "buyer_agent": "bus_86_Residential",
+      "quantity_kw": 0.5,
+      "trade_price": 95.4,
+      "bid_price": 110.0,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_133_Industrial",
+      "buyer_agent": "bus_86_Residential",
+      "quantity_kw": 0.5,
+      "trade_price": 95.4,
+      "bid_price": 110.0,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_134_EnergyHub",
+      "buyer_agent": "bus_86_Residential",
+      "quantity_kw": 0.5,
+      "trade_price": 95.4,
+      "bid_price": 110.0,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_136_Industrial",
+      "buyer_agent": "bus_86_Residential",
+      "quantity_kw": 0.5,
+      "trade_price": 95.4,
+      "bid_price": 110.0,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_138_Residential",
+      "buyer_agent": "bus_86_Residential",
+      "quantity_kw": 0.5,
+      "trade_price": 95.4,
+      "bid_price": 110.0,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_140_Rural",
+      "buyer_agent": "bus_86_Residential",
+      "quantity_kw": 0.5,
+      "trade_price": 95.4,
+      "bid_price": 110.0,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_48_Commercial",
+      "buyer_agent": "bus_86_Residential",
+      "quantity_kw": 0.5,
+      "trade_price": 95.4,
+      "bid_price": 110.0,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_59_Rural",
+      "buyer_agent": "bus_86_Residential",
+      "quantity_kw": 0.5,
+      "trade_price": 95.4,
+      "bid_price": 110.0,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_62_Residential",
+      "buyer_agent": "bus_86_Residential",
+      "quantity_kw": 0.5,
+      "trade_price": 95.4,
+      "bid_price": 110.0,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_100_EnergyHub",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_102_Commercial",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_106_Residential",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_109_Rural",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_116_EnergyHub",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_127_Commercial",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_130_Rural",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_133_Industrial",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_134_EnergyHub",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_136_Industrial",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_138_Residential",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_140_Rural",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_48_Commercial",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_59_Rural",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_62_Residential",
+      "buyer_agent": "bus_95_Industrial",
+      "quantity_kw": 0.5,
+      "trade_price": 94.85,
+      "bid_price": 108.9,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_100_EnergyHub",
+      "buyer_agent": "bus_78_Commercial",
+      "quantity_kw": 0.5,
+      "trade_price": 95.4,
+      "bid_price": 110.0,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_102_Commercial",
+      "buyer_agent": "bus_78_Commercial",
+      "quantity_kw": 0.5,
+      "trade_price": 95.4,
+      "bid_price": 110.0,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_106_Residential",
+      "buyer_agent": "bus_78_Commercial",
+      "quantity_kw": 0.5,
+      "trade_price": 95.4,
+      "bid_price": 110.0,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_109_Rural",
+      "buyer_agent": "bus_78_Commercial",
+      "quantity_kw": 0.5,
+      "trade_price": 95.4,
+      "bid_price": 110.0,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_116_EnergyHub",
+      "buyer_agent": "bus_78_Commercial",
+      "quantity_kw": 0.5,
+      "trade_price": 95.4,
+      "bid_price": 110.0,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_127_Commercial",
+      "buyer_agent": "bus_78_Commercial",
+      "quantity_kw": 0.5,
+      "trade_price": 95.4,
+      "bid_price": 110.0,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_130_Rural",
+      "buyer_agent": "bus_78_Commercial",
+      "quantity_kw": 0.5,
+      "trade_price": 95.4,
+      "bid_price": 110.0,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_133_Industrial",
+      "buyer_agent": "bus_78_Commercial",
+      "quantity_kw": 0.5,
+      "trade_price": 95.4,
+      "bid_price": 110.0,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_134_EnergyHub",
+      "buyer_agent": "bus_78_Commercial",
+      "quantity_kw": 0.5,
+      "trade_price": 95.4,
+      "bid_price": 110.0,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_136_Industrial",
+      "buyer_agent": "bus_78_Commercial",
+      "quantity_kw": 0.5,
+      "trade_price": 95.4,
+      "bid_price": 110.0,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_138_Residential",
+      "buyer_agent": "bus_78_Commercial",
+      "quantity_kw": 0.5,
+      "trade_price": 95.4,
+      "bid_price": 110.0,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_140_Rural",
+      "buyer_agent": "bus_78_Commercial",
+      "quantity_kw": 0.5,
+      "trade_price": 95.4,
+      "bid_price": 110.0,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_48_Commercial",
+      "buyer_agent": "bus_78_Commercial",
+      "quantity_kw": 0.5,
+      "trade_price": 95.4,
+      "bid_price": 110.0,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_59_Rural",
+      "buyer_agent": "bus_78_Commercial",
+      "quantity_kw": 0.5,
+      "trade_price": 95.4,
+      "bid_price": 110.0,
+      "ask_price": 80.8
+    },
+    {
+      "seller_agent": "bus_62_Residential",
+      "buyer_agent": "bus_78_Commercial",
+      "quantity_kw": 0.5,
+      "trade_price": 95.4,
+      "bid_price": 110.0,
+      "ask_price": 80.8
+    }
+  ],
+  "cda_snapshot": {
+    "bids": [
+      {
+        "agent": "bus_100_EnergyHub",
+        "price": 113.3,
+        "quantity": 48.97
+      },
+      {
+        "agent": "bus_102_Commercial",
+        "price": 113.3,
+        "quantity": 22.21
+      },
+      {
+        "agent": "bus_106_Residential",
+        "price": 113.3,
+        "quantity": 19.14
+      },
+      {
+        "agent": "bus_109_Rural",
+        "price": 113.3,
+        "quantity": 17.6
+      },
+      {
+        "agent": "bus_116_EnergyHub",
+        "price": 113.3,
+        "quantity": 52.69
+      },
+      {
+        "agent": "bus_127_Commercial",
+        "price": 113.3,
+        "quantity": 22.93
+      },
+      {
+        "agent": "bus_130_Rural",
+        "price": 113.3,
+        "quantity": 16.92
+      },
+      {
+        "agent": "bus_133_Industrial",
+        "price": 113.3,
+        "quantity": 49.55
+      },
+      {
+        "agent": "bus_134_EnergyHub",
+        "price": 113.3,
+        "quantity": 52.42
+      },
+      {
+        "agent": "bus_136_Industrial",
+        "price": 113.3,
+        "quantity": 52.63
+      },
+      {
+        "agent": "bus_138_Residential",
+        "price": 113.3,
+        "quantity": 18.89
+      },
+      {
+        "agent": "bus_140_Rural",
+        "price": 113.3,
+        "quantity": 16.78
+      },
+      {
+        "agent": "bus_48_Commercial",
+        "price": 113.3,
+        "quantity": 24.21
+      },
+      {
+        "agent": "bus_59_Rural",
+        "price": 113.3,
+        "quantity": 16.15
+      },
+      {
+        "agent": "bus_62_Residential",
+        "price": 113.3,
+        "quantity": 20.09
+      },
+      {
+        "agent": "bus_67_Industrial",
+        "price": 108.9,
+        "quantity": 50.77
+      },
+      {
+        "agent": "bus_74_EnergyHub",
+        "price": 113.3,
+        "quantity": 54.67
+      },
+      {
+        "agent": "bus_78_Commercial",
+        "price": 110.0,
+        "quantity": 22.63
+      },
+      {
+        "agent": "bus_86_Residential",
+        "price": 110.0,
+        "quantity": 19.67
+      },
+      {
+        "agent": "bus_95_Industrial",
+        "price": 108.9,
+        "quantity": 50.3
+      }
+    ],
+    "asks": [],
+    "trades": [],
+    "time": "23:45"
+  },
+  "parallel_layer": {
+    "approved_actions": [
+      "sell_28",
+      "sell_21",
+      "sell_139",
+      "ess_58",
+      "dr_44",
+      "sell_170",
+      "dr_65",
+      "ess_1",
+      "dr_24",
+      "sell_360",
+      "sell_138",
+      "ess_53",
+      "sell_354",
+      "ess_92",
+      "sell_181",
+      "sell_82",
+      "sell_250",
+      "sell_61",
+      "sell_113",
+      "dr_59",
+      "sell_7",
+      "dr_10",
+      "sell_305",
+      "sell_67",
+      "sell_44",
+      "sell_274",
+      "sell_373",
+      "ess_64",
+      "sell_89",
+      "ess_39",
+      "ess_3",
+      "sell_56",
+      "ess_73",
+      "sell_357",
+      "sell_120",
+      "sell_215",
+      "dr_32",
+      "ess_15",
+      "sell_191",
+      "ess_46",
+      "dr_21",
+      "dr_37",
+      "ess_78",
+      "sell_133",
+      "sell_247",
+      "sell_68",
+      "sell_114",
+      "sell_12",
+      "sell_55",
+      "sell_314",
+      "sell_97",
+      "sell_269",
+      "sell_352",
+      "sell_273",
+      "ess_84",
+      "sell_112",
+      "dr_38",
+      "dr_27",
+      "sell_171",
+      "sell_224",
+      "sell_225",
+      "sell_121",
+      "sell_88",
+      "sell_75",
+      "sell_105",
+      "sell_228",
+      "sell_127",
+      "ess_24",
+      "ess_32",
+      "dr_83",
+      "sell_192",
+      "ess_9",
+      "dr_50",
+      "sell_281",
+      "sell_177",
+      "dr_63",
+      "sell_239",
+      "dr_22",
+      "ess_54",
+      "ess_70",
+      "ess_55",
+      "dr_77",
+      "ess_61",
+      "sell_234",
+      "ess_79",
+      "sell_344",
+      "sell_96",
+      "sell_199",
+      "sell_53",
+      "dr_40",
+      "sell_22",
+      "dr_60",
+      "sell_359",
+      "sell_297",
+      "sell_165",
+      "sell_348",
+      "sell_195",
+      "ess_4",
+      "sell_303",
+      "sell_257",
+      "ess_50",
+      "sell_295",
+      "ess_94",
+      "sell_99",
+      "sell_369",
+      "sell_39",
+      "sell_140",
+      "sell_157",
+      "sell_312",
+      "sell_85",
+      "sell_46",
+      "sell_280",
+      "sell_316",
+      "sell_83",
+      "sell_115",
+      "sell_143",
+      "ess_23",
+      "sell_111",
+      "sell_306",
+      "sell_321",
+      "sell_169",
+      "sell_220",
+      "sell_81",
+      "sell_231",
+      "sell_333",
+      "sell_128",
+      "dr_64",
+      "sell_341",
+      "ess_48",
+      "sell_233",
+      "sell_212",
+      "sell_123",
+      "sell_249",
+      "ess_83",
+      "ess_71",
+      "sell_168",
+      "sell_173",
+      "ess_47",
+      "sell_371",
+      "sell_152",
+      "dr_51",
+      "sell_326",
+      "sell_248",
+      "dr_54",
+      "ess_44",
+      "sell_95",
+      "sell_229",
+      "sell_204",
+      "sell_277",
+      "sell_34",
+      "ess_6",
+      "sell_167",
+      "sell_318",
+      "ess_74",
+      "sell_223",
+      "sell_285",
+      "ess_80",
+      "sell_9",
+      "sell_322",
+      "sell_343",
+      "sell_263",
+      "sell_368",
+      "sell_291",
+      "ess_89",
+      "sell_188",
+      "sell_237",
+      "sell_102",
+      "dr_20",
+      "sell_110",
+      "dr_48",
+      "dr_67",
+      "sell_213",
+      "sell_48",
+      "sell_244",
+      "sell_148",
+      "sell_98",
+      "sell_101",
+      "ess_69",
+      "sell_104",
+      "ess_45",
+      "sell_86",
+      "sell_320",
+      "sell_245",
+      "dr_15",
+      "sell_187",
+      "dr_23",
+      "sell_178",
+      "dr_33",
+      "sell_117",
+      "dr_58",
+      "ess_31",
+      "sell_162",
+      "dr_68",
+      "ess_34",
+      "sell_256",
+      "dr_19",
+      "dr_29",
+      "sell_349",
+      "sell_342",
+      "sell_64",
+      "sell_142",
+      "ess_72",
+      "sell_358",
+      "sell_299",
+      "sell_84",
+      "ess_62",
+      "sell_125",
+      "sell_134",
+      "sell_149",
+      "sell_338",
+      "sell_221",
+      "sell_5",
+      "sell_227",
+      "sell_363",
+      "sell_135",
+      "sell_294",
+      "dr_55",
+      "ess_88",
+      "sell_270",
+      "sell_17",
+      "sell_266",
+      "dr_57",
+      "dr_45",
+      "sell_370",
+      "sell_315",
+      "sell_172",
+      "ess_52",
+      "ess_21",
+      "sell_166",
+      "sell_37",
+      "dr_52",
+      "sell_87",
+      "sell_6",
+      "sell_13",
+      "ess_33",
+      "sell_91",
+      "sell_336",
+      "sell_15",
+      "sell_156",
+      "sell_42",
+      "sell_317",
+      "ess_12",
+      "ess_49",
+      "sell_272",
+      "sell_210",
+      "sell_267",
+      "sell_265",
+      "ess_28",
+      "ess_36",
+      "sell_1",
+      "dr_47",
+      "sell_374",
+      "dr_34",
+      "sell_19",
+      "sell_366",
+      "dr_35",
+      "ess_2",
+      "sell_259",
+      "sell_40",
+      "dr_6",
+      "ess_56",
+      "sell_14",
+      "sell_60",
+      "sell_298",
+      "sell_275",
+      "sell_145",
+      "sell_308",
+      "ess_91",
+      "sell_346",
+      "sell_350",
+      "ess_30",
+      "sell_65",
+      "sell_36",
+      "sell_41",
+      "sell_80",
+      "sell_100",
+      "sell_282",
+      "sell_260",
+      "sell_329",
+      "ess_81",
+      "sell_302",
+      "sell_278",
+      "sell_253",
+      "dr_16",
+      "sell_184",
+      "sell_180",
+      "dr_9",
+      "dr_75",
+      "sell_2",
+      "sell_246",
+      "dr_5",
+      "ess_68",
+      "dr_26",
+      "sell_323",
+      "sell_124",
+      "sell_211",
+      "ess_20",
+      "sell_164",
+      "dr_2",
+      "sell_94",
+      "sell_196",
+      "sell_197",
+      "dr_7",
+      "sell_345",
+      "sell_364",
+      "sell_175",
+      "sell_311",
+      "sell_202",
+      "ess_82",
+      "sell_200",
+      "sell_27",
+      "dr_81",
+      "sell_324",
+      "sell_59",
+      "sell_129",
+      "sell_141",
+      "sell_319",
+      "sell_271",
+      "sell_362",
+      "dr_17",
+      "ess_63",
+      "dr_39",
+      "sell_118",
+      "sell_334",
+      "dr_73",
+      "sell_151",
+      "dr_3",
+      "ess_0",
+      "sell_242",
+      "sell_351",
+      "sell_185",
+      "ess_40",
+      "ess_14",
+      "dr_70",
+      "ess_41",
+      "sell_325",
+      "sell_339",
+      "sell_70",
+      "dr_0",
+      "sell_29",
+      "ess_59",
+      "dr_41",
+      "sell_74",
+      "sell_288",
+      "sell_158",
+      "dr_8",
+      "dr_42",
+      "sell_23",
+      "sell_176",
+      "sell_232",
+      "sell_300",
+      "dr_53",
+      "ess_67",
+      "sell_50",
+      "ess_86",
+      "sell_238",
+      "sell_147",
+      "dr_12",
+      "sell_38",
+      "sell_132",
+      "sell_194",
+      "sell_35",
+      "sell_45",
+      "sell_207",
+      "sell_337",
+      "sell_182",
+      "dr_46",
+      "sell_126",
+      "ess_16",
+      "ess_43",
+      "sell_205",
+      "ess_60",
+      "sell_361",
+      "dr_31",
+      "ess_11",
+      "sell_47",
+      "ess_90",
+      "sell_218",
+      "sell_4",
+      "sell_276",
+      "sell_293",
+      "sell_122",
+      "sell_16",
+      "sell_284",
+      "sell_26",
+      "ess_18",
+      "sell_287",
+      "sell_262",
+      "sell_289",
+      "dr_14",
+      "sell_93",
+      "sell_367",
+      "sell_214",
+      "sell_216",
+      "sell_258",
+      "sell_106",
+      "ess_19",
+      "dr_18",
+      "sell_304",
+      "sell_222",
+      "dr_36",
+      "sell_137",
+      "ess_38",
+      "sell_251",
+      "sell_186",
+      "ess_51",
+      "sell_153",
+      "dr_76",
+      "sell_155",
+      "sell_252",
+      "sell_18",
+      "dr_56",
+      "sell_20",
+      "ess_8",
+      "ess_10",
+      "sell_52",
+      "sell_240",
+      "sell_206",
+      "sell_261",
+      "sell_332",
+      "ess_13",
+      "ess_7",
+      "ess_57",
+      "ess_95",
+      "sell_154",
+      "sell_292",
+      "ess_37",
+      "dr_72",
+      "sell_57",
+      "sell_179",
+      "sell_103",
+      "sell_109",
+      "sell_208",
+      "ess_25",
+      "ess_76",
+      "sell_201",
+      "sell_119",
+      "sell_43",
+      "sell_66",
+      "dr_25",
+      "sell_219",
+      "sell_268",
+      "sell_11",
+      "sell_243",
+      "ess_5",
+      "sell_116",
+      "sell_73",
+      "sell_8",
+      "sell_190",
+      "ess_29",
+      "ess_77",
+      "dr_13",
+      "sell_356",
+      "sell_54",
+      "sell_32",
+      "dr_30",
+      "dr_78",
+      "sell_130",
+      "ess_22",
+      "sell_49",
+      "ess_66",
+      "dr_66",
+      "sell_310",
+      "sell_77",
+      "dr_61",
+      "sell_235",
+      "sell_198",
+      "sell_31",
+      "dr_11",
+      "sell_30",
+      "sell_335",
+      "sell_355",
+      "sell_58",
+      "sell_230",
+      "sell_286",
+      "dr_80",
+      "sell_163",
+      "dr_43",
+      "sell_136",
+      "sell_264",
+      "dr_4",
+      "dr_49",
+      "sell_71",
+      "ess_27",
+      "sell_307",
+      "dr_28",
+      "ess_85",
+      "ess_17",
+      "sell_254",
+      "sell_328",
+      "sell_3",
+      "sell_69",
+      "dr_69",
+      "ess_93",
+      "sell_183",
+      "sell_25",
+      "sell_72",
+      "sell_327",
+      "sell_226",
+      "sell_92",
+      "sell_283",
+      "sell_63",
+      "sell_309",
+      "sell_51",
+      "sell_144",
+      "dr_82",
+      "dr_62",
+      "sell_290",
+      "sell_330",
+      "ess_42",
+      "ess_26",
+      "sell_79",
+      "sell_160",
+      "dr_74",
+      "sell_193",
+      "sell_189",
+      "sell_255",
+      "sell_131",
+      "sell_76",
+      "sell_236",
+      "dr_1",
+      "dr_71",
+      "sell_353",
+      "sell_33",
+      "sell_372",
+      "sell_150",
+      "sell_241",
+      "dr_79",
+      "ess_65",
+      "sell_365",
+      "sell_159",
+      "ess_75",
+      "ess_35",
+      "sell_0",
+      "sell_24",
+      "sell_174",
+      "sell_78",
+      "sell_161",
+      "sell_347",
+      "sell_301",
+      "sell_10",
+      "ess_87",
+      "sell_108",
+      "sell_107",
+      "sell_209",
+      "sell_331",
+      "sell_90",
+      "sell_340",
+      "sell_203",
+      "sell_296",
+      "sell_62",
+      "sell_313"
+    ],
+    "rejected_actions": [
+      "sell_146",
+      "sell_217",
+      "sell_279"
+    ],
+    "policy_violation_report": [
+      "[sell_146] Trade volume 0.15 kW < min 0.2 kW",
+      "[sell_217] Trade volume 0.03 kW < min 0.2 kW",
+      "[sell_279] Trade volume 0.18 kW < min 0.2 kW"
+    ],
+    "recommendations": [
+      "피크 시간대 부하 초과(218 kW). 가전 사용을 21:00 이후로 미루면 약 326 원 절약 예상."
+    ]
+  }
+}

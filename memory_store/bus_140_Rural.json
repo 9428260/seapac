@@ -1,64 +1,64 @@
 {
-  "last_run_at": "2026-03-15T13:01:31.530907Z",
+  "last_run_at": "2026-03-16T14:28:46.670360Z",
   "last_plan": {
     "selected_model": "xgboost",
     "forecast_horizon_steps": 96,
-    "llm_reasoning": "재계획: 이전 모델 lgbm → xgboost 전환 (규칙 fallback)"
+    "llm_reasoning": "데이터가 1일치로 제한적이고, 부하와 PV 발전량의 변동성이 낮아 비교적 단순한 패턴을 학습하기에 적합합니다. 이전 런에서도 xgboost가 사용되었으므로, 동일한 모델을 활용하여 안정적인 성능을 기대할 수 있습니다."
   },
   "last_validation_metrics": {
     "kpi": {
       "MAPE_target": 10.0,
-      "MAPE_achieved": 5.53,
+      "MAPE_achieved": 5.47,
       "MAPE_pass": true,
       "peak_acc_target": 90.0,
-      "peak_acc_achieved": 92.92,
+      "peak_acc_achieved": 90.48,
       "peak_acc_pass": true
     },
     "load": {
-      "MAE": 0.871,
-      "RMSE": 1.0933,
-      "MAPE": 5.53,
+      "MAE": 0.8537,
+      "RMSE": 0.9972,
+      "MAPE": 5.47,
       "peak": {
-        "true_peak_kw": 18.736,
-        "pred_peak_kw": 17.41,
-        "peak_error_pct": 7.08
-      },
-      "n_samples": 44,
-      "skill_mape": 5.53,
-      "skill_rmse": 1.0933
-    },
-    "pv": {
-      "MAE": 0.6959,
-      "RMSE": 0.8475,
-      "MAPE": 14.57,
-      "peak": {
-        "true_peak_kw": 12.45,
-        "pred_peak_kw": 14.505,
-        "peak_error_pct": 16.51
-      },
-      "n_samples": 44,
-      "skill_mape": 14.57,
-      "skill_rmse": 0.8475
-    },
-    "net_load": {
-      "MAE": 0.9602,
-      "RMSE": 1.3286,
-      "MAPE": 12.1,
-      "peak": {
-        "true_peak_kw": 18.736,
-        "pred_peak_kw": 16.952,
+        "true_peak_kw": 17.273,
+        "pred_peak_kw": 15.629,
         "peak_error_pct": 9.52
       },
       "n_samples": 44,
-      "skill_mape": 12.1,
-      "skill_rmse": 1.3286
+      "skill_mape": 5.47,
+      "skill_rmse": 0.9972
+    },
+    "pv": {
+      "MAE": 7.0538,
+      "RMSE": 7.2038,
+      "MAPE": 83.27,
+      "peak": {
+        "true_peak_kw": 17.321,
+        "pred_peak_kw": 8.948,
+        "peak_error_pct": 48.34
+      },
+      "n_samples": 44,
+      "skill_mape": 83.27,
+      "skill_rmse": 7.2038
+    },
+    "net_load": {
+      "MAE": 6.8518,
+      "RMSE": 7.0327,
+      "MAPE": 46.28,
+      "peak": {
+        "true_peak_kw": 17.273,
+        "pred_peak_kw": 7.892,
+        "peak_error_pct": 54.31
+      },
+      "n_samples": 44,
+      "skill_mape": 46.28,
+      "skill_rmse": 7.0327
     }
   },
   "last_decisions_summary": {
     "ess_summary": {
-      "charge_steps": 4,
-      "discharge_steps": 7,
-      "idle_steps": 33
+      "charge_steps": 0,
+      "discharge_steps": 0,
+      "idle_steps": 44
     },
     "tariff_saving": {
       "base_cost_krw": 0,
@@ -67,9 +67,9 @@
       "saving_pct": 0.0
     },
     "dr_summary": {
-      "peak_threshold_kw": 15.73,
-      "dr_event_count": 7
+      "peak_threshold_kw": 7.89,
+      "dr_event_count": 0
     }
   },
-  "policy_gate_status": "REPLAN_REQUIRED"
+  "policy_gate_status": "APPROVED"
 }

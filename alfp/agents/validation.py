@@ -11,7 +11,7 @@ from langchain_core.output_parsers import JsonOutputParser
 
 from alfp.agents.state import ALFPState
 from alfp.config import get_skills_config, get_system_prompt, get_user_prompt_template
-from alfp.llm import get_llm
+from alfp.llm import get_llm, is_llm_enabled
 from alfp.skills.energy_forecast import EnergyForecastSkill
 
 # ── 통계 계산 함수 ─────────────────────────────────────────────────
@@ -108,18 +108,21 @@ def validation_agent(state: ALFPState) -> ALFPState:
             "n_samples": load_m["n_samples"],
         }
 
-        llm = get_llm(temperature=0.0)
-        log.append("  GPT-4o 지표 해석 중...")
-        system_prompt = get_system_prompt("validation")
-        user_template = get_user_prompt_template("validation")
-        response = llm.invoke([
-            SystemMessage(content=system_prompt),
-            HumanMessage(content=user_template.format(**prompt_data)),
-        ])
-        llm_analysis = JsonOutputParser().invoke(response.content)
-        metrics["llm_analysis"] = llm_analysis
-        log.append(f"  LLM 신뢰도 평가: {llm_analysis.get('confidence_level', 'N/A')}")
-        log.append(f"  LLM 종합 평가: {llm_analysis.get('overall_assessment', '')}")
+        if is_llm_enabled("alfp_validation"):
+            llm = get_llm(temperature=0.0, stage="alfp_validation")
+            log.append("  GPT-4o 지표 해석 중...")
+            system_prompt = get_system_prompt("validation")
+            user_template = get_user_prompt_template("validation")
+            response = llm.invoke([
+                SystemMessage(content=system_prompt),
+                HumanMessage(content=user_template.format(**prompt_data)),
+            ])
+            llm_analysis = JsonOutputParser().invoke(response.content)
+            metrics["llm_analysis"] = llm_analysis
+            log.append(f"  LLM 신뢰도 평가: {llm_analysis.get('confidence_level', 'N/A')}")
+            log.append(f"  LLM 종합 평가: {llm_analysis.get('overall_assessment', '')}")
+        else:
+            log.append("  LLM 비활성화 상태 - 규칙 기반 수치 검증만 수행")
 
     except Exception as e:
         errors.append(f"[ValidationAgent] LLM 오류: {e}")

@@ -23,6 +23,8 @@ from alfp.agents.net_load_forecast import net_load_forecast_agent
 from alfp.agents.validation import validation_agent
 from alfp.agents.decision import decision_agent
 from alfp.data.loader import load_dataset
+from alfp.ingestion import load_external_measurements, apply_external_measurements
+from alfp.llm import is_llm_enabled
 from alfp.memory import load_memory, save_memory, append_strategy_memory, evaluate_and_update_weights
 from alfp.governance import curate_evidence, run_critic_agent, run_policy_gate
 from alfp.governance.evidence_curator import EvidenceCuratorOutput
@@ -41,6 +43,11 @@ def data_loader_node(state: ALFPState) -> ALFPState:
 
     data_path = state.get("data_path", "data/train_2026_seoul.pkl")
     raw_data = load_dataset(data_path)
+    live_ingest_path = state.get("live_ingest_path")
+    if live_ingest_path:
+        external_df = load_external_measurements(live_ingest_path)
+        raw_data = apply_external_measurements(raw_data, external_df)
+        log.append(f"[DataLoader] 외부 ingest 반영: {live_ingest_path} ({len(external_df)}건)")
 
     log.append(f"[DataLoader] 로드 완료: {data_path}")
     return {
@@ -68,6 +75,13 @@ def _route_after_validation(state: ALFPState) -> str:
     if (not mape_ok or not peak_ok) and retry < max_retries:
         return "replan"
     return "decision"
+
+
+def _route_after_validation_or_finish(state: ALFPState) -> str:
+    """forecast_only 모드면 검증 후 governance로 이동, 아니면 기존 라우팅 적용."""
+    if (state.get("execution_mode") or "full") == "forecast_only":
+        return "evidence_curator"
+    return _route_after_validation(state)
 
 
 def replan_node(state: ALFPState) -> ALFPState:
@@ -100,11 +114,12 @@ def critic_agent_node(state: ALFPState) -> ALFPState:
     log = state.get("messages", [])
     log.append("[CriticAgent] 전략 비판 검토")
     evidence = EvidenceCuratorOutput.from_dict(state.get("evidence") or {})
-    critic_out = run_critic_agent(evidence, dict(state), use_llm=False)
+    use_llm = is_llm_enabled("governance_critic")
+    critic_out = run_critic_agent(evidence, dict(state), use_llm=use_llm)
     rec = (critic_out.recommendation or "")[:80]
     if len(critic_out.recommendation or "") > 80:
         rec += "..."
-    log.append(f"  risk_score={critic_out.risk_score:.2f}, recommendation={rec}")
+    log.append(f"  mode={'LLM' if use_llm else 'rule-based'}, risk_score={critic_out.risk_score:.2f}, recommendation={rec}")
     return {
         **state,
         "critic_output": critic_out.to_dict(),
@@ -381,7 +396,11 @@ def build_pipeline(
     graph.add_edge("load_forecast",       "pv_forecast")
     graph.add_edge("pv_forecast",         "net_load_forecast")
     graph.add_edge("net_load_forecast",   "validation")
-    graph.add_conditional_edges("validation", _route_after_validation, {"replan": "replan", "decision": "decision"})
+    graph.add_conditional_edges(
+        "validation",
+        _route_after_validation_or_finish,
+        {"replan": "replan", "decision": "decision", "evidence_curator": "evidence_curator"},
+    )
     graph.add_edge("replan",              "forecast_planner")
     # Decision → Governance: Evidence → Critic → Policy Gate
     graph.add_edge("decision",            "evidence_curator")
@@ -408,6 +427,9 @@ def run_pipeline(
     prosumer_id: str,
     data_path: str = "data/train_2026_seoul.pkl",
     forecast_horizon: int = 96,
+    execution_mode: str = "full",
+    operating_mode: str = "day_ahead",
+    live_ingest_path: str | None = None,
     run_id: int | None = None,
     db_path: Any = None,
 ) -> ALFPState:
@@ -418,6 +440,9 @@ def run_pipeline(
         prosumer_id: 예측할 프로슈머 ID (예: "bus_48_Commercial")
         data_path: 학습 데이터 pkl 경로
         forecast_horizon: 예측 스텝 수 (15분 단위, 기본 96 = 24시간)
+        execution_mode: "full" | "forecast_only"
+        operating_mode: "day_ahead" | "short_horizon"
+        live_ingest_path: 외부 측정값 CSV/JSON 경로
 
     Returns:
         최종 ALFPState (예측 결과, 검증, 의사결정 포함)
@@ -478,6 +503,9 @@ def run_pipeline(
         "prosumer_id": prosumer_id,
         "data_path": data_path,
         "forecast_horizon": forecast_horizon,
+        "execution_mode": execution_mode,
+        "operating_mode": operating_mode,
+        "live_ingest_path": live_ingest_path or "",
         "messages": [],
         "errors": [],
         "plan_retry_count": 0,

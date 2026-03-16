@@ -15,6 +15,7 @@ from cda.matching import match_cda
 from cda.buyer import generate_bids_from_state
 from cda.strategy_agent import generate_strategy
 from cda.negotiation import run_negotiation
+from cda.online_pricing import adjust_price, record_market_feedback
 
 
 def _build_asks_from_seller_proposal(
@@ -32,6 +33,27 @@ def _build_asks_from_seller_proposal(
     if qty <= 0 or price <= 0:
         return []
     return [(seller_agent, price, qty)]
+
+
+def _build_asks_from_state(
+    state_json: dict,
+    min_trade_kw: float = 0.2,
+) -> list[tuple[str, float, float]]:
+    """prosumer별 surplus를 사용해 seller ask를 생성."""
+    market_state = state_json.get("market_state") or {}
+    price_range = list(market_state.get("community_trade_price_range") or [80.0, 110.0])
+    p2p_min, p2p_max = float(price_range[0]), float(price_range[1])
+    asks = []
+    for p in (state_json.get("prosumer_states") or []):
+        surplus = float(p.get("surplus_energy", 0.0))
+        if surplus < min_trade_kw:
+            continue
+        agent_id = str(p.get("prosumer_id"))
+        base_price = float(p.get("price_p2p") or ((p2p_min + p2p_max) / 2))
+        base_price = min(max(base_price, p2p_min), p2p_max)
+        ask_price = adjust_price(agent_id, base_price, side="sell")
+        asks.append((agent_id, ask_price, round(surplus, 2)))
+    return asks
 
 
 def run_cda_step(
@@ -99,7 +121,10 @@ def run_cda_step(
     # ── CDA Order Book 구성 및 매칭 ───────────────────────
     book = OrderBook(bids=[], asks=[])
 
-    # Asks: SmartSeller (검증된 제안만)
+    # Asks: prosumer별 상태 기반 seller + SmartSeller 제안
+    for agent, price, qty in _build_asks_from_state(state_json, min_trade_kw=min_trade_kw):
+        if qty >= min_trade_kw:
+            book.add_ask(agent, price, qty)
     for agent, price, qty in _build_asks_from_seller_proposal(validated_seller or {}):
         if qty >= min_trade_kw:
             book.add_ask(agent, price, qty)
@@ -109,6 +134,18 @@ def run_cda_step(
         book.add_bid(agent, price, qty)
 
     trades = match_cda(book)
+    record_market_feedback(
+        trades=[
+            {
+                "seller_agent": t.seller_agent,
+                "buyer_agent": t.buyer_agent,
+                "trade_price": t.trade_price,
+            }
+            for t in trades
+        ],
+        bids=[{"agent": b.agent, "price": b.price, "quantity": b.quantity} for b in book.bids],
+        asks=[{"agent": a.agent, "price": a.price, "quantity": a.quantity} for a in book.asks],
+    )
 
     # ── trading_recommendations: Mesa 호환 형식 ──────────
     trading_recommendations = []

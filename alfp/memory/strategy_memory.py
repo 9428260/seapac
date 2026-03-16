@@ -180,3 +180,41 @@ def get_strategy_memory(
     entries = _load_entries(prosumer_id)
     filtered = [e for e in entries if float(e.get("weight", 0)) >= min_weight]
     return filtered[-last_n:]
+
+
+def update_latest_strategy_actual_result(
+    prosumer_id: str,
+    actual_result: dict[str, Any],
+    performance_score: float | None = None,
+) -> dict[str, Any] | None:
+    """
+    최신 strategy memory entry에 실제 실행 결과를 반영한다.
+
+    run_full_pipeline의 Step4/Step5 결과를 다음 라운드 전략 업데이트 입력으로 저장할 때 사용한다.
+    """
+    path = _strategy_path(prosumer_id)
+    if not path.exists():
+        return None
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            entries = [json.loads(line) for line in f if line.strip()]
+    except (OSError, json.JSONDecodeError):
+        return None
+    if not entries:
+        return None
+    latest = entries[-1]
+    latest["actual_result"] = _sanitize(actual_result)
+    if performance_score is not None:
+        latest["performance_score"] = float(performance_score)
+    try:
+        with open(path, "w", encoding="utf-8") as f:
+            for e in entries[:-1]:
+                f.write(json.dumps(e, ensure_ascii=False) + "\n")
+            f.write(json.dumps(latest, ensure_ascii=False) + "\n")
+    except OSError:
+        return None
+    return {
+        "performance_score": latest.get("performance_score"),
+        "weight": latest.get("weight", 1.0),
+        "actual_result": latest.get("actual_result"),
+    }

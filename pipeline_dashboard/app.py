@@ -13,6 +13,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import re
 import subprocess
 import sys
 from datetime import datetime
@@ -91,6 +92,114 @@ def _db_path() -> Path:
     return get_db_path(PROJECT_ROOT / db_dir)
 
 
+_LLM_INPUT_RE = re.compile(r"^\[(?P<ts>[^\]]+)\] LLM INPUT #(?P<num>\d+) .* run_id=(?P<run_id>\S+)$")
+_LLM_OUTPUT_RE = re.compile(r"^\[(?P<ts>[^\]]+)\] LLM OUTPUT #(?P<num>\d+) .* run_id=(?P<run_id>\S+)$")
+_LLM_ERROR_RE = re.compile(r"^\[(?P<ts>[^\]]+)\] LLM ERROR .*: (?P<error>.+)$")
+
+
+def _parse_llm_io_log(log_path: Path) -> list[dict]:
+    if not log_path.is_file():
+        return []
+    try:
+        text = log_path.read_text(encoding="utf-8")
+    except Exception:
+        return []
+
+    entries: list[dict] = []
+    chunks = [chunk.strip() for chunk in text.split("=" * 60) if chunk.strip()]
+    for chunk in chunks:
+        lines = [line for line in chunk.splitlines()]
+        if not lines:
+            continue
+        header = lines[0].strip()
+        body = "\n".join(lines[2:]).strip() if len(lines) > 2 and lines[1].strip() == "---" else "\n".join(lines[1:]).strip()
+        m_in = _LLM_INPUT_RE.match(header)
+        if m_in:
+            entries.append({
+                "kind": "input",
+                "timestamp": m_in.group("ts"),
+                "internal_run_id": m_in.group("run_id"),
+                "body": body,
+            })
+            continue
+        m_out = _LLM_OUTPUT_RE.match(header)
+        if m_out:
+            entries.append({
+                "kind": "output",
+                "timestamp": m_out.group("ts"),
+                "internal_run_id": m_out.group("run_id"),
+                "body": body,
+            })
+            continue
+        m_err = _LLM_ERROR_RE.match(header)
+        if m_err:
+            entries.append({
+                "kind": "error",
+                "timestamp": m_err.group("ts"),
+                "internal_run_id": None,
+                "body": m_err.group("error"),
+            })
+    return entries
+
+
+def _excerpt_text(text: str, limit: int = 1200) -> str:
+    text = (text or "").strip()
+    if len(text) <= limit:
+        return text
+    return text[:limit].rstrip() + "\n..."
+
+
+def _llm_io_for_run(run: dict, alfp_result: dict | None) -> dict | None:
+    created_at = run.get("created_at")
+    if not created_at:
+        return None
+    try:
+        run_dt = datetime.strptime(created_at, "%Y-%m-%d %H:%M:%S")
+    except Exception:
+        return None
+
+    log_path = LOG_DIR / f"llm_io_{run_dt.strftime('%Y%m%d')}.log"
+    entries = _parse_llm_io_log(log_path)
+    if not entries:
+        return None
+
+    prosumer_id = (((alfp_result or {}).get("input_data") or {}).get("prosumer_id") or (run.get("args") or {}).get("prosumer") or "").strip()
+    matched: list[dict] = []
+    last_input_match = False
+    for entry in entries:
+        try:
+            entry_dt = datetime.strptime(entry["timestamp"], "%Y-%m-%d %H:%M:%S")
+        except Exception:
+            continue
+        delta = abs((entry_dt - run_dt).total_seconds())
+        if delta > 600:
+            last_input_match = False
+            continue
+
+        if entry["kind"] == "input":
+            body = entry.get("body", "")
+            input_match = prosumer_id in body if prosumer_id else True
+            last_input_match = input_match
+            if input_match:
+                matched.append({
+                    **entry,
+                    "excerpt": _excerpt_text(body),
+                })
+        elif last_input_match or not prosumer_id:
+            matched.append({
+                **entry,
+                "excerpt": _excerpt_text(entry.get("body", "")),
+            })
+
+    if not matched:
+        return None
+
+    return {
+        "log_file": str(log_path.relative_to(PROJECT_ROOT)),
+        "entries": matched[:6],
+    }
+
+
 def _measure_date_from_data(data_path: str) -> str | None:
     """
     Load the pipeline data pkl and extract the measure date (YYYY-MM-DD).
@@ -123,6 +232,89 @@ def _measure_date_from_data(data_path: str) -> str | None:
         except Exception:
             pass
     return None
+
+
+def _agent_plan_evidence_from_summary(summary: dict | None) -> dict:
+    """Agent Plan 단계 요약에서 계획/실행 증빙 데이터를 정규화."""
+    summary = summary or {}
+    raw_steps = summary.get("계획 스텝") or []
+    raw_logs = summary.get("실행 로그") or []
+
+    logs_by_step: dict[int, dict] = {}
+    for item in raw_logs:
+        if not isinstance(item, dict):
+            continue
+        try:
+            step_id = int(item.get("step_id"))
+        except (TypeError, ValueError):
+            continue
+        logs_by_step[step_id] = item
+
+    steps: list[dict] = []
+    for item in raw_steps:
+        if not isinstance(item, dict):
+            continue
+        try:
+            step_id = int(item.get("step_id"))
+        except (TypeError, ValueError):
+            step_id = len(steps) + 1
+        log_item = logs_by_step.get(step_id, {})
+        steps.append({
+            "step_id": step_id,
+            "agent_name": item.get("agent_name", "—"),
+            "action": item.get("action", "—"),
+            "reason": item.get("reason", "—"),
+            "depends_on": item.get("depends_on") or [],
+            "parameters": item.get("parameters") or {},
+            "status": log_item.get("status", "pending"),
+            "result": ", ".join(
+                str(v) for k, v in log_item.items()
+                if k not in {"step_id", "agent", "status"} and v not in (None, "", [], {})
+            ) or "—",
+        })
+
+    return {
+        "plan_id": summary.get("계획 ID", "—"),
+        "planning_mode": summary.get("계획 방식", "—"),
+        "llm_used": summary.get("LLM 연계", "—"),
+        "objective": summary.get("계획 목표", "—"),
+        "execution_status": summary.get("실행 완료", "—"),
+        "simulation_status": summary.get("시뮬레이션 검증", "—"),
+        "steps": steps,
+        "logs": [item for item in raw_logs if isinstance(item, dict)],
+        "available": bool(steps or raw_logs),
+    }
+
+
+def _agentscope_trading_evidence_from_summary(summary: dict | None) -> list[dict]:
+    """Step3 AgentScope 요약에서 전력거래 의사결정 근거를 UI 친화적으로 정규화."""
+    raw_items = (summary or {}).get("trading_evidence") or []
+    evidence: list[dict] = []
+    for item in raw_items:
+        if not isinstance(item, dict):
+            continue
+        seller = item.get("seller_proposal") or {}
+        validated = item.get("validated_seller") or {}
+        storage = item.get("validated_storage") or item.get("storage_proposal") or {}
+        evidence.append({
+            "time": item.get("time") or item.get("timestamp") or "—",
+            "peak_risk": item.get("peak_risk", "LOW"),
+            "surplus_energy_kw": item.get("surplus_energy_kw", 0),
+            "grid_price": item.get("grid_price", 0),
+            "price_range": item.get("community_trade_price_range") or [],
+            "seller_action": seller.get("action", "hold"),
+            "seller_bid_price": seller.get("bid_price", 0),
+            "seller_bid_quantity_kw": seller.get("bid_quantity_kw", 0),
+            "validated_action": validated.get("action", item.get("final_trading_action", "hold")),
+            "validated_bid_price": validated.get("bid_price", item.get("final_bid_price", 0)),
+            "validated_bid_quantity_kw": validated.get("bid_quantity_kw", item.get("final_surplus_kw", 0)),
+            "storage_action": storage.get("action", "idle"),
+            "storage_power_kw": storage.get("power_kw", 0),
+            "final_reason": item.get("final_reason", "—"),
+            "policy_violations": item.get("policy_violations") or [],
+            "conflict_resolution": item.get("conflict_resolution") or [],
+        })
+    return evidence
 
 
 @app.route("/")
@@ -181,6 +373,13 @@ def api_prosumers():
         return jsonify({"prosumers": []})
 
 
+@app.route("/api/measure-date")
+def api_measure_date():
+    """GET ?data_path=... -> infer measure date from dataset metadata/timeseries."""
+    data_path = (request.args.get("data_path") or "data/test_5days.pkl").strip()
+    return jsonify({"measure_date": _measure_date_from_data(data_path)})
+
+
 @app.route("/api/run", methods=["POST"])
 def api_run():
     """
@@ -200,21 +399,30 @@ def api_run():
         prosumers = [single] if single else ["bus_48_Commercial"]
     use_parallel = bool(data.get("use_parallel", True))  # 기본 사용 (화면에서 제거됨)
     phase = int(data.get("phase", 4))
+    run_scope = (data.get("run_scope") or "full_architecture").strip()
     skip_alfp = bool(data.get("skip_alfp", False))
+    llm_mode = (data.get("llm_mode") or os.environ.get("SEAPAC_LLM_MODE") or "all").strip()
     measure_date = (data.get("measure_date") or "").strip() or None
     run_date = (data.get("run_date") or "").strip() or None
     today = datetime.utcnow().strftime("%Y-%m-%d")
     if not run_date:
         run_date = today
-    # 기준일자: 폼에서 설정하지 않으면 5월 5일 기본값 (해당 날짜 데이터로 파이프라인 실행)
     if not measure_date:
-        measure_date = "2026-05-05"
+        measure_date = _measure_date_from_data(data_path) or "2026-05-05"
 
     init_db(_db_path())
     out_dir_abs = str(PROJECT_ROOT / out_dir)
     prev_pp = os.environ.get("PYTHONPATH", "")
 
-    is_p2p_mode = len(prosumers) > 1
+    is_forecast_only = run_scope == "forecast_only"
+    if is_forecast_only:
+        prosumers = prosumers[:1] if prosumers else ["bus_48_Commercial"]
+        use_parallel = False
+        phase = 4
+        if llm_mode in ("all", "plan", "market", "core", "forecast_plan"):
+            llm_mode = "forecast"
+
+    is_p2p_mode = (not is_forecast_only) and len(prosumers) > 1
 
     if is_p2p_mode:
         # ── P2P 거래 모드: 단일 run + --prosumers 다중값으로 하나의 파이프라인 실행 ──
@@ -226,8 +434,11 @@ def api_run():
             "use_parallel": use_parallel,
             "phase": phase,
             "skip_alfp": skip_alfp,
+            "llm_mode": llm_mode,
             "output_dir": out_dir,
             "save_json": True,
+            "run_scope": run_scope,
+            "alfp_mode": "full",
             "measure_date": measure_date,
             "run_date": run_date,
             "p2p_mode": True,
@@ -243,6 +454,8 @@ def api_run():
             "--steps", str(steps),
             "--prosumers", *prosumers,
             "--phase", str(phase),
+            "--llm-mode", llm_mode,
+            "--alfp-mode", "full",
             "--output-dir", out_dir_abs,
             "--save-json",
         ]
@@ -275,8 +488,11 @@ def api_run():
             "use_parallel": use_parallel,
             "phase": phase,
             "skip_alfp": skip_alfp,
+            "llm_mode": llm_mode,
             "output_dir": out_dir,
             "save_json": True,
+            "run_scope": run_scope,
+            "alfp_mode": "forecast_only" if is_forecast_only else "full",
             "measure_date": measure_date,
             "run_date": run_date,
         }
@@ -291,6 +507,8 @@ def api_run():
             "--steps", str(steps),
             "--prosumer", prosumer,
             "--phase", str(phase),
+            "--llm-mode", llm_mode,
+            "--alfp-mode", "forecast_only" if is_forecast_only else "full",
             "--output-dir", out_dir_abs,
             "--save-json",
         ]
@@ -371,7 +589,12 @@ def agent_plans():
         "storage": {"title": "Storage 관리 계획", "content": None, "visible": search_plan_type in ("all", "storage")},
         "policy": {"title": "Policy 계획", "content": None, "visible": search_plan_type in ("all", "policy")},
     }
-    if search_run_id:
+    plan_evidence = None
+    if not search_run_id and runs:
+        latest_run = runs[0]
+        search_run_id = str(latest_run.get("id") or "")
+        run = get_run_with_stages(latest_run["id"], db_path=_db_path()) if latest_run.get("id") else None
+    elif search_run_id:
         try:
             rid = int(search_run_id)
             run = get_run_with_stages(rid, db_path=_db_path())
@@ -381,24 +604,27 @@ def agent_plans():
         stages = run["stages"]
         tab5 = [s for s in stages if "Step3.5 Parallel" in s.get("stage_name", "") or "Policy / EcoSaver / Storage" in s.get("stage_name", "")]
         step3 = [s for s in stages if "Step3  AgentScope" in s.get("stage_name", "")]
+        agent_plan_stage = next((s for s in stages if "Step3-P  Agent Plan" in s.get("stage_name", "")), None)
         pa_summary = (tab5[0].get("summary") or {}) if tab5 else {}
         step3_summary = (step3[0].get("summary") or {}) if step3 else {}
+        agent_plan_summary = (agent_plan_stage.get("summary") or {}) if agent_plan_stage else {}
+        plan_evidence = _agent_plan_evidence_from_summary(agent_plan_summary) if agent_plan_summary else None
         plan_sections["trading"]["content"] = {
-            "objective": step3_summary.get("결정 모드") or pa_summary.get("실행 방식") or "전력거래 최적화: Policy 제약 → ESS 스케줄 → DR 이벤트 → 시뮬레이션 검증",
-            "거래 권고": step3_summary.get("거래 권고", "—"),
+            "objective": agent_plan_summary.get("계획 목표") or step3_summary.get("결정 모드") or pa_summary.get("실행 방식") or "전력거래 최적화: Policy 제약 → Trading / Storage 실행",
+            "거래 권고": agent_plan_summary.get("전력거래 권고") or step3_summary.get("거래 권고", "—"),
         }
         plan_sections["eco_saver"]["content"] = {
             "권고": pa_summary.get("EcoSaver 권고", "—"),
             "설명": "수요반응(DR) 이벤트 생성. 피크 초과 시 절감 권고.",
         }
         plan_sections["storage"]["content"] = {
-            "ESS 스케줄": step3_summary.get("ESS 스케줄", pa_summary.get("ESS 스케줄", "—")),
+            "ESS 스케줄": agent_plan_summary.get("ESS 스케줄") or step3_summary.get("ESS 스케줄", pa_summary.get("ESS 스케줄", "—")),
             "승인": pa_summary.get("승인 액션", "—"),
             "거절": pa_summary.get("거절 액션", "—"),
             "수정": pa_summary.get("수정 액션", "—"),
         }
         plan_sections["policy"]["content"] = {
-            "정책 위반": pa_summary.get("정책 위반", "—"),
+            "정책 위반": agent_plan_summary.get("정책 위반") or pa_summary.get("정책 위반", "—"),
             "위험 점수": pa_summary.get("위험 점수", "—"),
             "설명": "제약 조건 설정 및 검증. 정책·규제 준수 검증.",
         }
@@ -421,6 +647,7 @@ def agent_plans():
         search_measure_date=search_measure_date,
         search_run_date=search_run_date,
         plan_sections=plan_sections,
+        plan_evidence=plan_evidence,
         prosumer_options=prosumer_options,
     )
 
@@ -502,10 +729,12 @@ def run_detail(run_id: int):
     # AgentScope Step3 — 실행된 5개 에이전트 요약 (seapac_agents/decision.py 기준)
     agentscope_agent_summary = []
     agentscope_step3_stage = None
+    agentscope_trading_evidence = []
     for s in stages:
         if "Step3  AgentScope" in s.get("stage_name", ""):
             agentscope_step3_stage = s
             summary = s.get("summary") or {}
+            agentscope_trading_evidence = _agentscope_trading_evidence_from_summary(summary)
             agentscope_agent_summary = [
                 {
                     "name": "Policy-Agent",
@@ -554,8 +783,26 @@ def run_detail(run_id: int):
         try:
             with open(cda_exec_path, "r", encoding="utf-8") as f:
                 cda_execution = json.load(f)
+            settlement_summary = ((cda_execution or {}).get("settlement") or {}).get("summary") or {}
+            matching = (cda_execution or {}).get("matching") or {}
+            if settlement_summary and not matching.get("total_trades"):
+                matching["total_trades"] = settlement_summary.get("total_trades", 0)
+            if settlement_summary and not matching.get("total_quantity_kw"):
+                matching["total_quantity_kw"] = settlement_summary.get("total_matched_kwh", 0)
+            if cda_execution is not None:
+                cda_execution["matching"] = matching
         except Exception as e:
             log.warning("cda_execution read error path=%s: %s", cda_exec_path, e)
+
+    alfp_result = None
+    alfp_result_path = out_dir / f"run_{run_id}_alfp_result.json"
+    if alfp_result_path.is_file():
+        try:
+            with open(alfp_result_path, "r", encoding="utf-8") as f:
+                alfp_result = json.load(f)
+        except Exception as e:
+            log.warning("alfp_result read error path=%s: %s", alfp_result_path, e)
+    alfp_llm_io = _llm_io_for_run(run, alfp_result)
 
     prosumer_options = _prosumer_options(_db_path())
     search_run_date = (run.get("created_at") or "")[:10]
@@ -577,9 +824,12 @@ def run_detail(run_id: int):
         cda_strategy_logs=cda_strategy_logs,
         cda_negotiation_logs=cda_negotiation_logs,
         agentscope_agent_summary=agentscope_agent_summary,
+        agentscope_trading_evidence=agentscope_trading_evidence,
         agentscope_step3_stage=agentscope_step3_stage,
         evaluation_report=evaluation_report,
         cda_execution=cda_execution,
+        alfp_result=alfp_result,
+        alfp_llm_io=alfp_llm_io,
         **tabs,
     )
 

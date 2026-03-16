@@ -192,7 +192,7 @@ Raw state (community_state, market_state, ess_state):
 Output JSON only (no markdown)."""
 
     try:
-        llm = get_llm(temperature=0.2)
+        llm = get_llm(temperature=0.2, stage="cda_strategy")
         resp = llm.invoke([SystemMessage(content=system), HumanMessage(content=user)])
         text = resp.content if hasattr(resp, "content") else str(resp)
         # strip markdown code block if present
