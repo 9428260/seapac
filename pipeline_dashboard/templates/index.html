@@ -26,15 +26,460 @@
   .main-tabs a.active { color: var(--accent); border-bottom-color: var(--accent); }
   .main-section { display: none; }
   .main-section.active { display: block; }
-  .run-form { background: var(--card); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem; max-width: 520px; }
-  .run-form h2 { font-size: 1.1rem; margin: 0 0 1rem 0; }
+  .run-form {
+    background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+    border: 1px solid rgba(88,166,255,0.18);
+    border-radius: 14px;
+    padding: 0.9rem 1.1rem;
+    margin-bottom: 1rem;
+    width: 100%;
+    max-width: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    position: sticky;
+    top: 0.75rem;
+    z-index: 5;
+    backdrop-filter: blur(10px);
+  }
+  .run-form-main { min-width: 0; flex: 1; }
+  .run-form h2 { font-size: 1rem; margin: 0 0 0.25rem 0; }
+  .run-form .hint { font-size: 0.82rem; color: var(--muted); margin-top: 0; margin-bottom: 0.55rem; }
   .run-form label { display: block; margin-bottom: 0.25rem; color: var(--muted); font-size: 0.9rem; }
   .run-form select, .run-form input[type="text"], .run-form input[type="number"] { width: 100%; padding: 0.4rem 0.5rem; margin-bottom: 0.75rem; background: var(--bg); border: 1px solid var(--muted); border-radius: 4px; color: var(--text); }
   .run-form .row { margin-bottom: 0.75rem; }
+  .run-fixed-list {
+    display: flex;
+    align-items: stretch;
+    gap: 0.55rem;
+    flex-wrap: wrap;
+  }
+  .run-fixed-item {
+    min-width: 0;
+    padding: 0.55rem 0.7rem;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(139,148,158,0.14);
+    flex: 1 1 150px;
+  }
+  .run-fixed-label { display: block; margin-bottom: 0.15rem; color: var(--muted); font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.04em; }
+  .run-fixed-value { font-weight: 600; font-size: 0.9rem; word-break: break-word; }
+  .run-prosumer-select { width: 100%; padding: 0.3rem 0.4rem; background: var(--bg); border: 1px solid var(--muted); border-radius: 4px; color: var(--text); font-size: 0.88rem; cursor: pointer; }
+  .run-prosumer-select:disabled { opacity: 0.55; cursor: not-allowed; }
+  /* ── Pagination ──────────────────────────────────── */
+  .pagination { display: flex; align-items: center; gap: 0.4rem; margin-top: 0.85rem; flex-wrap: wrap; }
+  .pagination button { padding: 0.3rem 0.7rem; background: var(--card); border: 1px solid var(--muted); border-radius: 4px; color: var(--text); cursor: pointer; font-size: 0.85rem; }
+  .pagination button:hover:not(:disabled) { background: var(--muted); }
+  .pagination button:disabled { opacity: 0.4; cursor: not-allowed; }
+  .pagination button.active { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 600; }
+  .pagination-info { font-size: 0.82rem; color: var(--muted); margin-left: 0.5rem; }
+  .run-action { display: flex; align-items: center; justify-content: flex-end; flex: 0 0 auto; }
   .run-form button { padding: 0.5rem 1rem; background: var(--accent); color: var(--bg); border: none; border-radius: 4px; cursor: pointer; font-weight: 600; }
   .run-form button:hover { opacity: 0.9; }
   .run-form button:disabled { opacity: 0.5; cursor: not-allowed; }
-  .run-form .hint { font-size: 0.85rem; color: var(--muted); margin-top: 0.25rem; }
+  /* ── Timeline Panel ────────────────────────────────── */
+  .timeline-panel {
+    display: none;
+    margin-top: 1rem;
+    max-width: 900px;
+    border-radius: 18px;
+    background:
+      radial-gradient(circle at top left, rgba(88,166,255,0.07), transparent 32%),
+      linear-gradient(180deg, rgba(255,255,255,0.032), rgba(255,255,255,0.018));
+    border: 1px solid rgba(139,148,158,0.18);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.28);
+    overflow: hidden;
+  }
+  .timeline-panel.active { display: flex; flex-direction: column; }
+
+  .timeline-top {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.1rem 1.4rem 0.8rem;
+    border-bottom: 1px solid rgba(139,148,158,0.12);
+  }
+  .timeline-title-wrap { min-width: 0; }
+  .timeline-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-bottom: 0.3rem;
+    color: rgba(230,237,243,0.65);
+    font-size: 0.82rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .timeline-eyebrow-dot {
+    width: 0.45rem; height: 0.45rem;
+    border-radius: 999px;
+    background: #58a6ff;
+    box-shadow: 0 0 6px 2px rgba(88,166,255,0.45);
+    animation: tlPulse 1.6s ease-in-out infinite;
+  }
+  .timeline-eyebrow-dot.done {
+    background: #6ddf95;
+    box-shadow: 0 0 4px rgba(109,223,149,0.4);
+    animation: none;
+  }
+  @keyframes tlPulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 6px 2px rgba(88,166,255,0.45); }
+    50% { opacity: 0.55; box-shadow: 0 0 10px 4px rgba(88,166,255,0.2); }
+  }
+  .timeline-title { margin: 0; font-size: 1rem; font-weight: 700; }
+  .timeline-meta { color: var(--muted); font-size: 0.82rem; margin-top: 0.18rem; }
+  .timeline-run-badge {
+    flex: 0 0 auto;
+    padding: 0.38rem 0.7rem;
+    border-radius: 999px;
+    border: 1px solid rgba(139,148,158,0.18);
+    background: rgba(255,255,255,0.02);
+    color: var(--muted);
+    font-size: 0.78rem;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  /* ── Viewport (scrollable area) ─────────────────── */
+  .timeline-viewport {
+    flex: 1 1 auto;
+    height: 54vh;
+    min-height: 300px;
+    max-height: 580px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(139,148,158,0.25) transparent;
+    padding: 0.6rem 1.4rem;
+    /* top/bottom gradient fade */
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 8%, black 88%, transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0%, black 8%, black 88%, transparent 100%);
+  }
+  .timeline-viewport::-webkit-scrollbar { width: 4px; }
+  .timeline-viewport::-webkit-scrollbar-thumb { background: rgba(139,148,158,0.22); border-radius: 999px; }
+
+  /* ── Timeline list ──────────────────────────────── */
+  .timeline-list {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding-bottom: 20vh; /* keeps last item scrollable to center */
+  }
+
+  /* ── Individual item ────────────────────────────── */
+  .timeline-item {
+    position: relative;
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1fr);
+    column-gap: 0.85rem;
+    align-items: start;
+    padding: 0.5rem 0 0.7rem;
+    transition: opacity 0.35s ease;
+    animation: tlSlideIn 0.28s ease both;
+  }
+  @keyframes tlSlideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Fade out completed items except the most recent completed */
+  .timeline-item.completed { opacity: 0.5; }
+  .timeline-item.completed.recent { opacity: 0.78; }
+  .timeline-item.running { opacity: 1; }
+  .timeline-item.failed  { opacity: 1; }
+  .timeline-item.pending, .timeline-item.blocked { opacity: 0.32; }
+
+  /* connector line */
+  .timeline-rail {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    padding-top: 0.25rem;
+  }
+  .timeline-rail::after {
+    content: '';
+    position: absolute;
+    top: 1.1rem;
+    bottom: -0.7rem;
+    left: 50%;
+    width: 1px;
+    transform: translateX(-50%);
+    background: rgba(139,148,158,0.22);
+  }
+  .timeline-item:last-child .timeline-rail::after { display: none; }
+
+  /* dot / icon */
+  .timeline-dot {
+    position: relative;
+    z-index: 1;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    font-weight: 700;
+    background: rgba(139,148,158,0.35);
+    box-shadow: 0 0 0 3px rgba(15,20,25,0.9);
+    color: transparent;
+    flex-shrink: 0;
+  }
+  /* spinner for running */
+  .timeline-item.running .timeline-dot {
+    background: transparent;
+    border: 2px solid #58a6ff;
+    border-top-color: transparent;
+    animation: tlSpin 0.7s linear infinite;
+    box-shadow: 0 0 0 3px rgba(15,20,25,0.9), 0 0 10px rgba(88,166,255,0.35);
+    color: transparent;
+  }
+  @keyframes tlSpin {
+    to { transform: rotate(360deg); }
+  }
+  .timeline-item.completed .timeline-dot {
+    background: rgba(109,223,149,0.18);
+    border: 1.5px solid #6ddf95;
+    color: #6ddf95;
+    font-size: 0.58rem;
+  }
+  .timeline-item.completed .timeline-dot::after { content: '✓'; }
+  .timeline-item.failed .timeline-dot {
+    background: rgba(248,81,73,0.18);
+    border: 1.5px solid #f85149;
+    color: #f85149;
+    font-size: 0.6rem;
+  }
+  .timeline-item.failed .timeline-dot::after { content: '✗'; }
+  .timeline-item.pending .timeline-dot, .timeline-item.blocked .timeline-dot {
+    background: rgba(139,148,158,0.18);
+    border: 1.5px solid rgba(139,148,158,0.35);
+  }
+
+  /* body */
+  .timeline-body { min-width: 0; padding-top: 0.05rem; }
+  .timeline-header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+  }
+  .timeline-stage-name {
+    font-weight: 600;
+    font-size: 0.92rem;
+    font-family: ui-monospace, 'SFMono-Regular', Consolas, monospace;
+  }
+  .timeline-item.running .timeline-stage-name { color: #e6edf3; }
+  .timeline-item.completed .timeline-stage-name { color: rgba(230,237,243,0.7); }
+  .timeline-item.failed .timeline-stage-name { color: #ff938d; }
+
+  .timeline-stage-hint, .timeline-stage-meta { font-size: 0.8rem; color: var(--muted); }
+
+  .timeline-status {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.28rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+  .timeline-item.running .timeline-status  { color: #58a6ff; }
+  .timeline-item.completed .timeline-status { color: #6ddf95; }
+  .timeline-item.failed .timeline-status   { color: #ff938d; }
+
+  /* summary box — running/failed/recent 만 표시 */
+  .timeline-stage-summary {
+    margin-top: 0.42rem;
+    padding: 0.55rem 0.75rem;
+    border-radius: 8px;
+    border: 1px solid rgba(139,148,158,0.15);
+    background: rgba(255,255,255,0.022);
+    font-size: 0.8rem;
+    line-height: 1.6;
+    color: rgba(230,237,243,0.82);
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-family: ui-monospace, 'SFMono-Regular', Consolas, monospace;
+  }
+  .timeline-item.running .timeline-stage-summary {
+    border-color: rgba(88,166,255,0.22);
+    background: rgba(88,166,255,0.06);
+  }
+  .timeline-item.failed .timeline-stage-summary {
+    border-color: rgba(248,81,73,0.22);
+    background: rgba(248,81,73,0.05);
+  }
+  .timeline-item.completed:not(.recent) .timeline-stage-summary { display: none; }
+
+  /* ── 대분류 접기/펼치기 ── */
+  /* 완료된 대분류는 기본 접힘 */
+  .timeline-item.completed .timeline-agents { display: none; }
+  .timeline-item.completed.expanded .timeline-agents { display: flex; }
+  /* 실행중·실패는 항상 펼침 */
+  .timeline-item.running .timeline-agents,
+  .timeline-item.failed  .timeline-agents  { display: flex; }
+
+  /* 소분류가 있는 완료 항목 헤더: 클릭 커서 */
+  .timeline-item.completed.has-children .timeline-header {
+    cursor: pointer;
+    user-select: none;
+    border-radius: 6px;
+    padding: 0.2rem 0.3rem;
+    margin: -0.2rem -0.3rem;
+    transition: background 0.15s;
+  }
+  .timeline-item.completed.has-children .timeline-header:hover {
+    background: rgba(255,255,255,0.04);
+  }
+  /* 펼침 화살표 */
+  .tl-chevron {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 0.95rem;
+    height: 0.95rem;
+    color: rgba(139,148,158,0.55);
+    font-size: 0.62rem;
+    line-height: 1;
+    transition: transform 0.2s ease;
+    margin-left: 0.1rem;
+  }
+  .timeline-item.expanded .tl-chevron { transform: rotate(90deg); color: rgba(139,148,158,0.8); }
+  /* 접혀있을 때 소분류 수 뱃지 */
+  .tl-sub-count {
+    flex-shrink: 0;
+    font-size: 0.68rem;
+    color: rgba(139,148,158,0.55);
+    background: rgba(139,148,158,0.1);
+    border: 1px solid rgba(139,148,158,0.16);
+    border-radius: 999px;
+    padding: 0.05rem 0.42rem;
+    margin-left: 0.3rem;
+    transition: opacity 0.15s;
+  }
+  .timeline-item.expanded .tl-sub-count { opacity: 0; pointer-events: none; }
+
+  /* ── 소분류 (agent sub-rows) ── 계층형 트리 스타일 */
+  .timeline-agents {
+    position: relative;
+    flex-direction: column;
+    gap: 0;
+    margin-top: 0.5rem;
+    padding-left: 1rem;
+    animation: tlSlideIn 0.18s ease both;
+  }
+  /* 왼쪽 세로 연결선 */
+  .timeline-agents::before {
+    content: '';
+    position: absolute;
+    left: 0.3rem;
+    top: 0.4rem;
+    bottom: 0.4rem;
+    width: 1px;
+    background: rgba(139,148,158,0.22);
+  }
+  /* 각 소분류 행 */
+  .timeline-agent {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.28rem 0.5rem 0.28rem 1rem;
+    font-size: 0.81rem;
+    border-radius: 6px;
+    transition: background 0.15s;
+  }
+  .timeline-agent:hover { background: rgba(255,255,255,0.03); }
+  /* 수평 연결선 */
+  .timeline-agent::before {
+    content: '';
+    position: absolute;
+    left: -0.7rem;
+    top: 50%;
+    width: 0.85rem;
+    height: 1px;
+    background: rgba(139,148,158,0.22);
+  }
+  /* 소분류 아이콘 도트 */
+  .tl-sub-dot {
+    flex-shrink: 0;
+    width: 0.52rem;
+    height: 0.52rem;
+    border-radius: 999px;
+    background: rgba(139,148,158,0.5);
+  }
+  .timeline-agent.completed .tl-sub-dot { background: rgba(109,223,149,0.7); }
+  .timeline-agent.running   .tl-sub-dot {
+    background: transparent;
+    border: 1.5px solid #58a6ff;
+    border-top-color: transparent;
+    animation: tlSpin 0.7s linear infinite;
+    width: 0.58rem; height: 0.58rem;
+  }
+  .timeline-agent.failed    .tl-sub-dot { background: rgba(248,81,73,0.7); }
+  /* 소분류 이름 */
+  .timeline-agent-name {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: rgba(230,237,243,0.82);
+    font-family: ui-monospace, 'SFMono-Regular', Consolas, monospace;
+    white-space: nowrap;
+  }
+  .timeline-agent.running .timeline-agent-name { color: #e6edf3; }
+  .timeline-agent.failed  .timeline-agent-name { color: #ff938d; }
+  /* 역할 레이블 */
+  .timeline-agent-role { font-size: 0.76rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 22ch; }
+  /* 소요시간 */
+  .timeline-agent-meta { font-size: 0.72rem; color: rgba(139,148,158,0.7); white-space: nowrap; }
+  /* 상태 뱃지 */
+  .timeline-agent-status {
+    margin-left: auto;
+    flex-shrink: 0;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: rgba(139,148,158,0.6);
+    white-space: nowrap;
+  }
+  .timeline-agent.completed .timeline-agent-status { color: rgba(109,223,149,0.8); }
+  .timeline-agent.running   .timeline-agent-status { color: #58a6ff; }
+  .timeline-agent.failed    .timeline-agent-status { color: #ff938d; }
+  /* 소분류 요약/에러 (running·failed 시만) */
+  .timeline-agent-summary {
+    display: none;
+    margin: 0.18rem 0 0 1.1rem;
+    padding-left: 0.8rem;
+    color: rgba(230,237,243,0.7);
+    font-size: 0.76rem;
+    list-style: none;
+  }
+  .timeline-agent.running   .timeline-agent-summary,
+  .timeline-agent.failed    .timeline-agent-summary { display: block; }
+  .timeline-agent-summary li { margin-bottom: 0.1rem; }
+  .timeline-agent-error { display: none; margin-top: 0.18rem; margin-left: 1.1rem; font-size: 0.75rem; color: #ff938d; }
+  .timeline-agent.failed .timeline-agent-error { display: block; }
+
+  .timeline-actions {
+    flex: 0 0 auto;
+    display: flex;
+    gap: 0.6rem;
+    align-items: center;
+    padding: 0.75rem 1.4rem;
+    border-top: 1px solid rgba(139,148,158,0.12);
+  }
+  .timeline-actions a { display: inline-flex; align-items: center; justify-content: center; padding: 0.42rem 0.75rem; border-radius: 6px; background: var(--accent); color: var(--bg); font-weight: 600; font-size: 0.88rem; }
+  .timeline-actions a.secondary { background: transparent; color: var(--text); border: 1px solid var(--muted); }
   .prosumer-multi-row { display: flex; align-items: flex-start; gap: 0.75rem; margin-bottom: 0.75rem; }
   .prosumer-multi-row select[multiple] { flex: 1; min-width: 12rem; padding: 0.25rem; }
   .prosumer-buttons { display: flex; flex-direction: column; gap: 0.35rem; }
@@ -48,6 +493,18 @@
   body.view-new-run .main-tabs { display: none !important; }
   body.view-new-run .main-top { display: none !important; }
   body.view-history .main-tabs { display: none !important; }
+  @media (max-width: 960px) {
+    .run-form { position: static; display: block; }
+    .run-action { justify-content: flex-start; margin-top: 0.8rem; }
+    .run-fixed-item { flex-basis: calc(50% - 0.55rem); }
+  }
+  @media (max-width: 640px) {
+    .run-fixed-list { display: grid; grid-template-columns: 1fr; }
+    .run-fixed-item { flex-basis: auto; }
+    .timeline-top { display: block; }
+    .timeline-run-badge { margin-top: 0.75rem; text-align: left; }
+    .timeline-viewport { height: 52vh; min-height: 260px; }
+  }
 {% endblock %}
 {% block main_top %}
   <form class="search-bar" method="get" action="/#history" id="execution-history-search">
@@ -82,56 +539,69 @@
   <div id="section-new-run" class="main-section">
     <h1>새 파이프라인 실행</h1>
     <div class="run-form">
-      <h2>파이프라인 실행</h2>
-      <p class="hint" id="run_scope_hint" style="margin-bottom: 1rem;">테스트 데이터 1일(96스텝) 기준으로 ALFP → MESA → Step2~5 → Parallel Agents 를 실행합니다. 기본 LLM 모드는 전체 단계 사용(`all`)입니다.</p>
-      <form id="runForm">
-        <label>테스트 범위</label>
-        <select name="run_scope" id="run_scope">
-          <option value="forecast_only">전력 사용량 예측 테스트</option>
-          <option value="full_architecture" selected>전체 아키텍처 실행</option>
-        </select>
-        <label>데이터</label>
-        <select name="data_path" id="data_path">
-          <option value="data/test_5days.pkl" selected>test_5days.pkl (2026-05-01~05, 5일)</option>
-          <option value="data/trade_20260315.pkl">trade_20260315.pkl (전력거래 1일 96스텝)</option>
-          <option value="data/test_2026seoul_trade_day.pkl">test_2026seoul_trade_day.pkl (거래다발 1일 96스텝)</option>
-          <option value="data/test_2026may_seoul.pkl">test_2026may_seoul.pkl (5월 1개월)</option>
-          <option value="data/train_2026_seoul.pkl">train_2026_seoul.pkl (학습용)</option>
-        </select>
-        <label>Prosumer ID <span class="hint">(복수 선택 가능)</span></label>
-        <div class="prosumer-multi-row">
-          <select name="prosumer" id="prosumer" multiple size="6"></select>
-          <div class="prosumer-buttons">
-            <button type="button" id="prosumerSelectAll">전체 선택</button>
-            <button type="button" id="prosumerDeselectAll">전체 해제</button>
+      <div class="run-form-main">
+        <h2>새 파이프라인 실행</h2>
+        <p class="hint">고정 실행 조건입니다. 버튼만 누르면 전체 파이프라인이 시작됩니다.</p>
+        <div class="run-fixed-list">
+          <div class="run-fixed-item">
+            <span class="run-fixed-label">테스트 범위</span>
+            <div class="run-fixed-value">전체 아키텍처 실행</div>
+          </div>
+          <div class="run-fixed-item">
+            <span class="run-fixed-label">데이터</span>
+            <div class="run-fixed-value">test_2026seoul_trade_day.pkl</div>
+          </div>
+          <div class="run-fixed-item">
+            <span class="run-fixed-label">Prosumer</span>
+            <select id="run_prosumer" class="run-prosumer-select" disabled>
+              <option value="">로딩 중…</option>
+            </select>
+          </div>
+          <div class="run-fixed-item">
+            <span class="run-fixed-label">LLM mode</span>
+            <div class="run-fixed-value">전단계 LLM 사용</div>
+          </div>
+          <div class="run-fixed-item">
+            <span class="run-fixed-label">Measure date</span>
+            <div class="run-fixed-value">2026.01.14</div>
           </div>
         </div>
-        <p class="hint" id="prosumer_hint">데이터를 선택하면 해당 파일의 Prosumer 목록이 로드됩니다.</p>
-        <label>LLM mode <span class="hint">(기본: 전체 단계 LLM 실행)</span></label>
-        <select name="llm_mode" id="llm_mode">
-          <option value="off">off (LLM 미사용)</option>
-          <option value="forecast">forecast (예측 단계만)</option>
-          <option value="forecast_plan">forecast_plan (예측 + Agent Plan)</option>
-          <option value="core">core (ALFP 핵심 단계)</option>
-          <option value="market">market (시장/자기비평 포함)</option>
-          <option value="plan">plan (계획 단계 중심)</option>
-          <option value="all" selected>all (전체 단계 LLM 사용)</option>
-        </select>
-        <label>Measure date <span class="hint">(미설정 시 데이터 기준일 자동 추론)</span></label>
-        <input type="date" name="measure_date" id="measure_date" value="2026-05-05" aria-label="Measure date">
-        <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
-          <button type="submit" id="runBtn">전체 아키텍처 실행</button>
-          <span id="p2p-badge" style="display:none;padding:0.25em 0.6em;background:rgba(88,166,255,.18);color:var(--accent);border-radius:4px;font-size:0.82rem;font-weight:600;">★ P2P 거래 모드</span>
-        </div>
+      </div>
+      <form id="runForm" class="run-action">
+        <input type="hidden" name="run_scope" id="run_scope" value="full_architecture">
+        <input type="hidden" name="data_path" id="data_path" value="data/test_2026seoul_trade_day.pkl">
+        <input type="hidden" name="llm_mode" id="llm_mode" value="all">
+        <input type="hidden" name="measure_date" id="measure_date" value="2026-01-14">
+        <button type="submit" id="runBtn">전체 아키텍처 실행</button>
       </form>
     </div>
+    <section id="executionTimeline" class="timeline-panel" aria-live="polite">
+      <div class="timeline-top">
+        <div class="timeline-title-wrap">
+          <div class="timeline-eyebrow">
+            <span class="timeline-eyebrow-dot" id="timelineEyebrowDot"></span>
+            <span id="timelineEyebrowLabel">실행 중</span>
+          </div>
+          <h2 class="timeline-title">Execution Timeline</h2>
+          <div class="timeline-meta" id="timelineMeta">실행 대기 중</div>
+        </div>
+        <div class="timeline-run-badge" id="timelineRunMeta"></div>
+      </div>
+      <div class="timeline-viewport" id="timelineViewport">
+        <div id="timelineList" class="timeline-list"></div>
+      </div>
+      <div class="timeline-actions">
+        <a id="timelineDetailLink" href="#" target="_blank" rel="noopener">상세 보기</a>
+        <a class="secondary" href="/#history">Execution History</a>
+      </div>
+    </section>
   </div>
 
   <div id="section-history" class="main-section">
     <h1>Execution History</h1>
     <p class="run-meta" style="margin: 0 0 1rem 0; font-size: 0.9rem; color: var(--muted);">15초마다 자동 새로고침</p>
     {% if not runs %}
-      <p class="muted">No runs recorded yet. Run a pipeline from 「Run historical data」 in the LNB or run <code>python run_full_pipeline.py --output-dir output</code> to see entries here.</p>
+      <p class="muted">No runs recorded yet. Run a pipeline from 「Run historical data」 in the LNB or run <code>python -m run_full_pipeline</code> to see entries here.</p>
     {% else %}
       <table class="runs-table">
         <thead>
@@ -175,6 +645,7 @@
           {% endfor %}
         </tbody>
       </table>
+      <div id="runsPagination" class="pagination"></div>
     {% endif %}
   </div>
 
@@ -214,113 +685,292 @@
         });
       });
 
-      function getSelectedProsumers() {
-        var sel = document.getElementById('prosumer');
-        var chosen = [];
-        for (var i = 0; i < sel.options.length; i++) {
-          if (sel.options[i].selected) chosen.push(sel.options[i].value);
-        }
-        return chosen;
+      // 고정 실행 조건 기준 버튼 상태 업데이트
+      function updateRunButton() {
+        var btn = document.getElementById('runBtn');
+        btn.textContent = '전체 아키텍처 실행';
       }
-      function loadProsumersForDataPath() {
+
+      // ── 프로슈머 드롭다운 로드 ──────────────────────────────────
+      (function loadProsumerSelect() {
+        var sel = document.getElementById('run_prosumer');
+        if (!sel) return;
         var dataPath = document.getElementById('data_path').value;
-        var hint = document.getElementById('prosumer_hint');
-        hint.textContent = '로딩 중…';
-        fetch('/api/measure-date?data_path=' + encodeURIComponent(dataPath))
-          .then(function(r) { return r.json(); })
-          .then(function(data) {
-            if (data.measure_date) {
-              document.getElementById('measure_date').value = data.measure_date;
-            }
-          })
-          .catch(function() {});
         fetch('/api/prosumers?data_path=' + encodeURIComponent(dataPath))
           .then(function(r) { return r.json(); })
           .then(function(data) {
-            var sel = document.getElementById('prosumer');
+            var list = data.prosumers || [];
             sel.innerHTML = '';
-            (data.prosumers || []).forEach(function(p) {
+            if (!list.length) {
+              sel.innerHTML = '<option value="">— 없음 —</option>';
+              sel.disabled = true;
+              return;
+            }
+            list.forEach(function(p) {
               var opt = document.createElement('option');
               opt.value = p;
               opt.textContent = p;
-              if (p === 'bus_48_Commercial') opt.selected = true;
               sel.appendChild(opt);
             });
-            if (sel.options.length === 0) {
-              hint.textContent = '해당 데이터에서 Prosumer를 찾을 수 없습니다. 파일 경로를 확인하세요.';
-            } else {
-              hint.textContent = '선택한 데이터 기준 ' + sel.options.length + '개 Prosumer. 2명 이상 선택 시 P2P 거래 모드로 실행됩니다.';
-            }
-            updateRunButton();
+            sel.disabled = false;
           })
           .catch(function() {
-            hint.textContent = 'Prosumer 목록 로드 실패.';
+            sel.innerHTML = '<option value="">로드 실패</option>';
+            sel.disabled = true;
           });
-      }
-      document.getElementById('data_path').addEventListener('change', loadProsumersForDataPath);
-      loadProsumersForDataPath();
+      })();
 
-      document.getElementById('prosumerSelectAll').addEventListener('click', function() {
-        var sel = document.getElementById('prosumer');
-        for (var i = 0; i < sel.options.length; i++) sel.options[i].selected = true;
-        updateRunButton();
-      });
-      document.getElementById('prosumerDeselectAll').addEventListener('click', function() {
-        var sel = document.getElementById('prosumer');
-        for (var i = 0; i < sel.options.length; i++) sel.options[i].selected = false;
-        updateRunButton();
-      });
+      var currentTimelineRunId = null;
+      var currentTimelineTimer = null;
+      var timelineEl = document.getElementById('executionTimeline');
+      var timelineMetaEl = document.getElementById('timelineMeta');
+      var timelineRunMetaEl = document.getElementById('timelineRunMeta');
+      var timelineListEl = document.getElementById('timelineList');
+      var timelineViewportEl = document.getElementById('timelineViewport');
+      var timelineDetailLinkEl = document.getElementById('timelineDetailLink');
+      var timelineEyebrowDotEl = document.getElementById('timelineEyebrowDot');
+      var timelineEyebrowLabelEl = document.getElementById('timelineEyebrowLabel');
 
-      // 프로슈머 선택 수에 따라 버튼 레이블 및 P2P 배지 업데이트
-      function updateRunButton() {
-        var chosen = getSelectedProsumers();
-        var btn = document.getElementById('runBtn');
-        var badge = document.getElementById('p2p-badge');
-        var scope = document.getElementById('run_scope').value;
-        var scopeHint = document.getElementById('run_scope_hint');
-        var llmMode = document.getElementById('llm_mode');
-        if (scope === 'forecast_only') {
-          llmMode.disabled = false;
-          if (['all', 'plan', 'market', 'core', 'forecast_plan'].indexOf(llmMode.value) >= 0) llmMode.value = 'forecast';
-          btn.textContent = '전력 사용량 예측 테스트 실행';
-          if (badge) badge.style.display = 'none';
-          if (scopeHint) scopeHint.textContent = '데모 데이터를 사용해 ALFP의 예측/검증까지만 실행합니다. 이 범위에서는 LLM 모드가 forecast로 자동 축소될 수 있습니다.';
-          return;
+      function clearTimelinePolling() {
+        if (currentTimelineTimer) {
+          clearTimeout(currentTimelineTimer);
+          currentTimelineTimer = null;
         }
-        llmMode.disabled = false;
-        if (!llmMode.value) llmMode.value = 'all';
-        if (chosen.length > 1) {
-          btn.textContent = 'P2P 거래 파이프라인 실행 (' + chosen.length + '명)';
-          if (badge) badge.style.display = 'inline-block';
+      }
+
+      function statusLabel(status) {
+        if (status === 'completed') return '완료';
+        if (status === 'running') return '실행 중';
+        if (status === 'failed') return '실패';
+        if (status === 'blocked') return '중단';
+        return '대기';
+      }
+
+      function runStatusLabel(status) {
+        if (status === 'success') return '성공';
+        if (status === 'failure') return '실패';
+        return '실행 중';
+      }
+
+      function escapeHtml(value) {
+        return String(value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function summarizeObject(obj) {
+        if (!obj || typeof obj !== 'object') return '';
+        var keys = Object.keys(obj).filter(function(k) {
+          var v = obj[k];
+          return !Array.isArray(v) && !(v && typeof v === 'object');
+        }).slice(0, 8);
+        if (!keys.length) keys = Object.keys(obj).slice(0, 6);
+        return keys.map(function(key) {
+          var value = obj[key];
+          if (Array.isArray(value)) return key + ': ' + value.length + '건';
+          if (value && typeof value === 'object') return '';
+          return key + ': ' + String(value);
+        }).filter(Boolean).join('\n');
+      }
+
+      function renderAgent(agent) {
+        var st = agent.status || 'completed';
+        var summaryLines = Array.isArray(agent.summary_lines) ? agent.summary_lines.filter(Boolean) : [];
+        return (
+          '<div class="timeline-agent ' + escapeHtml(st) + '">' +
+            '<span class="tl-sub-dot" aria-hidden="true"></span>' +
+            '<span class="timeline-agent-name">' + escapeHtml(agent.name || 'Agent') + '</span>' +
+            (agent.role ? '<span class="timeline-agent-role">' + escapeHtml(agent.role) + '</span>' : '') +
+            (agent.elapsed_sec != null ? '<span class="timeline-agent-meta">' + Number(agent.elapsed_sec).toFixed(2) + 's</span>' : '') +
+            '<span class="timeline-agent-status">' + escapeHtml(statusLabel(st)) + '</span>' +
+            (summaryLines.length
+              ? '<ul class="timeline-agent-summary">' + summaryLines.map(function(l) { return '<li>' + escapeHtml(l) + '</li>'; }).join('') + '</ul>'
+              : '') +
+            (agent.error_text ? '<div class="timeline-agent-error">' + escapeHtml(agent.error_text) + '</div>' : '') +
+          '</div>'
+        );
+      }
+
+      /* ── scroll active item to vertical center ── */
+      function scrollActiveToCenter(smooth) {
+        var runningEl = timelineListEl.querySelector('.timeline-item.running');
+        var target = runningEl || timelineListEl.querySelector('.timeline-item.failed:last-child');
+        if (!target || !timelineViewportEl) return;
+        var vpH = timelineViewportEl.clientHeight;
+        var itemTop = target.offsetTop;
+        var itemH = target.offsetHeight;
+        var scrollTo = itemTop - vpH / 2 + itemH / 2;
+        if (smooth) {
+          timelineViewportEl.scrollTo({ top: Math.max(0, scrollTo), behavior: 'smooth' });
         } else {
-          btn.textContent = '전체 아키텍처 실행';
-          if (badge) badge.style.display = 'none';
+          timelineViewportEl.scrollTop = Math.max(0, scrollTo);
         }
-        if (scopeHint) scopeHint.textContent = '테스트 데이터 1일(96스텝) 기준으로 ALFP → MESA → Step2~5 → Parallel Agents 를 실행합니다. 기본 권장값은 LLM mode=all 입니다.';
       }
-      document.getElementById('run_scope').addEventListener('change', function() {
-        updateRunButton();
-      });
-      document.getElementById('prosumer').addEventListener('change', updateRunButton);
+
+      /* 폴링 사이에 사용자가 펼친 항목 레이블을 기억 */
+      var expandedLabels = new Set();
+
+      function renderTimeline(payload) {
+        timelineEl.classList.add('active');
+        timelineMetaEl.textContent =
+          'Run #' + payload.run_id + ' · ' + runStatusLabel(payload.status) +
+          ' · ' + payload.completed_count + '/' + payload.total_count + ' 단계';
+        timelineRunMetaEl.textContent =
+          payload.total_elapsed_sec != null
+            ? ('총 소요 ' + Number(payload.total_elapsed_sec).toFixed(1) + 's')
+            : '실행 준비 중';
+        timelineDetailLinkEl.href = payload.detail_url;
+
+        /* eyebrow state */
+        var isDone = payload.status !== 'running';
+        timelineEyebrowDotEl.className = 'timeline-eyebrow-dot' + (isDone ? ' done' : '');
+        timelineEyebrowLabelEl.textContent = isDone ? (payload.status === 'success' ? '완료' : '실패') : '실행 중';
+
+        var items = payload.timeline || [];
+        var lastCompletedIdx = -1;
+        items.forEach(function(it, i) { if (it.status === 'completed') lastCompletedIdx = i; });
+
+        timelineListEl.innerHTML = '';
+        items.forEach(function(item, idx) {
+          var isRecent = (idx === lastCompletedIdx);
+          var isCompleted = item.status === 'completed';
+          var agents = item.agents || [];
+          var hasChildren = agents.length > 0;
+          var isExpanded = expandedLabels.has(item.label);
+
+          var classList = 'timeline-item ' + item.status;
+          if (isRecent) classList += ' recent';
+          if (hasChildren && isCompleted) classList += ' has-children';
+          if (isExpanded) classList += ' expanded';
+
+          var row = document.createElement('div');
+          row.className = classList;
+
+          var summaryText = '';
+          if (item.error_text) {
+            summaryText = item.error_text;
+          } else if (item.summary && Object.keys(item.summary).length > 0) {
+            summaryText = summarizeObject(item.summary);
+          } else if (item.status === 'running') {
+            summaryText = '현재 단계 실행 중…';
+          } else if (item.status === 'blocked') {
+            summaryText = '이전 단계 실패로 실행되지 않았습니다.';
+          }
+
+          /* 완료 + 소분류 있는 경우: 화살표 + 접힌 수 뱃지 */
+          var chevronHtml = (isCompleted && hasChildren)
+            ? '<span class="tl-chevron" aria-hidden="true">&#9654;</span>' +
+              '<span class="tl-sub-count">' + agents.length + '개</span>'
+            : '';
+
+          row.innerHTML =
+            '<div class="timeline-rail"><span class="timeline-dot" aria-hidden="true"></span></div>' +
+            '<div class="timeline-body">' +
+              '<div class="timeline-header">' +
+                '<div class="timeline-stage-name">' + escapeHtml(item.label) + '</div>' +
+                chevronHtml +
+                (item.elapsed_sec != null
+                  ? '<div class="timeline-stage-meta">소요 ' + Number(item.elapsed_sec).toFixed(2) + 's</div>'
+                  : '') +
+                '<div class="timeline-status">' + escapeHtml(statusLabel(item.status)) + '</div>' +
+              '</div>' +
+              (item.hint ? '<div class="timeline-stage-hint">' + escapeHtml(item.hint) + '</div>' : '') +
+              (summaryText ? '<div class="timeline-stage-summary">' + escapeHtml(summaryText) + '</div>' : '') +
+              (hasChildren
+                ? '<div class="timeline-agents">' + agents.map(renderAgent).join('') + '</div>'
+                : '') +
+            '</div>';
+
+          /* 완료된 소분류 있는 항목: 헤더 클릭으로 접기/펼치기 */
+          if (isCompleted && hasChildren) {
+            var label = item.label;
+            row.querySelector('.timeline-header').addEventListener('click', function() {
+              var isNowExpanded = row.classList.toggle('expanded');
+              if (isNowExpanded) expandedLabels.add(label);
+              else expandedLabels.delete(label);
+            });
+          }
+
+          timelineListEl.appendChild(row);
+        });
+
+        requestAnimationFrame(function() { scrollActiveToCenter(true); });
+      }
+
+      async function pollTimeline(runId) {
+        try {
+          var res = await fetch('/api/runs/' + encodeURIComponent(runId) + '/timeline');
+          if (!res.ok) throw new Error('timeline fetch failed');
+          var payload = await res.json();
+          renderTimeline(payload);
+          if (payload.status === 'running') {
+            currentTimelineTimer = setTimeout(function() { pollTimeline(runId); }, 5000);
+          } else {
+            clearTimelinePolling();
+            updateRunButton();
+          }
+        } catch (err) {
+          timelineEl.classList.add('active');
+          timelineMetaEl.textContent = 'Timeline 조회 실패';
+          timelineRunMetaEl.textContent = '';
+          timelineListEl.innerHTML =
+            '<div class="timeline-item failed">' +
+              '<div class="timeline-rail"><span class="timeline-dot" aria-hidden="true"></span></div>' +
+              '<div class="timeline-body">' +
+                '<div class="timeline-header">' +
+                  '<div class="timeline-stage-name">실행 상태를 불러오지 못했습니다.</div>' +
+                  '<div class="timeline-status">실패</div>' +
+                '</div>' +
+                '<div class="timeline-stage-hint">잠시 후 다시 시도하거나 Execution History에서 run 상태를 확인하세요.</div>' +
+              '</div>' +
+            '</div>';
+          clearTimelinePolling();
+          updateRunButton();
+        }
+      }
+
+      function startTimeline(runId) {
+        currentTimelineRunId = runId;
+        clearTimelinePolling();
+        timelineEl.classList.add('active');
+        timelineMetaEl.textContent = 'Run #' + runId + ' 생성됨';
+        timelineRunMetaEl.textContent = '실행 준비 중';
+        timelineEyebrowDotEl.className = 'timeline-eyebrow-dot';
+        timelineEyebrowLabelEl.textContent = '실행 중';
+        timelineListEl.innerHTML =
+          '<div class="timeline-item running">' +
+            '<div class="timeline-rail"><span class="timeline-dot" aria-hidden="true"></span></div>' +
+            '<div class="timeline-body">' +
+              '<div class="timeline-header">' +
+                '<div class="timeline-stage-name">Pipeline bootstrap</div>' +
+                '<div class="timeline-status">실행 중</div>' +
+              '</div>' +
+              '<div class="timeline-stage-hint">실행 run을 생성하고 첫 단계 상태를 수집하는 중입니다.</div>' +
+            '</div>' +
+          '</div>';
+        timelineDetailLinkEl.href = '/runs/' + runId;
+        /* initial scroll: center the bootstrap item */
+        requestAnimationFrame(function() { scrollActiveToCenter(false); });
+        pollTimeline(runId);
+      }
 
       document.getElementById('runForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         var btn = document.getElementById('runBtn');
-        var chosen = getSelectedProsumers();
-        if (chosen.length === 0) chosen = ['bus_48_Commercial'];
-        var scope = document.getElementById('run_scope').value;
-        if (scope === 'forecast_only') chosen = [chosen[0]];
-        var isP2P = scope !== 'forecast_only' && chosen.length > 1;
         btn.disabled = true;
-        btn.textContent = scope === 'forecast_only'
-          ? '전력 사용량 예측 테스트 실행 중…'
-          : (isP2P ? 'P2P 거래 실행 중… (' + chosen.length + '명)' : '실행 중…');
+        btn.textContent = '실행 중…';
         try {
+          var selEl = document.getElementById('run_prosumer');
+          var chosen = (selEl && selEl.value) ? [selEl.value] : [];
+          if (!chosen.length) throw new Error('prosumer not selected');
           var res = await fetch('/api/run', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              run_scope: scope,
+              run_scope: 'full_architecture',
               data_path: document.getElementById('data_path').value,
               steps: 96,
               prosumers: chosen,
@@ -332,9 +982,9 @@
           });
           var data = await res.json();
           if (data.run_id) {
-            if (scope === 'forecast_only') btn.textContent = '전력 사용량 예측 테스트 시작됨';
-            else if (data.p2p_mode) btn.textContent = 'P2P 거래 파이프라인 시작됨';
-            window.location.href = '/#history';
+            btn.textContent = data.p2p_mode ? '전체 파이프라인 시작됨 (전체 Prosumer)' : '전체 아키텍처 실행 시작됨';
+            window.location.hash = 'new-run';
+            startTimeline(data.run_id);
           } else {
             btn.textContent = '실행 실패';
           }
@@ -343,6 +993,59 @@
         }
         btn.disabled = false;
       });
+
+      // ── Execution History 테이블 페이징 (10건/페이지) ──────────
+      (function initTablePagination() {
+        var tbody = document.querySelector('#section-history tbody');
+        var pagDiv = document.getElementById('runsPagination');
+        if (!tbody || !pagDiv) return;
+        var rows = Array.from(tbody.querySelectorAll('tr'));
+        if (!rows.length) return;
+        var PAGE_SIZE = 10;
+        var totalPages = Math.ceil(rows.length / PAGE_SIZE);
+        var currentPage = 1;
+
+        function showPage(page) {
+          currentPage = page;
+          rows.forEach(function(r, i) {
+            r.style.display = (i >= (page - 1) * PAGE_SIZE && i < page * PAGE_SIZE) ? '' : 'none';
+          });
+          renderPagination();
+        }
+
+        function renderPagination() {
+          pagDiv.innerHTML = '';
+          if (totalPages <= 1) return;
+
+          function mkBtn(label, page, isActive, disabled) {
+            var b = document.createElement('button');
+            b.textContent = label;
+            if (isActive) b.classList.add('active');
+            b.disabled = disabled;
+            if (!disabled) b.addEventListener('click', function() { showPage(page); });
+            return b;
+          }
+
+          pagDiv.appendChild(mkBtn('‹ 이전', currentPage - 1, false, currentPage === 1));
+
+          var start = Math.max(1, currentPage - 2);
+          var end = Math.min(totalPages, currentPage + 2);
+          if (start > 1) { pagDiv.appendChild(mkBtn('1', 1, false, false)); if (start > 2) { var sp = document.createElement('span'); sp.textContent = '…'; sp.style.cssText = 'color:var(--muted);padding:0 0.2rem'; pagDiv.appendChild(sp); } }
+          for (var p = start; p <= end; p++) pagDiv.appendChild(mkBtn(String(p), p, p === currentPage, false));
+          if (end < totalPages) { if (end < totalPages - 1) { var sp2 = document.createElement('span'); sp2.textContent = '…'; sp2.style.cssText = 'color:var(--muted);padding:0 0.2rem'; pagDiv.appendChild(sp2); } pagDiv.appendChild(mkBtn(String(totalPages), totalPages, false, false)); }
+
+          pagDiv.appendChild(mkBtn('다음 ›', currentPage + 1, false, currentPage === totalPages));
+
+          var info = document.createElement('span');
+          info.className = 'pagination-info';
+          var from = (currentPage - 1) * PAGE_SIZE + 1;
+          var to = Math.min(currentPage * PAGE_SIZE, rows.length);
+          info.textContent = from + '–' + to + ' / ' + rows.length + '건';
+          pagDiv.appendChild(info);
+        }
+
+        showPage(1);
+      })();
 
       // 실행 이력 화면(Execution History)일 때만 15초마다 새로고침 (새 파이프라인 실행 폼은 새로고침하지 않음)
       setInterval(function() {

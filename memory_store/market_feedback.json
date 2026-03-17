@@ -41,134 +41,134 @@
   },
   "CommunityBuyer": {
     "matched_trades": 0,
-    "unmatched_bids": 3,
+    "unmatched_bids": 19,
     "unmatched_asks": 0,
     "avg_trade_price": 0.0,
     "last_bid_price": 113.3,
     "last_ask_price": 0.0
   },
   "bus_100_EnergyHub": {
-    "matched_trades": 77.0,
-    "unmatched_bids": 213,
+    "matched_trades": 154.0,
+    "unmatched_bids": 426,
     "unmatched_asks": 0,
-    "avg_trade_price": 95.76,
+    "avg_trade_price": 95.74,
     "last_bid_price": 113.3,
     "last_ask_price": 80.8
   },
   "bus_102_Commercial": {
-    "matched_trades": 78.0,
-    "unmatched_bids": 210,
-    "unmatched_asks": 0,
-    "avg_trade_price": 95.75,
-    "last_bid_price": 113.3,
-    "last_ask_price": 80.8
-  },
-  "bus_106_Residential": {
-    "matched_trades": 72.0,
-    "unmatched_bids": 213,
-    "unmatched_asks": 0,
-    "avg_trade_price": 95.65,
-    "last_bid_price": 113.3,
-    "last_ask_price": 80.8
-  },
-  "bus_109_Rural": {
-    "matched_trades": 73.0,
-    "unmatched_bids": 213,
-    "unmatched_asks": 0,
-    "avg_trade_price": 95.64,
-    "last_bid_price": 113.3,
-    "last_ask_price": 80.8
-  },
-  "bus_116_EnergyHub": {
-    "matched_trades": 72.0,
-    "unmatched_bids": 213,
-    "unmatched_asks": 0,
-    "avg_trade_price": 95.65,
-    "last_bid_price": 113.3,
-    "last_ask_price": 80.8
-  },
-  "bus_127_Commercial": {
-    "matched_trades": 77.0,
-    "unmatched_bids": 210,
+    "matched_trades": 156.0,
+    "unmatched_bids": 420,
     "unmatched_asks": 0,
     "avg_trade_price": 95.68,
     "last_bid_price": 113.3,
     "last_ask_price": 80.8
   },
-  "bus_130_Rural": {
-    "matched_trades": 73.0,
-    "unmatched_bids": 213,
+  "bus_106_Residential": {
+    "matched_trades": 145.0,
+    "unmatched_bids": 426,
     "unmatched_asks": 0,
-    "avg_trade_price": 95.57,
+    "avg_trade_price": 95.56,
+    "last_bid_price": 113.3,
+    "last_ask_price": 80.8
+  },
+  "bus_109_Rural": {
+    "matched_trades": 145.0,
+    "unmatched_bids": 426,
+    "unmatched_asks": 0,
+    "avg_trade_price": 95.56,
+    "last_bid_price": 113.3,
+    "last_ask_price": 80.8
+  },
+  "bus_116_EnergyHub": {
+    "matched_trades": 144.0,
+    "unmatched_bids": 426,
+    "unmatched_asks": 0,
+    "avg_trade_price": 95.56,
+    "last_bid_price": 113.3,
+    "last_ask_price": 80.8
+  },
+  "bus_127_Commercial": {
+    "matched_trades": 155.0,
+    "unmatched_bids": 420,
+    "unmatched_asks": 0,
+    "avg_trade_price": 95.59,
+    "last_bid_price": 113.3,
+    "last_ask_price": 80.8
+  },
+  "bus_130_Rural": {
+    "matched_trades": 147.0,
+    "unmatched_bids": 426,
+    "unmatched_asks": 0,
+    "avg_trade_price": 95.52,
     "last_bid_price": 113.3,
     "last_ask_price": 80.8
   },
   "bus_133_Industrial": {
-    "matched_trades": 80.0,
-    "unmatched_bids": 205,
+    "matched_trades": 164.0,
+    "unmatched_bids": 406,
     "unmatched_asks": 0,
-    "avg_trade_price": 95.72,
+    "avg_trade_price": 95.64,
     "last_bid_price": 113.3,
     "last_ask_price": 80.8
   },
   "bus_134_EnergyHub": {
-    "matched_trades": 72.0,
-    "unmatched_bids": 213,
-    "unmatched_asks": 0,
-    "avg_trade_price": 95.67,
-    "last_bid_price": 113.3,
-    "last_ask_price": 80.8
-  },
-  "bus_136_Industrial": {
-    "matched_trades": 76.0,
-    "unmatched_bids": 213,
+    "matched_trades": 144.0,
+    "unmatched_bids": 426,
     "unmatched_asks": 0,
     "avg_trade_price": 95.55,
     "last_bid_price": 113.3,
     "last_ask_price": 80.8
   },
+  "bus_136_Industrial": {
+    "matched_trades": 151.0,
+    "unmatched_bids": 426,
+    "unmatched_asks": 0,
+    "avg_trade_price": 95.51,
+    "last_bid_price": 113.3,
+    "last_ask_price": 80.8
+  },
   "bus_138_Residential": {
-    "matched_trades": 75.0,
-    "unmatched_bids": 213,
+    "matched_trades": 150.0,
+    "unmatched_bids": 426,
     "unmatched_asks": 0,
     "avg_trade_price": 95.46,
     "last_bid_price": 113.3,
     "last_ask_price": 80.8
   },
   "bus_140_Rural": {
-    "matched_trades": 72.0,
-    "unmatched_bids": 213,
+    "matched_trades": 144.0,
+    "unmatched_bids": 426,
     "unmatched_asks": 0,
-    "avg_trade_price": 95.37,
+    "avg_trade_price": 95.4,
     "last_bid_price": 113.3,
     "last_ask_price": 80.8
   },
   "bus_48_Commercial": {
-    "matched_trades": 75.0,
-    "unmatched_bids": 210,
+    "matched_trades": 150.0,
+    "unmatched_bids": 420,
     "unmatched_asks": 0,
-    "avg_trade_price": 95.48,
+    "avg_trade_price": 95.47,
     "last_bid_price": 113.3,
     "last_ask_price": 80.8
   },
   "bus_59_Rural": {
-    "matched_trades": 72.0,
-    "unmatched_bids": 213,
+    "matched_trades": 144.0,
+    "unmatched_bids": 426,
     "unmatched_asks": 0,
-    "avg_trade_price": 95.37,
+    "avg_trade_price": 95.4,
     "last_bid_price": 113.3,
     "last_ask_price": 80.8
   },
   "bus_62_Residential": {
-    "matched_trades": 73.0,
-    "unmatched_bids": 213,
+    "matched_trades": 145.0,
+    "unmatched_bids": 426,
     "unmatched_asks": 0,
     "avg_trade_price": 95.41,
     "last_bid_price": 113.3,
     "last_ask_price": 80.8
   },
   "bus_67_Industrial": {
-    "matched_trades": 462.0,
+    "matched_trades": 931.0,
     "unmatched_bids": 31,
     "unmatched_asks": 0,
     "avg_trade_price": 95.34,
@@ -176,35 +176,59 @@
     "last_ask_price": 0.0
   },
   "bus_74_EnergyHub": {
-    "matched_trades": 131.0,
-    "unmatched_bids": 154,
+    "matched_trades": 285.0,
+    "unmatched_bids": 285,
     "unmatched_asks": 0,
-    "avg_trade_price": 96.45,
-    "last_bid_price": 113.3,
+    "avg_trade_price": 96.22,
+    "last_bid_price": 110.0,
     "last_ask_price": 80.8
   },
   "bus_78_Commercial": {
-    "matched_trades": 140.0,
-    "unmatched_bids": 145,
+    "matched_trades": 284.0,
+    "unmatched_bids": 286,
     "unmatched_asks": 0,
-    "avg_trade_price": 96.41,
+    "avg_trade_price": 96.31,
     "last_bid_price": 113.3,
     "last_ask_price": 80.8
   },
   "bus_86_Residential": {
-    "matched_trades": 142.0,
-    "unmatched_bids": 143,
+    "matched_trades": 282.0,
+    "unmatched_bids": 288,
     "unmatched_asks": 0,
-    "avg_trade_price": 96.36,
-    "last_bid_price": 110.0,
+    "avg_trade_price": 96.29,
+    "last_bid_price": 113.3,
     "last_ask_price": 0.0
   },
   "bus_95_Industrial": {
-    "matched_trades": 262.0,
-    "unmatched_bids": 72,
+    "matched_trades": 488.0,
+    "unmatched_bids": 131,
     "unmatched_asks": 0,
     "avg_trade_price": 95.38,
     "last_bid_price": 108.9,
     "last_ask_price": 0.0
+  },
+  "b1": {
+    "matched_trades": 1.0,
+    "unmatched_bids": 0,
+    "unmatched_asks": 0,
+    "avg_trade_price": 87.5,
+    "last_bid_price": 90.0,
+    "last_ask_price": 0.0
+  },
+  "s1": {
+    "matched_trades": 1.0,
+    "unmatched_bids": 0,
+    "unmatched_asks": 0,
+    "avg_trade_price": 87.5,
+    "last_bid_price": 0.0,
+    "last_ask_price": 85.0
+  },
+  "SmartSeller": {
+    "matched_trades": 0,
+    "unmatched_bids": 0,
+    "unmatched_asks": 1,
+    "avg_trade_price": 0.0,
+    "last_bid_price": 0.0,
+    "last_ask_price": 90.0
   }
 }

@@ -1,16 +1,15 @@
 """
-SEAPAC Agentic Decision Layer — 전체 파이프라인 실행 (Step 2~5)
+SEAPAC Agentic Decision Layer — 전체 파이프라인 실행 (Step 3~5)
 
 실행 순서:
-  Step 2: State Translator  — Mesa 상태 → LLM 친화적 JSON
   Step 3: Multi-Agent Decision Engine — 5개 에이전트 의사결정
-  Step 4: Action Execution Engine  — 검증·승인 → Mesa 업데이트
+  Step 4: Action Execution Engine  — 검증·승인 → 실행
   Step 5: Evaluation Engine  — KPI 평가 및 등급 산정
 
 Usage:
   python seapac_agents/run_agentic_pipeline.py
   python seapac_agents/run_agentic_pipeline.py --steps 96 --phase 4
-  python seapac_agents/run_agentic_pipeline.py --output-dir output/ --save-json
+  PYTHONPATH=. python seapac_agents/run_agentic_pipeline.py --use-cda --steps 96
 """
 
 from __future__ import annotations
@@ -20,6 +19,12 @@ import json
 import os
 import sys
 from pathlib import Path
+
+if __package__ in (None, ""):
+    # Allow `python3 seapac_agents/run_agentic_pipeline.py` direct execution.
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+from pipeline_dashboard.db import create_run, get_db_path, init_db, upsert_artifact
 
 
 def _parse_args() -> argparse.Namespace:
@@ -32,8 +37,6 @@ def _parse_args() -> argparse.Namespace:
     p.add_argument("--ess-capacity", type=float, default=200.0, help="ESS 용량 (kWh)")
     p.add_argument("--grid-price", type=float, default=100.0, help="계통 전기 단가 (원/kWh)")
     p.add_argument("--seed", type=int, default=42)
-    p.add_argument("--output-dir", default=None, help="결과 저장 디렉토리")
-    p.add_argument("--save-json", action="store_true", help="JSON 파일로 결과 저장")
     p.add_argument("--verbose", action="store_true", help="상세 출력")
     p.add_argument("--use-cda", action="store_true", default=True, help="CDA 시장 사용 (기본값)")
     p.add_argument("--no-cda", action="store_false", dest="use_cda", help="AgentScope 페르소나 모드 사용 (CDA 비활성화)")
@@ -66,50 +69,26 @@ def _parse_args() -> argparse.Namespace:
     return p.parse_args()
 
 
+def _default_max_peak_load_kw(peak_threshold_kw: float) -> float:
+    """Shared approval threshold for Agent Plan simulation and final Step 4 execution."""
+    return peak_threshold_kw * 1.10
+
+
 def main() -> None:
     args = _parse_args()
     from alfp.llm import set_llm_mode, get_llm_mode
     set_llm_mode(args.llm_mode)
     print(f"\n[Config] LLM mode: {get_llm_mode()}")
 
-    # ── Step 1: Mesa 시뮬레이션 (기준 Phase 실행) ─────────────────
-    print("\n[Step 1] Mesa 시뮬레이션 초기 실행...")
-    from simulation.model import ALFPSimulationModel
-
-    model = ALFPSimulationModel(
-        phase=args.phase,
-        data_path=args.data_path,
-        n_steps=args.steps,
-        seed=args.seed,
-        ess_capacity_kwh=args.ess_capacity,
-        ess_peak_threshold_kw=args.peak_threshold,
-    )
-    df_initial = model.run()
-    print(f"  완료: {len(df_initial)} 스텝, Phase {args.phase}")
-
-    # ── Step 2: State Translator ──────────────────────────────────
-    print("\n[Step 2] State Translator — Mesa 상태 → LLM JSON 변환...")
-    from seapac_agents.state_translator import translate_dataframe, generate_summary
-
-    state_json_list = translate_dataframe(
-        df_initial,
-        peak_threshold_kw=args.peak_threshold,
-        ess_capacity_kwh=args.ess_capacity,
-    )
-    print(f"  완료: {len(state_json_list)} 스텝 state JSON 생성")
-    if args.verbose and state_json_list:
-        print(f"  샘플 (step 0):\n{json.dumps(state_json_list[0], indent=2, ensure_ascii=False)}")
-
-    # 현재 스텝 state 요약 출력 (마지막 스텝)
-    if state_json_list:
-        print(f"\n  {generate_summary(state_json_list[-1])}")
+    state_json_list: list[dict] = []
 
     # ── Step 3: Multi-Agent Decision Engine ───────────────────────
     max_kw = min(50.0, args.ess_capacity / 4)
+    max_peak_load_kw = _default_max_peak_load_kw(args.peak_threshold)
     if args.use_cda_negotiation:
         if not args.use_cda:
             args.use_cda = True
-        print("\n[Step 3] Multi-Agent Decision Engine 실행 (CDA + Strategy Agent + Negotiation)...")
+        print("\n[Multi-Agent Decision] CDA + Strategy Agent + Negotiation 실행...")
         from seapac_agents.decision import (
             _init_agentscope,
             PolicyAgentAS,
@@ -135,7 +114,7 @@ def main() -> None:
             use_llm_strategy=True,
         )
     elif args.use_cda:
-        print("\n[Step 3] Multi-Agent Decision Engine 실행 (CDA 시장 — Order Book + 매칭)...")
+        print("\n[Multi-Agent Decision] CDA 시장 — Order Book + 매칭 실행...")
         from seapac_agents.decision import (
             _init_agentscope,
             PolicyAgentAS,
@@ -160,7 +139,7 @@ def main() -> None:
             state_message_template=_PROMPTS["state_message_template"],
         )
     else:
-        print("\n[Step 3] Multi-Agent Decision Engine 실행 (AgentScope — 페르소나 주입)...")
+        print("\n[Multi-Agent Decision] AgentScope — 페르소나 주입 실행...")
         from seapac_agents.decision import run_agentscope_decision_series
 
         decisions = run_agentscope_decision_series(
@@ -183,7 +162,7 @@ def main() -> None:
     if args.use_agent_plan:
         use_llm_plan = not args.agent_plan_no_llm
         mode_str = "LLM 계획 수립" if use_llm_plan else "규칙 기반 기본 계획"
-        print(f"\n[Step 3-P] LLM Agent Plan 실행 ({mode_str})...")
+        print(f"\n[Agent Plan] {mode_str} 실행...")
         print("  Policy → Storage → EcoSaver → Simulate 순서로 에이전트를 계획·실행합니다.")
         from seapac_agents.agent_planner import run_agent_plan
 
@@ -200,6 +179,7 @@ def main() -> None:
             phase=args.phase,
             seed=args.seed,
             ess_capacity_kwh=args.ess_capacity,
+            max_peak_load_kw=max_peak_load_kw,
             verbose=args.verbose,
         )
         ap = decisions.get("agent_plan", {})
@@ -219,7 +199,7 @@ def main() -> None:
 
     # ── Step 3.5: Final Parallel Execution Layer (PRD: seapac_parallel_agents_prd.md) ──
     if args.use_parallel:
-        print("\n[Step 3.5] Final Parallel Execution Layer — Policy / Eco Saver / Storage 에이전트 병렬 평가...")
+        print("\n[Parallel Agents] Policy / Eco Saver / Storage 에이전트 병렬 평가...")
         from parallel_agents import (
             run_parallel_evaluation_and_convert,
             PolicyConfig,
@@ -232,7 +212,11 @@ def main() -> None:
             max_charge_kw=max_kw_parallel,
             max_discharge_kw=max_kw_parallel,
         )
-        bundle_for_audit = decisions_to_candidate_bundle(decisions, state_json_list)
+        bundle_for_audit = decisions_to_candidate_bundle(
+            decisions,
+            state_json_list,
+            peak_threshold_kw=args.peak_threshold,
+        )
         decisions = run_parallel_evaluation_and_convert(
             decisions,
             state_json_list=state_json_list,
@@ -255,10 +239,10 @@ def main() -> None:
 
     # ── Step 4: Action Execution Engine (또는 CDA Settlement) ───────
     if args.use_cda:
-        print("\n[Step 4] CDA Settlement Engine 실행...")
+        print("\n[Action Execution] CDA Settlement Engine 실행...")
         from cda import run_execution
     else:
-        print("\n[Step 4] Action Execution Engine 실행...")
+        print("\n[Action Execution] Action Execution Engine 실행...")
         from seapac_agents.execution import run_execution
 
     result = run_execution(
@@ -271,6 +255,7 @@ def main() -> None:
         ess_peak_threshold_kw=args.peak_threshold,
         max_charge_kw=max_kw,
         max_discharge_kw=max_kw,
+        max_peak_load_kw=max_peak_load_kw,
     )
 
     approved_str = "승인" if result.approved else "미승인"
@@ -279,53 +264,39 @@ def main() -> None:
         for e in result.validation_errors[:5]:
             print(f"    - {e}")
 
-    # ── Step 5: Evaluation Engine ─────────────────────────────────
-    print("\n[Step 5] Evaluation Engine — KPI 평가...")
+    # ── Evaluation Engine ─────────────────────────────────────────
+    print("\n[Evaluation] KPI 평가...")
     from seapac_agents.evaluation import evaluate_from_execution_result, EvaluationConfig
 
     eval_cfg = EvaluationConfig(
         grid_price_krw_per_kwh=args.grid_price,
-        baseline_peak_kw=float(df_initial["community_load_kw"].max()) if "community_load_kw" in df_initial.columns else 0.0,
+        baseline_peak_kw=0.0,
     )
     report = evaluate_from_execution_result(result, decisions=decisions, config=eval_cfg)
     report.print_report()
 
-    # ── 저장 ─────────────────────────────────────────────────────
-    if args.output_dir or args.save_json:
-        out_dir = Path(args.output_dir or "output")
-        out_dir.mkdir(parents=True, exist_ok=True)
-
-        if args.save_json:
-            # State JSON
-            states_path = out_dir / "state_translations.json"
-            with open(states_path, "w", encoding="utf-8") as f:
-                json.dump(state_json_list, f, ensure_ascii=False, indent=2)
-            print(f"\n  State JSON 저장: {states_path}")
-
-            # Decisions
-            decisions_path = out_dir / "multi_agent_decisions.json"
-            with open(decisions_path, "w", encoding="utf-8") as f:
-                json.dump(decisions, f, ensure_ascii=False, indent=2)
-            print(f"  Decisions 저장: {decisions_path}")
-
-            # Evaluation Report
-            report_path = out_dir / "evaluation_report.json"
-            with open(report_path, "w", encoding="utf-8") as f:
-                json.dump(report.to_dict(), f, ensure_ascii=False, indent=2)
-            print(f"  평가 보고서 저장: {report_path}")
-
-            # Agent Plan (--use-agent-plan 시)
-            if args.use_agent_plan and "agent_plan" in decisions:
-                ap_path = out_dir / "agent_plan.json"
-                with open(ap_path, "w", encoding="utf-8") as f:
-                    json.dump(decisions["agent_plan"], f, ensure_ascii=False, indent=2)
-                print(f"  Agent Plan 저장: {ap_path}")
-
-        # Timeseries CSV (Step 4 실행 결과)
-        if result.dataframe is not None:
-            csv_path = out_dir / "execution_timeseries.csv"
-            result.dataframe.to_csv(csv_path, index=False)
-            print(f"  실행 시계열 저장: {csv_path}")
+    # ── DB 저장 ──────────────────────────────────────────────────
+    db_path = get_db_path(os.environ.get("PIPELINE_DB_DIR"))
+    init_db(db_path)
+    run_id = create_run(
+        {
+            "source": "seapac_agents.run_agentic_pipeline",
+            "data_path": args.data_path,
+            "steps": args.steps,
+            "phase": args.phase,
+            "use_agent_plan": args.use_agent_plan,
+            "use_parallel": args.use_parallel,
+            "use_cda": args.use_cda,
+        },
+        db_path=db_path,
+    )
+    upsert_artifact(run_id, "multi_agent_decisions", decisions, db_path=db_path)
+    upsert_artifact(run_id, "evaluation_report", report.to_dict(), db_path=db_path)
+    if args.use_agent_plan and "agent_plan" in decisions:
+        upsert_artifact(run_id, "agent_plan", decisions["agent_plan"], db_path=db_path)
+    if result.dataframe is not None:
+        upsert_artifact(run_id, "execution_timeseries", result.dataframe.to_dict(orient="records"), db_path=db_path)
+    print(f"\n  DB 저장: run_id={run_id} ({db_path})")
 
     print("\n파이프라인 완료.\n")
 

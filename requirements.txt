@@ -15,6 +15,7 @@ certifi==2026.2.25
 cffi==2.0.0
 charset-normalizer==3.4.5
 click==8.3.1
+chromadb
 cryptography==46.0.5
 dashscope==1.25.13
 distro==1.9.0
@@ -39,6 +40,7 @@ jsonschema==4.26.0
 jsonschema-specifications==2025.9.1
 langchain-core==1.2.19
 langchain-openai==1.1.11
+deepagents==0.4.11
 langgraph==1.1.2
 langgraph-checkpoint==4.0.1
 langgraph-prebuilt==1.0.8

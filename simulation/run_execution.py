@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 from typing import Any
@@ -28,6 +29,7 @@ if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
 from seapac_agents.execution import ExecutionResult, run_execution
+from pipeline_dashboard.db import create_run, get_db_path, init_db, upsert_artifact
 
 
 def _load_decisions_from_alfp(data_path: str, n_steps: int, prosumer_id: str) -> dict | None:
@@ -90,6 +92,28 @@ def _print_summary(res: ExecutionResult) -> None:
     comm_saving = s.get("community_saving_krw")
     if comm_saving is not None:
         print(f"    커뮤니티 절감:    {_fmt_num(comm_saving, ',.0f')} 원")
+
+
+def _save_to_db(args: argparse.Namespace, decisions: dict, result: ExecutionResult) -> int:
+    db_path = get_db_path(os.environ.get("PIPELINE_DB_DIR"))
+    init_db(db_path)
+    run_id = create_run(
+        {
+            "source": "simulation.run_execution",
+            "data": args.data,
+            "steps": args.steps,
+            "phase": args.phase,
+            "prosumers": args.prosumers,
+            "save_csv": args.save_csv,
+            "output_dir": args.output_dir,
+        },
+        db_path=db_path,
+    )
+    upsert_artifact(run_id, "multi_agent_decisions", decisions, db_path=db_path)
+    upsert_artifact(run_id, "execution_summary", result.summary, db_path=db_path)
+    if result.dataframe is not None:
+        upsert_artifact(run_id, "execution_timeseries", result.dataframe.to_dict(orient="records"), db_path=db_path)
+    return run_id
 
 
 def main() -> None:
@@ -177,22 +201,10 @@ def main() -> None:
 
     _print_summary(result)
 
-    # 출력 디렉터리에 저장
-    if args.output_dir:
-        out_dir = Path(args.output_dir)
-        out_dir.mkdir(parents=True, exist_ok=True)
-        with open(out_dir / "execution_summary.json", "w", encoding="utf-8") as f:
-            json.dump(result.summary, f, ensure_ascii=False, indent=2)
-        print(f"\n  저장: {out_dir / 'execution_summary.json'}")
-        if args.save_csv and result.dataframe is not None:
-            csv_path = out_dir / "execution_timeseries.csv"
-            result.dataframe.to_csv(csv_path, index=False)
-            print(f"  저장: {csv_path}")
-
-    if args.save_csv and result.dataframe is not None and not args.output_dir:
-        Path("output").mkdir(exist_ok=True)
-        result.dataframe.to_csv("output/execution_timeseries.csv", index=False)
-        print(f"\n  저장: output/execution_timeseries.csv")
+    if args.output_dir or args.save_csv:
+        run_id = _save_to_db(args, decisions, result)
+        db_path = get_db_path(os.environ.get("PIPELINE_DB_DIR"))
+        print(f"\n  DB 저장: run_id={run_id} ({db_path})")
 
     sys.exit(0 if result.approved or not result.validation_errors else 1)
 

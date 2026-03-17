@@ -2,7 +2,7 @@
 Flask UI for SEAPAC pipeline runs and stage results.
 
 Run:
-  export PIPELINE_DB_DIR=output   # optional, default: output
+  export PIPELINE_DB_DIR=alfp_store   # optional, default: alfp_store
   python -m pipeline_dashboard.app
   # or: flask --app pipeline_dashboard.app run
   # Open http://127.0.0.1:5001 (default port 5001; macOS uses 5000 for AirPlay)
@@ -29,6 +29,8 @@ from pipeline_dashboard.db import (
     get_run_with_stages,
     get_alfp_agent_steps,
     get_alfp_domain_steps,
+    get_pipeline_agent_steps,
+    get_artifact,
 )
 
 # 프로젝트 루트 (run_full_pipeline.py 가 있는 디렉터리)
@@ -42,17 +44,29 @@ def _setup_flask_logging() -> None:
     """Flask 실행 로그를 logs/ 디렉터리 파일 + 콘솔에 남깁니다. (root 로거는 건드리지 않아 Werkzeug 동작 유지)"""
     LOG_DIR.mkdir(parents=True, exist_ok=True)
     log_file = LOG_DIR / f"dashboard_{datetime.now().strftime('%Y%m%d')}.log"
+    log_file.touch(exist_ok=True)
     formatter = logging.Formatter(LOG_FORMAT, datefmt=LOG_DATEFMT)
 
     app_logger = logging.getLogger("pipeline_dashboard")
     app_logger.setLevel(logging.INFO)
     app_logger.propagate = True
-    fh = logging.FileHandler(log_file, encoding="utf-8")
-    fh.setFormatter(formatter)
-    app_logger.addHandler(fh)
-    ch = logging.StreamHandler(sys.stdout)
-    ch.setFormatter(formatter)
-    app_logger.addHandler(ch)
+
+    has_file_handler = False
+    has_stream_handler = False
+    for handler in app_logger.handlers:
+        if isinstance(handler, logging.FileHandler) and getattr(handler, "baseFilename", None) == str(log_file):
+            has_file_handler = True
+        if type(handler) is logging.StreamHandler and getattr(handler, "stream", None) is sys.stdout:
+            has_stream_handler = True
+
+    if not has_file_handler:
+        fh = logging.FileHandler(log_file, encoding="utf-8")
+        fh.setFormatter(formatter)
+        app_logger.addHandler(fh)
+    if not has_stream_handler:
+        ch = logging.StreamHandler(sys.stdout)
+        ch.setFormatter(formatter)
+        app_logger.addHandler(ch)
 
 
 _setup_flask_logging()
@@ -81,8 +95,8 @@ def _log_request():
 
 
 def _output_dir() -> str:
-    """Return output directory name (e.g. 'output'). Used for subprocess and env."""
-    return os.environ.get("PIPELINE_DB_DIR", "output")
+    """Return DB directory name. Kept for env/backward compatibility."""
+    return os.environ.get("PIPELINE_DB_DIR", "alfp_store")
 
 
 def _db_path() -> Path:
@@ -234,6 +248,280 @@ def _measure_date_from_data(data_path: str) -> str | None:
     return None
 
 
+def _expected_timeline_for_args(args: dict | None) -> list[dict[str, str]]:
+    """Build the expected execution timeline for the new-run live status panel."""
+    args = args or {}
+    run_scope = (args.get("run_scope") or "full_architecture").strip()
+    use_parallel = bool(args.get("use_parallel", True))
+
+    if run_scope == "forecast_only":
+        return [
+            {"label": "[ALFP] 전력 사용량 예측", "hint": "예측 데이터 생성 및 검증"},
+            {"label": "Agent Plan (Forecast-based)", "hint": "예측 기반 계획 생성"},
+        ]
+
+    items = [
+        {"label": "[ALFP] 부하 예측 및 운영 의사결정", "hint": "ALFP 의사결정 생성"},
+        {"label": "AgentScope Multi-Agent Decision", "hint": "다중 에이전트 의사결정"},
+    ]
+    if use_parallel:
+        items.extend([
+            {"label": "Parallel Agents (Thread A)", "hint": "Policy / EcoSaver / Storage 병렬 검증"},
+            {"label": "전력거래 실행 (Thread B)", "hint": "전력거래 실행 및 시뮬레이션"},
+            {"label": "병합", "hint": "병렬 검증 결과와 실행 결과 병합"},
+        ])
+    else:
+        items.append({"label": "Action Execution Engine", "hint": "실행 및 정책 검증"})
+    items.append({"label": "Evaluation Engine", "hint": "KPI 평가 및 등급 산정"})
+    return items
+
+
+def _summary_value_text(value: Any) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, bool):
+        return "예" if value else "아니오"
+    if isinstance(value, (int, float, str)):
+        return str(value)
+    if isinstance(value, list):
+        if not value:
+            return "항목 없음"
+        head = value[:3]
+        if all(not isinstance(v, (dict, list)) for v in head):
+            sample = ", ".join(str(v) for v in head)
+            return sample + (" 외" if len(value) > len(head) else "")
+        return f"{len(value)}건"
+    if isinstance(value, dict):
+        keys = list(value.keys())[:3]
+        if not keys:
+            return "객체"
+        return ", ".join(f"{k}={value[k]}" for k in keys)
+    return str(value)
+
+
+def _summary_to_lines(summary: dict | None, *, limit: int = 4) -> list[str]:
+    summary = summary or {}
+    lines: list[str] = []
+    for key, value in summary.items():
+        if value in (None, "", [], {}):
+            continue
+        lines.append(f"{key}: {_summary_value_text(value)}")
+        if len(lines) >= limit:
+            break
+    return lines
+
+
+def _timeline_agent_item(
+    *,
+    name: str,
+    role: str | None = None,
+    status: str = "completed",
+    elapsed_sec: float | None = None,
+    summary_lines: list[str] | None = None,
+    error_text: str | None = None,
+) -> dict[str, Any]:
+    return {
+        "name": name,
+        "role": role or "",
+        "status": status,
+        "elapsed_sec": elapsed_sec,
+        "summary_lines": summary_lines or [],
+        "error_text": error_text,
+    }
+
+
+def _alfp_timeline_agents(run_id: int, db_path: Path) -> list[dict[str, Any]]:
+    agent_role_map = {
+        "data_loader": "입력 데이터 적재 및 시계열 준비",
+        "data_quality": "결측치·이상치 점검 및 품질 검증",
+        "feature_engineering": "예측 피처 생성 및 정규화",
+        "forecast_planner": "예측 전략·모델 계획 수립",
+        "load_forecast": "부하 예측 실행",
+        "pv_forecast": "태양광 발전량 예측 실행",
+        "net_load_forecast": "순부하 예측 생성",
+        "validation": "예측 품질 검증",
+        "replan": "재계획 필요 여부 판단",
+        "decision": "운영 의사결정 생성",
+        "save_memory": "전략 메모리 저장",
+    }
+    domain_role_map = {
+        "evidence_curator": "증거 수집 및 입력 컨텍스트 정리",
+        "critic_agent": "반례 탐색 및 리스크 점검",
+        "policy_gate": "정책·운영 제약 검증",
+        "simulation_sandbox": "시뮬레이션 기반 사전 검증",
+        "save_memory": "전략 메모리 저장",
+    }
+
+    items: list[dict[str, Any]] = []
+    for step in get_alfp_agent_steps(run_id, stage_order=1, db_path=db_path):
+        status = "completed" if step.get("ok") else "failed"
+        items.append(_timeline_agent_item(
+            name=str(step.get("agent_name") or "ALFP-Agent"),
+            role=agent_role_map.get(str(step.get("agent_name") or ""), "ALFP 파이프라인 노드"),
+            status=status,
+            elapsed_sec=step.get("elapsed_sec"),
+            summary_lines=_summary_to_lines(step.get("summary"), limit=3),
+            error_text=step.get("error_text"),
+        ))
+
+    for step in get_alfp_domain_steps(run_id, stage_order=1, db_path=db_path):
+        status = "completed" if step.get("ok") else "failed"
+        step_type = str(step.get("step_type") or "")
+        role_label = str(step.get("role_label") or domain_role_map.get(step_type) or "도메인 특화 검토")
+        items.append(_timeline_agent_item(
+            name=role_label,
+            role=domain_role_map.get(step_type, "ALFP 도메인 특화 검토"),
+            status=status,
+            elapsed_sec=step.get("elapsed_sec"),
+            summary_lines=_summary_to_lines(step.get("summary"), limit=3),
+            error_text=step.get("error_text"),
+        ))
+    return items
+
+
+def _agentscope_timeline_agents(summary: dict | None, status: str) -> list[dict[str, Any]]:
+    summary = summary or {}
+    return [
+        _timeline_agent_item(name="Policy-Agent", role="ESS·거래·DR 제약 검증 및 클램핑", status=status, summary_lines=["제약 조건 검증 수행"]),
+        _timeline_agent_item(name="SmartSeller-Agent", role="잉여 에너지 판매 전략 수립", status=status, summary_lines=[f"거래 권고: {summary.get('거래 권고', '—')}"]),
+        _timeline_agent_item(name="StorageMaster-Agent", role="ESS 충방전 최적화", status=status, summary_lines=[f"ESS 스케줄: {summary.get('ESS 스케줄', '—')}"]),
+        _timeline_agent_item(name="EcoSaver-Agent", role="수요반응 절감 전략 생성", status=status, summary_lines=[f"DR 이벤트: {summary.get('DR 이벤트', '—')}"]),
+        _timeline_agent_item(name="MarketCoordinator-Agent", role="충돌 조정 및 최종 decisions 생성", status=status, summary_lines=[f"결정 모드: {summary.get('결정 모드', '—')}"]),
+    ]
+
+
+def _parallel_timeline_agents(summary: dict | None, status: str) -> list[dict[str, Any]]:
+    summary = summary or {}
+    return [
+        _timeline_agent_item(name="Policy-Agent", role="병렬 정책 검증", status=status, summary_lines=[f"거절 액션: {summary.get('거절 액션', '—')}", f"위험 점수: {summary.get('위험 점수', '—')}"]),
+        _timeline_agent_item(name="EcoSaver-Agent", role="DR 권고 병렬 평가", status=status, summary_lines=[f"EcoSaver 권고: {summary.get('EcoSaver 권고', '—')}"]),
+        _timeline_agent_item(name="StorageMaster-Agent", role="ESS 액션 수정·보정", status=status, summary_lines=[f"수정 액션: {summary.get('수정 액션', '—')}", f"승인 액션: {summary.get('승인 액션', '—')}"]),
+        _timeline_agent_item(name="Parallel Coordinator", role="병렬 평가 결과 취합", status=status, summary_lines=_summary_to_lines(summary, limit=3)),
+    ]
+
+
+def _execution_timeline_agents(summary: dict | None, status: str) -> list[dict[str, Any]]:
+    summary = summary or {}
+    mode = str(summary.get("실행 모드") or "")
+    if "CDA" in mode:
+        return [
+            _timeline_agent_item(name="CDA Market Engine", role="호가 매칭 및 전력거래 실행", status=status, summary_lines=[f"P2P 거래량 합계: {summary.get('P2P 거래량 합계', '—')}"]),
+            _timeline_agent_item(name="Settlement Validator", role="거래 승인 및 정산 검증", status=status, summary_lines=[f"실행 승인: {summary.get('실행 승인', '—')}"]),
+            _timeline_agent_item(name="Mesa Update", role="실행 결과를 커뮤니티 상태에 반영", status=status, summary_lines=[f"DataFrame: {summary.get('DataFrame', '—')}"]),
+        ]
+    return [
+        _timeline_agent_item(name="Policy Validator", role="실행 전 정책 위반 검증", status=status, summary_lines=[f"실행 승인: {summary.get('실행 승인', '—')}"]),
+        _timeline_agent_item(name="Mesa Execution Engine", role="실행 시뮬레이션 반영", status=status, summary_lines=[f"DataFrame: {summary.get('DataFrame', '—')}"]),
+        _timeline_agent_item(name="Execution Coordinator", role="실행 결과 취합", status=status, summary_lines=_summary_to_lines(summary, limit=3)),
+    ]
+
+
+def _default_timeline_agents(label: str, summary: dict | None, status: str) -> list[dict[str, Any]]:
+    summary = summary or {}
+    if "MESA" in label:
+        return [_timeline_agent_item(name="ALFPSimulationModel", role="커뮤니티 상태 시뮬레이션", status=status, summary_lines=_summary_to_lines(summary, limit=3))]
+    if "State Translator" in label:
+        return [_timeline_agent_item(name="State Translator", role="Mesa 상태를 LLM 입력 포맷으로 변환", status=status, summary_lines=_summary_to_lines(summary, limit=3))]
+    if "병합" in label:
+        return [_timeline_agent_item(name="Merge Coordinator", role="병렬 검증 결과와 실행 결과 병합", status=status, summary_lines=_summary_to_lines(summary, limit=3))]
+    if "Evaluation" in label:
+        return [_timeline_agent_item(name="Evaluation Engine", role="KPI 계산 및 등급 산정", status=status, summary_lines=_summary_to_lines(summary, limit=4))]
+    return [_timeline_agent_item(name=label, role="단계 실행 요약", status=status, summary_lines=_summary_to_lines(summary, limit=3))] if summary else []
+
+
+def _timeline_agents_for_item(
+    *,
+    run_id: int,
+    label: str,
+    stage: dict[str, Any] | None,
+    status: str,
+    db_path: Path,
+) -> list[dict[str, Any]]:
+    summary = (stage or {}).get("summary") or {}
+    actual_name = str((stage or {}).get("stage_name") or label)
+    stage_order = int((stage or {}).get("stage_order") or 0)
+
+    if "[ALFP]" in label or "[ALFP]" in actual_name:
+        return _alfp_timeline_agents(run_id, db_path)
+    if stage_order > 0:
+        pipeline_agent_steps = get_pipeline_agent_steps(run_id, stage_order=stage_order, db_path=db_path)
+        if pipeline_agent_steps:
+            return [
+                _timeline_agent_item(
+                    name=str(step.get("agent_name") or "Pipeline-Agent"),
+                    role=str(step.get("role_label") or ""),
+                    status="completed" if step.get("ok") else "failed",
+                    elapsed_sec=step.get("elapsed_sec"),
+                    summary_lines=_summary_to_lines(step.get("summary"), limit=4),
+                    error_text=step.get("error_text"),
+                )
+                for step in pipeline_agent_steps
+            ]
+    if "AgentScope" in label or "AgentScope" in actual_name:
+        return _agentscope_timeline_agents(summary, status)
+    if "Parallel Agents" in label or "Policy / EcoSaver / Storage" in actual_name:
+        return _parallel_timeline_agents(summary, status)
+    if "전력거래 실행" in label or "Action Execution" in actual_name:
+        return _execution_timeline_agents(summary, status)
+    return _default_timeline_agents(label, summary, status)
+
+
+def _timeline_payload_for_run(run: dict | None) -> dict[str, Any] | None:
+    """Convert one run + stages to timeline items for polling UI."""
+    if not run:
+        return None
+
+    expected = _expected_timeline_for_args(run.get("args") or {})
+    stages = run.get("stages") or []
+    db_path = _db_path()
+    timeline_items: list[dict[str, Any]] = []
+    completed_count = len(stages)
+
+    for idx, expected_item in enumerate(expected):
+        stage = stages[idx] if idx < len(stages) else None
+        status = "pending"
+        if stage is not None:
+            status = "completed" if stage.get("ok") else "failed"
+        elif run.get("status") == "running" and idx == len(stages):
+            status = "running"
+        elif run.get("status") == "failure" and idx >= len(stages):
+            status = "blocked"
+        elif run.get("status") == "success" and idx < len(stages):
+            status = "completed"
+
+        timeline_items.append({
+            "index": idx + 1,
+            "label": expected_item["label"],
+            "hint": expected_item["hint"],
+            "status": status,
+            "actual_stage_name": stage.get("stage_name") if stage else None,
+            "elapsed_sec": stage.get("elapsed_sec") if stage else None,
+            "summary": stage.get("summary") if stage else {},
+            "error_text": stage.get("error_text") if stage else None,
+            "ok": stage.get("ok") if stage is not None else None,
+            "agents": _timeline_agents_for_item(
+                run_id=int(run.get("id")),
+                label=expected_item["label"],
+                stage=stage,
+                status=status,
+                db_path=db_path,
+            ),
+        })
+
+    return {
+        "run_id": run.get("id"),
+        "status": run.get("status"),
+        "created_at": run.get("created_at"),
+        "finished_at": run.get("finished_at"),
+        "total_elapsed_sec": run.get("total_elapsed_sec"),
+        "error_message": run.get("error_message"),
+        "completed_count": completed_count,
+        "total_count": len(expected),
+        "detail_url": url_for("run_detail", run_id=run.get("id")),
+        "timeline": timeline_items,
+    }
+
+
 def _agent_plan_evidence_from_summary(summary: dict | None) -> dict:
     """Agent Plan 단계 요약에서 계획/실행 증빙 데이터를 정규화."""
     summary = summary or {}
@@ -325,7 +613,7 @@ def index():
     search_measure_date = (request.args.get("measure_date") or "").strip()
     search_run_date = (request.args.get("run_date") or "").strip()
     runs = get_runs(
-        limit=50,
+        limit=200,
         prosumer=search_prosumer or None,
         measure_date=search_measure_date or None,
         run_date=search_run_date or None,
@@ -386,7 +674,6 @@ def api_run():
     Request body (JSON): data_path, steps, prosumer (single) or prosumers (list), use_parallel, phase, ...
     Creates one run per prosumer, starts pipeline subprocess per run, returns run_id or run_ids.
     """
-    out_dir = _output_dir()
     data = request.get_json(force=True, silent=True) or {}
     data_path = data.get("data_path", "data/test_5days.pkl")
     steps = int(data.get("steps", 96))  # 96 고정 (화면에서 제거됨)
@@ -411,7 +698,6 @@ def api_run():
         measure_date = _measure_date_from_data(data_path) or "2026-05-05"
 
     init_db(_db_path())
-    out_dir_abs = str(PROJECT_ROOT / out_dir)
     prev_pp = os.environ.get("PYTHONPATH", "")
 
     is_forecast_only = run_scope == "forecast_only"
@@ -435,8 +721,6 @@ def api_run():
             "phase": phase,
             "skip_alfp": skip_alfp,
             "llm_mode": llm_mode,
-            "output_dir": out_dir,
-            "save_json": True,
             "run_scope": run_scope,
             "alfp_mode": "full",
             "measure_date": measure_date,
@@ -456,8 +740,6 @@ def api_run():
             "--phase", str(phase),
             "--llm-mode", llm_mode,
             "--alfp-mode", "full",
-            "--output-dir", out_dir_abs,
-            "--save-json",
         ]
         if use_parallel:
             cmd.append("--use-parallel")
@@ -466,7 +748,7 @@ def api_run():
 
         env = os.environ.copy()
         env["PIPELINE_RUN_ID"] = str(run_id)
-        env["PIPELINE_DB_DIR"] = out_dir
+        env["PIPELINE_DB_DIR"] = _output_dir()
         env["PYTHONPATH"] = str(PROJECT_ROOT) + (os.pathsep + prev_pp if prev_pp else "")
 
         subprocess.Popen(
@@ -489,8 +771,6 @@ def api_run():
             "phase": phase,
             "skip_alfp": skip_alfp,
             "llm_mode": llm_mode,
-            "output_dir": out_dir,
-            "save_json": True,
             "run_scope": run_scope,
             "alfp_mode": "forecast_only" if is_forecast_only else "full",
             "measure_date": measure_date,
@@ -509,8 +789,6 @@ def api_run():
             "--phase", str(phase),
             "--llm-mode", llm_mode,
             "--alfp-mode", "forecast_only" if is_forecast_only else "full",
-            "--output-dir", out_dir_abs,
-            "--save-json",
         ]
         if use_parallel:
             cmd.append("--use-parallel")
@@ -519,7 +797,7 @@ def api_run():
 
         env = os.environ.copy()
         env["PIPELINE_RUN_ID"] = str(run_id)
-        env["PIPELINE_DB_DIR"] = out_dir
+        env["PIPELINE_DB_DIR"] = _output_dir()
         env["PYTHONPATH"] = str(PROJECT_ROOT) + (os.pathsep + prev_pp if prev_pp else "")
 
         subprocess.Popen(
@@ -532,25 +810,36 @@ def api_run():
         return jsonify({"run_id": run_id})
 
 
+@app.route("/api/runs/<int:run_id>/timeline")
+def api_run_timeline(run_id: int):
+    """Return one run's live execution timeline for the new-run screen."""
+    run = get_run_with_stages(run_id, db_path=_db_path())
+    if not run:
+        return jsonify({"error": "run_not_found"}), 404
+    payload = _timeline_payload_for_run(run)
+    if payload is None:
+        return jsonify({"error": "timeline_unavailable"}), 404
+    return jsonify(payload)
+
+
 def _stages_for_tabs(stages: list[dict]) -> dict[str, list]:
     """Group stages by tab (1–6) for run detail view. Uses string containment, no Jinja2 search test."""
     tab1 = [s for s in stages if "ALFP" in s.get("stage_name", "")]
-    tab2 = [s for s in stages if "시뮬레이션 실행" in s.get("stage_name", "")]
+    tab2 = []
     tab3 = [
         s for s in stages
-        if "State Translator" in s.get("stage_name", "")
-        or "Step3  AgentScope" in s.get("stage_name", "")
+        if "AgentScope" in s.get("stage_name", "")
         or "병합" in s.get("stage_name", "")
     ]
     tab4 = [s for s in stages if "전력거래" in s.get("stage_name", "")]
     if not tab4:
-        tab4 = [s for s in stages if "Step4  Action Execution" in s.get("stage_name", "")]
+        tab4 = [s for s in stages if "Action Execution" in s.get("stage_name", "")]
     tab5 = [
         s for s in stages
-        if ("Step3.5 Parallel" in s.get("stage_name", "") and "Thread A" in s.get("stage_name", ""))
+        if "Thread A" in s.get("stage_name", "")
         or "Policy / EcoSaver / Storage" in s.get("stage_name", "")
     ]
-    tab6 = [s for s in stages if "Step5" in s.get("stage_name", "")]
+    tab6 = [s for s in stages if "Evaluation" in s.get("stage_name", "")]
     return {
         "tab1_stages": tab1,
         "tab2_stages": tab2,
@@ -602,9 +891,9 @@ def agent_plans():
             pass
     if run and run.get("stages"):
         stages = run["stages"]
-        tab5 = [s for s in stages if "Step3.5 Parallel" in s.get("stage_name", "") or "Policy / EcoSaver / Storage" in s.get("stage_name", "")]
-        step3 = [s for s in stages if "Step3  AgentScope" in s.get("stage_name", "")]
-        agent_plan_stage = next((s for s in stages if "Step3-P  Agent Plan" in s.get("stage_name", "")), None)
+        tab5 = [s for s in stages if "Thread A" in s.get("stage_name", "") or "Policy / EcoSaver / Storage" in s.get("stage_name", "")]
+        step3 = [s for s in stages if "AgentScope" in s.get("stage_name", "")]
+        agent_plan_stage = next((s for s in stages if "Agent Plan" in s.get("stage_name", "")), None)
         pa_summary = (tab5[0].get("summary") or {}) if tab5 else {}
         step3_summary = (step3[0].get("summary") or {}) if step3 else {}
         agent_plan_summary = (agent_plan_stage.get("summary") or {}) if agent_plan_stage else {}
@@ -630,7 +919,7 @@ def agent_plans():
         }
     else:
         # 기본 설명 문구 (Run 미선택 시)
-        plan_sections["trading"]["content"] = {"objective": "전력거래 최적화: Policy 제약 → ESS 스케줄 → DR 이벤트 → 시뮬레이션 검증", "거래 권고": "Run을 선택하면 Step3/Step3.5 결과가 표시됩니다."}
+        plan_sections["trading"]["content"] = {"objective": "전력거래 최적화: Policy 제약 → ESS 스케줄 → DR 이벤트 → 시뮬레이션 검증", "거래 권고": "Run을 선택하면 Multi-Agent Decision / Parallel Agents 결과가 표시됩니다."}
         plan_sections["eco_saver"]["content"] = {"권고": "—", "설명": "수요반응(DR) 이벤트 생성. 피크 초과 시 절감 권고."}
         plan_sections["storage"]["content"] = {"ESS 스케줄": "—", "승인": "—", "거절": "—", "수정": "—"}
         plan_sections["policy"]["content"] = {"정책 위반": "—", "위험 점수": "—", "설명": "제약 조건 설정 및 검증. 정책·규제 준수 검증."}
@@ -677,6 +966,9 @@ def run_detail_by_search():
 @app.route("/api/runs/<int:run_id>/mesa_trajectory")
 def api_mesa_trajectory(run_id: int):
     """MESA 시뮬레이션 스텝별 궤적(지표) JSON. Dashboard에서 그리드/궤적 차트용."""
+    artifact = get_artifact(run_id, "mesa_trajectory", db_path=_db_path())
+    if artifact is not None:
+        return jsonify({"trajectory": artifact.get("payload") or []})
     path = PROJECT_ROOT / _output_dir() / f"run_{run_id}_mesa_trajectory.json"
     if not path.is_file():
         return jsonify({"error": "not_found", "message": "MESA 궤적 데이터 없음"}), 404
@@ -731,7 +1023,7 @@ def run_detail(run_id: int):
     agentscope_step3_stage = None
     agentscope_trading_evidence = []
     for s in stages:
-        if "Step3  AgentScope" in s.get("stage_name", ""):
+        if "AgentScope" in s.get("stage_name", ""):
             agentscope_step3_stage = s
             summary = s.get("summary") or {}
             agentscope_trading_evidence = _agentscope_trading_evidence_from_summary(summary)
@@ -764,44 +1056,28 @@ def run_detail(run_id: int):
             ]
             break
 
-    # Evaluation 탭(6): run별 평가 보고서 JSON 로드 (run_{id}_ 우선, 없으면 공통 evaluation_report.json)
     evaluation_report = None
-    out_dir = PROJECT_ROOT / _output_dir()
-    for candidate in (out_dir / f"run_{run_id}_evaluation_report.json", out_dir / "evaluation_report.json"):
-        if candidate.is_file():
-            try:
-                with open(candidate, "r", encoding="utf-8") as f:
-                    evaluation_report = json.load(f)
-                break
-            except Exception as e:
-                log.warning("evaluation_report read error path=%s: %s", candidate, e)
+    artifact = get_artifact(run_id, "evaluation_report", db_path=_db_path())
+    if artifact is not None:
+        evaluation_report = artifact.get("payload")
 
-    # CDA 탭(4) 실행 서브탭: Order Book, Matching, Buyer, Settlement (run_{id}_cda_execution.json)
     cda_execution = None
-    cda_exec_path = out_dir / f"run_{run_id}_cda_execution.json"
-    if cda_exec_path.is_file():
-        try:
-            with open(cda_exec_path, "r", encoding="utf-8") as f:
-                cda_execution = json.load(f)
-            settlement_summary = ((cda_execution or {}).get("settlement") or {}).get("summary") or {}
-            matching = (cda_execution or {}).get("matching") or {}
-            if settlement_summary and not matching.get("total_trades"):
-                matching["total_trades"] = settlement_summary.get("total_trades", 0)
-            if settlement_summary and not matching.get("total_quantity_kw"):
-                matching["total_quantity_kw"] = settlement_summary.get("total_matched_kwh", 0)
-            if cda_execution is not None:
-                cda_execution["matching"] = matching
-        except Exception as e:
-            log.warning("cda_execution read error path=%s: %s", cda_exec_path, e)
+    artifact = get_artifact(run_id, "cda_execution", db_path=_db_path())
+    if artifact is not None:
+        cda_execution = artifact.get("payload")
+    if cda_execution is not None:
+        settlement_summary = ((cda_execution or {}).get("settlement") or {}).get("summary") or {}
+        matching = (cda_execution or {}).get("matching") or {}
+        if settlement_summary and not matching.get("total_trades"):
+            matching["total_trades"] = settlement_summary.get("total_trades", 0)
+        if settlement_summary and not matching.get("total_quantity_kw"):
+            matching["total_quantity_kw"] = settlement_summary.get("total_matched_kwh", 0)
+        cda_execution["matching"] = matching
 
     alfp_result = None
-    alfp_result_path = out_dir / f"run_{run_id}_alfp_result.json"
-    if alfp_result_path.is_file():
-        try:
-            with open(alfp_result_path, "r", encoding="utf-8") as f:
-                alfp_result = json.load(f)
-        except Exception as e:
-            log.warning("alfp_result read error path=%s: %s", alfp_result_path, e)
+    artifact = get_artifact(run_id, "alfp_result", db_path=_db_path())
+    if artifact is not None:
+        alfp_result = artifact.get("payload")
     alfp_llm_io = _llm_io_for_run(run, alfp_result)
 
     prosumer_options = _prosumer_options(_db_path())
@@ -837,7 +1113,7 @@ def run_detail(run_id: int):
 if __name__ == "__main__":
     host = os.environ.get("FLASK_HOST", "0.0.0.0")  # 0.0.0.0: 브라우저/다른 기기에서 접근 가능
     port = int(os.environ.get("FLASK_PORT", "5001"))  # 기본 5001 (macOS에서 5000은 AirPlay가 사용)
-    db_dir = os.environ.get("PIPELINE_DB_DIR", "output")
+    db_dir = os.environ.get("PIPELINE_DB_DIR", "alfp_store")
     log.info("Pipeline Dashboard starting  host=%s  port=%s  PIPELINE_DB_DIR=%s", host, port, db_dir)
     log.info("Log file: %s", LOG_DIR / f"dashboard_{datetime.now().strftime('%Y%m%d')}.log")
     log.info("Open http://127.0.0.1:%s in browser (or http://<this-machine-ip>:%s)", port, port)

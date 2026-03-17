@@ -7,6 +7,10 @@ from alfp.memory.strategy_memory import (
     append_strategy_memory,
     evaluate_and_update_weights,
     get_strategy_memory,
+    refresh_strategy_memory_embeddings,
+    retrieve_best_practices,
+    retrieve_similar_cases,
+    retrieve_similar_failures,
     update_latest_strategy_actual_result,
 )
 
@@ -16,5 +20,9 @@ __all__ = [
     "append_strategy_memory",
     "evaluate_and_update_weights",
     "get_strategy_memory",
+    "refresh_strategy_memory_embeddings",
+    "retrieve_best_practices",
+    "retrieve_similar_cases",
+    "retrieve_similar_failures",
     "update_latest_strategy_actual_result",
 ]

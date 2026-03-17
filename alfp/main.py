@@ -46,7 +46,26 @@ def print_llm_plan(plan: dict):
     reasoning = plan.get("llm_reasoning", "")
     insights = plan.get("llm_data_insights", "")
     risks = plan.get("llm_risk_factors", [])
+    characteristics = plan.get("data_characteristics", [])
+    candidates = plan.get("candidate_risk_comparison", [])
+    hypotheses = plan.get("failure_hypotheses", [])
+    reexperiment = plan.get("reexperiment_plan", [])
     prefix = "LLM " if plan.get("llm_used") else ""
+    selected_candidate = plan.get("selected_candidate_id")
+    if selected_candidate:
+        print(f"\n  [{prefix}선택 후보]")
+        print(f"  {selected_candidate}")
+    if characteristics:
+        print(f"\n  [{prefix}데이터 특성 해석]")
+        for item in characteristics[:3]:
+            print(f"    • {item}")
+    if candidates:
+        print(f"\n  [{prefix}후보 리스크 비교]")
+        for item in candidates[:3]:
+            print(
+                f"    • {item.get('candidate_id')} "
+                f"(risk={item.get('risk_score')}, explainability={item.get('explainability_score')})"
+            )
     if reasoning:
         print(f"\n  [{prefix}모델 선택 근거]")
         print(f"  {reasoning}")
@@ -57,6 +76,14 @@ def print_llm_plan(plan: dict):
         print(f"\n  [{prefix}위험 요소]")
         for r in risks:
             print(f"    • {r}")
+    if hypotheses:
+        print(f"\n  [{prefix}실패 원인 가설]")
+        for item in hypotheses[:3]:
+            print(f"    • {item}")
+    if reexperiment:
+        print(f"\n  [{prefix}재실험 계획]")
+        for item in reexperiment[:3]:
+            print(f"    • {item}")
 
 
 def print_llm_validation(metrics: dict):

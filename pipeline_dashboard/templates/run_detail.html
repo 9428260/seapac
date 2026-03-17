@@ -149,6 +149,12 @@
   .forecast-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
   .forecast-table th, .forecast-table td { padding: 0.45rem 0.6rem; text-align: left; border-bottom: 1px solid rgba(139, 148, 158, 0.2); }
   .forecast-table th { color: var(--muted); font-weight: 600; }
+  .pagination { display: flex; align-items: center; gap: 0.4rem; margin-top: 0.85rem; flex-wrap: wrap; }
+  .pagination button { padding: 0.3rem 0.7rem; background: var(--card); border: 1px solid var(--muted); border-radius: 4px; color: var(--text); cursor: pointer; font-size: 0.85rem; }
+  .pagination button:hover:not(:disabled) { background: var(--muted); }
+  .pagination button:disabled { opacity: 0.4; cursor: not-allowed; }
+  .pagination button.active { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 600; }
+  .pagination-info { font-size: 0.82rem; color: var(--muted); margin-left: 0.5rem; }
   .forecast-section-title { font-size: 1rem; margin: 1rem 0 0.5rem 0; }
   .proof-badge { display: inline-block; padding: 0.22rem 0.5rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; }
   .proof-badge.ok { background: rgba(63, 185, 80, 0.15); color: #3fb950; }
@@ -640,7 +646,7 @@
         {% set _feature_sample = (alfp_result.input_data or {}).get('feature_sample') or [] %}
         {% if _feature_sample %}
         <div class="forecast-table-wrap">
-          <table class="forecast-table">
+          <table class="forecast-table js-paginated-table" data-page-size="10">
             <thead>
               <tr>
                 {% for key in _feature_sample[0].keys() %}
@@ -676,7 +682,7 @@
         {% set _load_rows = ((alfp_result.forecast_outputs or {}).get('load_forecast') or []) %}
         {% if _load_rows %}
         <div class="forecast-table-wrap">
-          <table class="forecast-table">
+          <table class="forecast-table js-paginated-table" data-page-size="10">
             <thead><tr>{% for key in _load_rows[0].keys() %}<th>{{ key }}</th>{% endfor %}</tr></thead>
             <tbody>{% for row in _load_rows %}<tr>{% for val in row.values() %}<td>{{ val }}</td>{% endfor %}</tr>{% endfor %}</tbody>
           </table>
@@ -687,7 +693,7 @@
         {% set _pv_rows = ((alfp_result.forecast_outputs or {}).get('pv_forecast') or []) %}
         {% if _pv_rows %}
         <div class="forecast-table-wrap">
-          <table class="forecast-table">
+          <table class="forecast-table js-paginated-table" data-page-size="10">
             <thead><tr>{% for key in _pv_rows[0].keys() %}<th>{{ key }}</th>{% endfor %}</tr></thead>
             <tbody>{% for row in _pv_rows %}<tr>{% for val in row.values() %}<td>{{ val }}</td>{% endfor %}</tr>{% endfor %}</tbody>
           </table>
@@ -698,7 +704,7 @@
         {% set _net_rows = ((alfp_result.forecast_outputs or {}).get('net_load_forecast') or []) %}
         {% if _net_rows %}
         <div class="forecast-table-wrap">
-          <table class="forecast-table">
+          <table class="forecast-table js-paginated-table" data-page-size="10">
             <thead><tr>{% for key in _net_rows[0].keys() %}<th>{{ key }}</th>{% endfor %}</tr></thead>
             <tbody>{% for row in _net_rows %}<tr>{% for val in row.values() %}<td>{{ val }}</td>{% endfor %}</tr>{% endfor %}</tbody>
           </table>
@@ -742,6 +748,86 @@
           params.set('sub', subVal);
           window.history.replaceState({}, '', window.location.pathname + '?' + params.toString());
         });
+      });
+    })();
+
+    (function() {
+      var resultPanel = document.getElementById('sub-result');
+      if (!resultPanel) return;
+
+      resultPanel.querySelectorAll('table.js-paginated-table').forEach(function(table, tableIndex) {
+        var tbody = table.querySelector('tbody');
+        if (!tbody) return;
+
+        var rows = Array.from(tbody.querySelectorAll('tr'));
+        var pageSize = parseInt(table.getAttribute('data-page-size') || '10', 10);
+        if (!rows.length || !pageSize || rows.length <= pageSize) return;
+
+        var totalPages = Math.ceil(rows.length / pageSize);
+        var currentPage = 1;
+        var pagDiv = document.createElement('div');
+        pagDiv.className = 'pagination';
+        pagDiv.setAttribute('data-table-pagination', String(tableIndex + 1));
+        table.parentNode.insertAdjacentElement('afterend', pagDiv);
+
+        function showPage(page) {
+          currentPage = page;
+          rows.forEach(function(row, i) {
+            row.style.display = (i >= (page - 1) * pageSize && i < page * pageSize) ? '' : 'none';
+          });
+          renderPagination();
+        }
+
+        function renderPagination() {
+          pagDiv.innerHTML = '';
+
+          function mkBtn(label, page, isActive, disabled) {
+            var b = document.createElement('button');
+            b.type = 'button';
+            b.textContent = label;
+            if (isActive) b.classList.add('active');
+            b.disabled = disabled;
+            if (!disabled) b.addEventListener('click', function() { showPage(page); });
+            return b;
+          }
+
+          pagDiv.appendChild(mkBtn('‹ 이전', currentPage - 1, false, currentPage === 1));
+
+          var start = Math.max(1, currentPage - 2);
+          var end = Math.min(totalPages, currentPage + 2);
+          if (start > 1) {
+            pagDiv.appendChild(mkBtn('1', 1, false, false));
+            if (start > 2) {
+              var sp = document.createElement('span');
+              sp.textContent = '…';
+              sp.style.cssText = 'color:var(--muted);padding:0 0.2rem';
+              pagDiv.appendChild(sp);
+            }
+          }
+          for (var p = start; p <= end; p++) {
+            pagDiv.appendChild(mkBtn(String(p), p, p === currentPage, false));
+          }
+          if (end < totalPages) {
+            if (end < totalPages - 1) {
+              var sp2 = document.createElement('span');
+              sp2.textContent = '…';
+              sp2.style.cssText = 'color:var(--muted);padding:0 0.2rem';
+              pagDiv.appendChild(sp2);
+            }
+            pagDiv.appendChild(mkBtn(String(totalPages), totalPages, false, false));
+          }
+
+          pagDiv.appendChild(mkBtn('다음 ›', currentPage + 1, false, currentPage === totalPages));
+
+          var info = document.createElement('span');
+          info.className = 'pagination-info';
+          var from = (currentPage - 1) * pageSize + 1;
+          var to = Math.min(currentPage * pageSize, rows.length);
+          info.textContent = from + '–' + to + ' / ' + rows.length + '건';
+          pagDiv.appendChild(info);
+        }
+
+        showPage(1);
       });
     })();
     </script>

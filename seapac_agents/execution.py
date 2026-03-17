@@ -43,8 +43,9 @@ class ESSAction:
 class TradeAction:
     """에너지 거래 액션 (P2P 판매 등)."""
     step: int
-    action: str  # 'sell_p2p' 등
+    action: str  # 'sell_p2p' | 'sell_grid'
     surplus_kw: float
+    bid_price: float = 0.0
     timestamp: str = ""
 
 
@@ -86,7 +87,7 @@ def validate_trade_action(action: TradeAction) -> list[str]:
     errors = []
     if action.surplus_kw < 0:
         errors.append("Trade surplus_kw must be non-negative")
-    if action.action not in ("sell_p2p",):
+    if action.action not in ("sell_p2p", "sell_grid"):
         errors.append(f"Unknown trade action: {action.action}")
     return errors
 
@@ -144,6 +145,7 @@ def build_actions_from_decisions(decisions: dict) -> tuple[list[ESSAction], list
             step=-1,  # timestamp 기반 매칭은 Mesa 쪽에서 수행
             action=r.get("action", "sell_p2p"),
             surplus_kw=float(r.get("surplus_kw", 0.0)),
+            bid_price=float(r.get("bid_price", 0.0)),
             timestamp=str(r.get("timestamp", "")),
         ))
     dr_actions = []

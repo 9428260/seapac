@@ -25,7 +25,12 @@ from alfp.agents.decision import decision_agent
 from alfp.data.loader import load_dataset
 from alfp.ingestion import load_external_measurements, apply_external_measurements
 from alfp.llm import is_llm_enabled
-from alfp.memory import load_memory, save_memory, append_strategy_memory, evaluate_and_update_weights
+from alfp.memory import (
+    append_strategy_memory,
+    evaluate_and_update_weights,
+    load_memory,
+    save_memory,
+)
 from alfp.governance import curate_evidence, run_critic_agent, run_policy_gate
 from alfp.governance.evidence_curator import EvidenceCuratorOutput
 from alfp.simulation_sandbox import run_simulation_sandbox
@@ -143,9 +148,12 @@ def policy_gate_node(state: ALFPState) -> ALFPState:
 def simulation_sandbox_node(state: ALFPState) -> ALFPState:
     """Simulation Sandbox (PRD §4.4): 실행 전 전략 가상 검증."""
     log = state.get("messages", [])
-    log.append("[SimulationSandbox] 전략 검증 (rule-based)")
+    log.append("[SimulationSandbox] 전략 후보 비교 검증")
     sandbox_out = run_simulation_sandbox(dict(state), use_mesa=False)
-    log.append(f"  peak_load={sandbox_out.peak_load:.1f} kW, expected_profit={sandbox_out.expected_profit:.1f}")
+    log.append(
+        f"  peak_load={sandbox_out.peak_load:.1f} kW, expected_profit={sandbox_out.expected_profit:.1f}, "
+        f"recommended={sandbox_out.recommended_candidate_id or 'N/A'}"
+    )
     return {
         **state,
         "simulation_result": sandbox_out.to_dict(),
@@ -168,6 +176,17 @@ def _route_after_policy_gate(state: ALFPState) -> str:
     return "save_memory"  # REJECTED
 
 
+def _route_after_sandbox(state: ALFPState) -> str:
+    """Sandbox 결과가 수정안 재제안을 요구하면 replan, 아니면 save_memory."""
+    result = state.get("simulation_result") or {}
+    if result.get("replan_required"):
+        retry = state.get("plan_retry_count", 0)
+        max_retries = state.get("max_plan_retries", 2)
+        if retry < max_retries:
+            return "replan"
+    return "save_memory"
+
+
 def _agent_step_summary(node_name: str, out: ALFPState) -> dict[str, Any]:
     """노드별 출력에서 Langchain DeepAgent 단계 로그용 요약을 추출 (JSON 직렬 가능한 값만)."""
     summary: dict[str, Any] = {}
@@ -184,8 +203,9 @@ def _agent_step_summary(node_name: str, out: ALFPState) -> dict[str, Any]:
     if node_name == "forecast_planner":
         plan = out.get("forecast_plan") or {}
         if plan:
-            summary["model_load"] = str(plan.get("model_load", ""))[:80]
-            summary["model_pv"] = str(plan.get("model_pv", ""))[:80]
+            summary["selected_model"] = str(plan.get("selected_model", ""))[:80]
+            summary["selected_candidate_id"] = str(plan.get("selected_candidate_id", ""))[:80]
+            summary["candidate_count"] = len(plan.get("candidate_strategies") or [])
             if plan.get("llm_reasoning"):
                 summary["llm_used"] = True
 
@@ -213,21 +233,27 @@ def _agent_step_summary(node_name: str, out: ALFPState) -> dict[str, Any]:
         ev = out.get("evidence") or {}
         summary["task_id"] = ev.get("task_id", "")[:32]
         summary["confidence_score"] = ev.get("confidence_score")
+        summary["candidate_count"] = len(ev.get("alternatives") or [])
 
     if node_name == "critic_agent":
         co = out.get("critic_output") or {}
         summary["risk_score"] = co.get("risk_score")
         summary["failure_scenarios_count"] = len(co.get("failure_scenarios") or [])
+        summary["counterexamples_count"] = len(co.get("counterexamples") or [])
+        summary["revised_candidate_id"] = str(co.get("revised_candidate_id", ""))[:80]
 
     if node_name == "policy_gate":
         pg = out.get("policy_gate_result") or {}
         summary["status"] = pg.get("status")
         summary["risk_score"] = pg.get("risk_score")
+        summary["recommended_candidate_id"] = str(pg.get("recommended_candidate_id", ""))[:80]
 
     if node_name == "simulation_sandbox":
         sim = out.get("simulation_result") or {}
         summary["peak_load"] = sim.get("peak_load")
         summary["expected_profit"] = sim.get("expected_profit")
+        summary["recommended_candidate_id"] = sim.get("recommended_candidate_id")
+        summary["replan_required"] = sim.get("replan_required")
 
     if node_name == "save_memory":
         summary["saved"] = True
@@ -337,9 +363,33 @@ def save_memory_node(state: ALFPState) -> ALFPState:
         performance_score = 0.2
     elif policy_gate_result.get("status") == "APPROVED":
         performance_score = min(1.0, performance_score + 0.1)
-    context = {"plan": plan, "validation_kpi": kpi, "evidence_task_id": evidence.get("task_id")}
+    plan_tags = {
+        "prosumer_type": plan.get("prosumer_type"),
+        "season": ((state.get("memory_retrieval") or {}).get("current_context") or {}).get("tags", {}).get("season"),
+        "weather": ((state.get("memory_retrieval") or {}).get("current_context") or {}).get("tags", {}).get("weather"),
+        "tariff": ((state.get("memory_retrieval") or {}).get("current_context") or {}).get("tags", {}).get("tariff"),
+        "operating_mode": state.get("operating_mode"),
+        "forecast_horizon_bucket": ((state.get("memory_retrieval") or {}).get("current_context") or {}).get("tags", {}).get("forecast_horizon_bucket"),
+    }
+    context = {
+        "plan": plan,
+        "validation_kpi": kpi,
+        "evidence_task_id": evidence.get("task_id"),
+        "tags": plan_tags,
+        "stats": {
+            "prosumer_type": plan.get("prosumer_type"),
+            "season": plan_tags.get("season"),
+            "weather_label": plan_tags.get("weather"),
+            "tariff_profile": plan_tags.get("tariff"),
+            "forecast_horizon_bucket": plan_tags.get("forecast_horizon_bucket"),
+        },
+    }
     strategy = {"ess_summary": decisions.get("ess_summary"), "tariff_saving": decisions.get("tariff_saving"), "dr_summary": decisions.get("dr_summary")}
-    result = {"policy_gate": policy_gate_result.get("status"), "simulation": simulation_result}
+    result = {
+        "policy_gate": policy_gate_result.get("status"),
+        "simulation": simulation_result,
+        "memory_retrieval_summary": (plan.get("memory_retrieval_summary") or {}),
+    }
     strategy_entry = append_strategy_memory(
         prosumer_id,
         context=context,
@@ -411,7 +461,11 @@ def build_pipeline(
         _route_after_policy_gate,
         {"simulation_sandbox": "simulation_sandbox", "replan": "replan", "save_memory": "save_memory"},
     )
-    graph.add_edge("simulation_sandbox",   "save_memory")
+    graph.add_conditional_edges(
+        "simulation_sandbox",
+        _route_after_sandbox,
+        {"replan": "replan", "save_memory": "save_memory"},
+    )
     graph.add_edge("save_memory",         END)
 
     return graph

@@ -33,6 +33,24 @@ class TradeRecord:
     saving_buyer: float     # 구매자 절감 (원)
 
 
+def _planned_trade_controls(trading_plan: list[dict] | None) -> dict[str, float | bool]:
+    """현재 스텝 거래 추천을 커뮤니티 단위 제어값으로 정규화."""
+    items = trading_plan or []
+    p2p_items = [item for item in items if str(item.get("action", "")).strip() == "sell_p2p"]
+    grid_items = [item for item in items if str(item.get("action", "")).strip() == "sell_grid"]
+
+    p2p_sell_kw = sum(float(item.get("surplus_kw", 0.0) or 0.0) for item in p2p_items)
+    grid_sell_kw = sum(float(item.get("surplus_kw", 0.0) or 0.0) for item in grid_items)
+    bid_prices = [float(item.get("bid_price", 0.0) or 0.0) for item in p2p_items if float(item.get("bid_price", 0.0) or 0.0) > 0]
+
+    return {
+        "has_explicit_plan": bool(items),
+        "p2p_sell_kw": max(p2p_sell_kw, 0.0),
+        "grid_sell_kw": max(grid_sell_kw, 0.0),
+        "bid_price": (sum(bid_prices) / len(bid_prices)) if bid_prices else 0.0,
+    }
+
+
 class EnergyMarketAgent(mesa.Agent):
     """
     에너지 거래 마켓 에이전트 (단지 내 중앙 중개자).
@@ -68,6 +86,9 @@ class EnergyMarketAgent(mesa.Agent):
         self.total_revenue_krw: float      = 0.0   # 마켓 수수료 수입
         self.total_seller_revenue_krw: float = 0.0
         self.total_buyer_saving_krw: float   = 0.0
+        self.total_planned_p2p_sell_kwh: float = 0.0
+        self.total_planned_grid_sell_kwh: float = 0.0
+        self.total_blocked_surplus_kwh: float = 0.0
 
         self.trade_log: list[TradeRecord] = []
 
@@ -83,6 +104,14 @@ class EnergyMarketAgent(mesa.Agent):
         prosumers: list[ProsumerAgent] = list(
             self.model.agents_by_type.get(ProsumerAgent) or []
         )
+        dt = 0.25  # 15분 = 0.25 h
+        trading_by_step = getattr(self.model, "_trading_by_step", None) or {}
+        decisions_active = bool(getattr(self.model, "alfp_decisions", None))
+        controls = _planned_trade_controls(trading_by_step.get(self.model.current_step))
+        p2p_quota_kw = float(controls["p2p_sell_kw"])
+        planned_bid_price = float(controls["bid_price"])
+        self.total_planned_p2p_sell_kwh += p2p_quota_kw * dt
+        self.total_planned_grid_sell_kwh += float(controls["grid_sell_kw"]) * dt
 
         # ── 1) 판매자 / 구매자 분류 ──────────────────────────
         sellers = [
@@ -104,6 +133,24 @@ class EnergyMarketAgent(mesa.Agent):
         seller_remaining = [s for _, s in sellers]
         buyer_remaining  = [b for _, b in buyers]
 
+        if decisions_active:
+            community_surplus_kw = sum(seller_remaining)
+            if p2p_quota_kw <= 0:
+                self.total_blocked_surplus_kwh += community_surplus_kw * dt
+                self.unmatched_surplus_kw = community_surplus_kw
+                self.unmatched_deficit_kw = sum(buyer_remaining)
+                return
+            allowed_kw = min(p2p_quota_kw, community_surplus_kw)
+            remaining_quota = allowed_kw
+            planned_remaining: list[float] = []
+            for available_kw in seller_remaining:
+                alloc = min(available_kw, remaining_quota)
+                planned_remaining.append(alloc)
+                remaining_quota -= alloc
+            blocked_kw = max(community_surplus_kw - allowed_kw, 0.0)
+            self.total_blocked_surplus_kwh += blocked_kw * dt
+            seller_remaining = planned_remaining
+
         # ── 2) Greedy 매칭 ────────────────────────────────────
         for si, (seller_agent, _) in enumerate(sellers):
             if seller_remaining[si] < self.min_trade_kw:
@@ -122,8 +169,7 @@ class EnergyMarketAgent(mesa.Agent):
                 if trade_kw < self.min_trade_kw:
                     continue
 
-                price_p2p = seller_agent.current_price_p2p
-                dt = 0.25  # 15분 = 0.25 h
+                price_p2p = planned_bid_price if planned_bid_price > 0 else seller_agent.current_price_p2p
 
                 # 수익 / 절감 계산
                 revenue_seller = trade_kw * dt * price_p2p * (1 - self.commission_rate)

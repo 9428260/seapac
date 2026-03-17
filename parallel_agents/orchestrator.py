@@ -28,6 +28,8 @@ class OrchestratorOutput:
     policy_violation_report: list[str] = field(default_factory=list)
     risk_score: float = 0.0
     notification_payload: list[dict] = field(default_factory=list)
+    evaluated_steps: int = 0
+    step_summaries: list[dict] = field(default_factory=list)
 
 
 def _run_policy_sync(site_state: dict, candidate_actions: list[dict], config: PolicyConfig | None) -> PolicyAgentOutput:
@@ -149,7 +151,91 @@ def _merge_results(
         policy_violation_report=list(policy_out.policy_violation_report),
         risk_score=policy_out.risk_score,
         notification_payload=notification_payload,
+        evaluated_steps=1,
+        step_summaries=[],
     )
+
+
+def _run_single_bundle(
+    bundle: dict,
+    *,
+    policy_config: PolicyConfig | None,
+    peak_threshold_kw: float,
+    max_charge_kw: float,
+    max_discharge_kw: float,
+    use_async: bool,
+) -> OrchestratorOutput:
+    site_state = bundle.get("site_state") or {}
+    candidate_actions = bundle.get("candidate_actions") or []
+
+    if use_async:
+        policy_out, eco_out, storage_out = asyncio.run(
+            _run_parallel_async(
+                site_state,
+                candidate_actions,
+                policy_config,
+                peak_threshold_kw,
+                max_charge_kw,
+                max_discharge_kw,
+            )
+        )
+    else:
+        policy_out = _run_policy_sync(site_state, candidate_actions, policy_config)
+        eco_out = _run_eco_sync(site_state, candidate_actions, peak_threshold_kw)
+        storage_out = _run_storage_sync(site_state, candidate_actions, max_charge_kw, max_discharge_kw)
+
+    return _merge_results(policy_out, storage_out, eco_out, candidate_actions)
+
+
+def _run_stepwise_evaluation(
+    step_bundles: list[dict],
+    *,
+    policy_config: PolicyConfig | None,
+    peak_threshold_kw: float,
+    max_charge_kw: float,
+    max_discharge_kw: float,
+    use_async: bool,
+) -> OrchestratorOutput:
+    """Evaluate each time step against its own site state and aggregate the results."""
+    aggregate = OrchestratorOutput()
+    approved_order: list[str] = []
+    rejected_order: list[str] = []
+
+    for step_bundle in step_bundles:
+        out = _run_single_bundle(
+            step_bundle,
+            policy_config=policy_config,
+            peak_threshold_kw=peak_threshold_kw,
+            max_charge_kw=max_charge_kw,
+            max_discharge_kw=max_discharge_kw,
+            use_async=use_async,
+        )
+        aggregate.evaluated_steps += 1
+        aggregate.approved_actions_detail.extend(out.approved_actions_detail)
+        aggregate.modified_actions.extend(out.modified_actions)
+        aggregate.recommendations.extend(out.recommendations)
+        aggregate.policy_violation_report.extend(out.policy_violation_report)
+        aggregate.notification_payload.extend(out.notification_payload)
+        aggregate.step_summaries.append({
+            "step_index": step_bundle.get("step_index"),
+            "time": (step_bundle.get("site_state") or {}).get("time", ""),
+            "candidate_actions": len(step_bundle.get("candidate_actions") or []),
+            "approved_actions": len(out.approved_actions),
+            "rejected_actions": len(out.rejected_actions),
+            "risk_score": out.risk_score,
+        })
+        aggregate.risk_score = max(aggregate.risk_score, out.risk_score)
+
+        for action_id in out.approved_actions:
+            if action_id and action_id not in approved_order:
+                approved_order.append(action_id)
+        for action_id in out.rejected_actions:
+            if action_id and action_id not in rejected_order and action_id not in approved_order:
+                rejected_order.append(action_id)
+
+    aggregate.approved_actions = approved_order
+    aggregate.rejected_actions = rejected_order
+    return aggregate
 
 
 def run_parallel_evaluation(
@@ -174,26 +260,25 @@ def run_parallel_evaluation(
     Returns:
         OrchestratorOutput (approved_actions, approved_actions_detail, recommendations, etc.)
     """
-    site_state = bundle.get("site_state") or {}
-    candidate_actions = bundle.get("candidate_actions") or []
-
-    if use_async:
-        policy_out, eco_out, storage_out = asyncio.run(
-            _run_parallel_async(
-                site_state,
-                candidate_actions,
-                policy_config,
-                peak_threshold_kw,
-                max_charge_kw,
-                max_discharge_kw,
-            )
+    step_bundles = bundle.get("step_bundles") or []
+    if step_bundles:
+        return _run_stepwise_evaluation(
+            step_bundles,
+            policy_config=policy_config,
+            peak_threshold_kw=peak_threshold_kw,
+            max_charge_kw=max_charge_kw,
+            max_discharge_kw=max_discharge_kw,
+            use_async=use_async,
         )
-    else:
-        policy_out = _run_policy_sync(site_state, candidate_actions, policy_config)
-        eco_out = _run_eco_sync(site_state, candidate_actions, peak_threshold_kw)
-        storage_out = _run_storage_sync(site_state, candidate_actions, max_charge_kw, max_discharge_kw)
 
-    return _merge_results(policy_out, storage_out, eco_out, candidate_actions)
+    return _run_single_bundle(
+        bundle,
+        policy_config=policy_config,
+        peak_threshold_kw=peak_threshold_kw,
+        max_charge_kw=max_charge_kw,
+        max_discharge_kw=max_discharge_kw,
+        use_async=use_async,
+    )
 
 
 def run_parallel_evaluation_and_convert(
@@ -210,7 +295,11 @@ def run_parallel_evaluation_and_convert(
     Convenience: decisions + optional state_json_list → candidate bundle → parallel evaluation
     → orchestrator output → decisions format for run_execution().
     """
-    bundle = decisions_to_candidate_bundle(decisions, state_json_list)
+    bundle = decisions_to_candidate_bundle(
+        decisions,
+        state_json_list,
+        peak_threshold_kw=peak_threshold_kw,
+    )
     out = run_parallel_evaluation(
         bundle,
         policy_config=policy_config,
@@ -228,5 +317,7 @@ def run_parallel_evaluation_and_convert(
         "policy_violation_report": out.policy_violation_report,
         "risk_score": out.risk_score,
         "notification_payload": out.notification_payload,
+        "evaluated_steps": out.evaluated_steps,
+        "step_summaries": out.step_summaries,
     }
     return orchestrator_output_to_decisions(output_dict, decisions)

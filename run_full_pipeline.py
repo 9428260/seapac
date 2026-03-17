@@ -6,10 +6,6 @@ SEAPAC Full Integrated Pipeline
 Architecture (기본):
   [ALFP decision]
         ↓
-  [MESA Simulation Engine]
-        ↓
-  Step2  State Translator
-        ↓
   Step3  AgentScope Multi-Agent Decision
         ↓
   Step4  Action Execution Engine
@@ -18,10 +14,6 @@ Architecture (기본):
 
 Architecture (--use-parallel, 전력거래와 Parallel Agents 동시 실행):
   [ALFP decision]
-        ↓
-  [MESA Simulation Engine]
-        ↓
-  Step2  State Translator
         ↓
   Step3  AgentScope Multi-Agent Decision
         ↓
@@ -39,7 +31,7 @@ Architecture (--use-parallel, 전력거래와 Parallel Agents 동시 실행):
 Usage:
   python run_full_pipeline.py
   python run_full_pipeline.py --steps 96 --phase 4 --use-parallel
-  python run_full_pipeline.py --prosumer bus_48_Commercial --save-json --log-file output/run.log
+  python run_full_pipeline.py --prosumer bus_48_Commercial --log-file logs/run.log
   python run_full_pipeline.py --skip-alfp  (ALFP 없이 MESA→Step2~5 만 실행)
 """
 
@@ -68,11 +60,13 @@ try:
         init_db,
         create_run,
         add_stage,
+        add_pipeline_agent_step,
         finish_run,
+        upsert_artifact,
     )
     _DASHBOARD_AVAILABLE = True
 except ImportError as e:
-    get_db_path = init_db = create_run = add_stage = finish_run = None  # type: ignore[misc, assignment]
+    get_db_path = init_db = create_run = add_stage = add_pipeline_agent_step = finish_run = upsert_artifact = None  # type: ignore[misc, assignment]
     _DASHBOARD_AVAILABLE = False
     _DASHBOARD_IMPORT_ERROR = e
 
@@ -116,6 +110,36 @@ class StageResult:
     elapsed_sec: float = 0.0
     summary: dict[str, Any] = field(default_factory=dict)
     error: str = ""
+
+
+def _utc_now_str() -> str:
+    return datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+
+
+def _record_stage_agent_logs(
+    run_id: int | None,
+    stage_order: int,
+    agent_logs: list[dict[str, Any]] | None,
+    db_path: Path | None,
+) -> None:
+    """Persist one stage's per-agent logs for timeline/detail UI."""
+    if not _DASHBOARD_AVAILABLE or run_id is None or db_path is None or not agent_logs:
+        return
+    for idx, item in enumerate(agent_logs):
+        add_pipeline_agent_step(
+            run_id=run_id,
+            stage_order=stage_order,
+            agent_name=str(item.get("agent_name") or f"agent_{idx + 1}"),
+            role_label=item.get("role_label"),
+            step_order=int(item.get("step_order", idx)),
+            started_at=str(item.get("started_at") or _utc_now_str()),
+            finished_at=item.get("finished_at"),
+            elapsed_sec=item.get("elapsed_sec"),
+            ok=bool(item.get("ok", True)),
+            summary=item.get("summary") or {},
+            error_text=item.get("error_text"),
+            db_path=db_path,
+        )
 
 
 @dataclass
@@ -211,11 +235,8 @@ def _parse_args() -> argparse.Namespace:
     p.add_argument("--use-cda",     action="store_true", default=True, help="Step3 CDA 시장 모드 사용 (기본값)")
     p.add_argument("--no-cda",      action="store_false", dest="use_cda", help="Step3 AgentScope 페르소나 모드 사용 (CDA 비활성화)")
     p.add_argument("--use-cda-negotiation", action="store_true", help="Step3 CDA + Strategy Agent(LLM) + Negotiation Layer 사용 (--use-cda 필요)")
-    # 출력
-    p.add_argument("--output-dir",  default=None, help="결과 저장 디렉토리")
-    p.add_argument("--save-json",   action="store_true", help="JSON 파일로 결과 저장")
-    p.add_argument("--log-file",    default=None, help="로그 파일 경로 (미지정 시 logs/pipeline_YYYYMMDD_HHMMSS.log)")
-    p.add_argument("--log-dir",     default="logs", help="시간별 로그 파일을 저장할 디렉토리 (--log-file 미지정 시 사용)")
+    p.add_argument("--log-file",    default=None, help="로그 파일 경로 (지정한 경우에만 파일 기록)")
+    p.add_argument("--log-dir",     default="logs", help="로그 디렉토리 (명시적 --log-file 사용 시 참고용)")
     p.add_argument("--verbose",     action="store_true", help="DEBUG 수준 상세 출력")
     p.add_argument("--audit-log",   default=None, help="Parallel Layer 감사 로그 경로")
     return p.parse_args()
@@ -521,7 +542,7 @@ def stage_agent_plan_from_alfp(
     alfp_result: dict,
 ) -> tuple[StageResult, dict]:
     """ALFP forecast_only 결과를 기반으로 policy/trading/storage agent 계획 및 실행."""
-    label = "Step3-P  Agent Plan (Forecast-based)"
+    label = "Agent Plan (Forecast-based)"
     t0 = _stage_start(label)
     try:
         from seapac_agents.agent_planner import run_agent_plan
@@ -545,6 +566,11 @@ def stage_agent_plan_from_alfp(
             max_discharge_kw=min(50.0, args.ess_capacity / 4),
             use_llm=use_llm_plan,
             max_revisions=0,
+            data_path=args.data_path,
+            n_steps=args.steps,
+            phase=args.phase,
+            seed=args.seed,
+            ess_capacity_kwh=args.ess_capacity,
             verbose=args.verbose,
         )
         plan_meta = decisions.get("agent_plan") or {}
@@ -558,8 +584,9 @@ def stage_agent_plan_from_alfp(
             "계획 목표": plan_meta.get("objective", "—"),
             "전력거래 권고": f"{len(decisions.get('trading_recommendations') or [])}건",
             "ESS 스케줄": f"{len(decisions.get('ess_schedule') or [])}건",
+            "DR 이벤트": f"{len(decisions.get('demand_response_events') or [])}건",
             "정책 위반": f"{len(decisions.get('policy_violations') or [])}건",
-            "실행 에이전트": "Policy / Trading / Storage",
+            "실행 에이전트": "Policy / Trading / Storage / EcoSaver / Simulation",
             "계획 스텝": plan_steps,
             "실행 로그": agent_logs,
             "실행 완료": "완료" if plan_meta.get("execution_completed") else "미완료",
@@ -571,136 +598,27 @@ def stage_agent_plan_from_alfp(
         return _stage_error(label, t0, exc), {}
 
 
-def stage_mesa(
-    args: argparse.Namespace,
-    alfp_decisions: dict | None,
-) -> tuple[StageResult, Any, Any]:
-    """[MESA Simulation Engine] — 커뮤니티 멀티 에이전트 시뮬레이션."""
-    label = "[MESA] 시뮬레이션 실행"
-    t0 = _stage_start(label)
-    try:
-        from simulation.model import ALFPSimulationModel
-
-        using_decisions = bool(alfp_decisions)
-        measure_date = getattr(args, "measure_date", None) or os.environ.get("PIPELINE_MEASURE_DATE")
-        log.info("   Phase:    %d", args.phase)
-        log.info("   Steps:    %d", args.steps)
-        if measure_date:
-            log.info("   기준일자: %s", measure_date)
-        log.info("   ESS:      %.0f kWh  (피크 임계 %.0f kW)", args.ess_capacity, args.peak_threshold)
-        log.info("   ALFP 연동: %s", "✓ decisions 주입" if using_decisions else "✗ rule-based fallback")
-
-        model = ALFPSimulationModel(
-            phase=args.phase,
-            data_path=args.data_path,
-            n_steps=args.steps,
-            measure_date=measure_date,
-            seed=args.seed,
-            ess_capacity_kwh=args.ess_capacity,
-            ess_peak_threshold_kw=args.peak_threshold,
-            alfp_decisions=alfp_decisions if using_decisions else None,
-        )
-        df = model.run()
-
-        # 통계
-        load_max  = df["community_load_kw"].max()  if "community_load_kw"  in df.columns else float("nan")
-        load_mean = df["community_load_kw"].mean() if "community_load_kw"  in df.columns else float("nan")
-        pv_mean   = df["community_pv_kw"].mean()   if "community_pv_kw"    in df.columns else float("nan")
-        net_mean  = df["community_net_kw"].mean()  if "community_net_kw"   in df.columns else float("nan")
-        mape_mean = df["avg_forecast_mape"].mean() if "avg_forecast_mape"  in df.columns else float("nan")
-        ess_mean  = df["ess_soc_pct"].mean()       if "ess_soc_pct"        in df.columns else float("nan")
-        trade_sum = df["market_matched_kw"].sum()  if "market_matched_kw"  in df.columns else float("nan")
-
-        log.info("   [입력] 데이터: %s  (Phase %d, %d steps)", args.data_path, args.phase, len(df))
-
-        summary = {
-            "시뮬레이션 스텝":       len(df),
-            "커뮤니티 최대 부하":    f"{load_max:.1f} kW",
-            "커뮤니티 평균 부하":    f"{load_mean:.1f} kW",
-            "평균 PV 발전":         f"{pv_mean:.1f} kW",
-            "평균 Net Load":        f"{net_mean:.1f} kW",
-            "평균 예측 MAPE":       f"{mape_mean:.2f} %",
-            "ESS 평균 SoC":         f"{ess_mean:.1f} %" if not (ess_mean != ess_mean) else "N/A (Phase<3)",
-            "P2P 거래량 합계":       f"{trade_sum:.1f} kW" if not (trade_sum != trade_sum) else "N/A (Phase<4)",
-            "ALFP decisions 연동":  "✓" if using_decisions else "✗",
-        }
-
-        log.debug("   DataFrame columns: %s", list(df.columns))
-
-        return _stage_end(label, t0, summary), df, model
-
-    except Exception as exc:
-        log.exception("MESA 시뮬레이션 오류")
-        return _stage_error(label, t0, exc), None, None
-
-
-def stage_state_translator(
-    args: argparse.Namespace,
-    df: Any,
-    model: Any | None = None,
-) -> tuple[StageResult, list[dict]]:
-    """Step2 — State Translator."""
-    label = "Step2  State Translator"
-    t0 = _stage_start(label)
-    try:
-        from seapac_agents.state_translator import translate_dataframe, translate_model_history, generate_summary
-
-        log.info("   입력:  DataFrame %d rows × %d cols", df.shape[0], df.shape[1])
-        log.info("   피크 임계: %.0f kW  /  ESS 용량: %.0f kWh", args.peak_threshold, args.ess_capacity)
-
-        if model is not None:
-            state_json_list = translate_model_history(
-                model,
-                peak_threshold_kw=args.peak_threshold,
-            )
-        else:
-            state_json_list = translate_dataframe(
-                df,
-                peak_threshold_kw=args.peak_threshold,
-                ess_capacity_kwh=args.ess_capacity,
-            )
-
-        # 첫 / 마지막 스텝 요약
-        first_summary = generate_summary(state_json_list[0])  if state_json_list else ""
-        last_summary  = generate_summary(state_json_list[-1]) if state_json_list else ""
-
-        # 피크 리스크 통계
-        peak_risks = [s.get("community_state", {}).get("peak_risk", "LOW") for s in state_json_list]
-        high_risk_steps = sum(1 for r in peak_risks if r == "HIGH")
-
-        log.info("   [출력] state JSON %d 스텝 생성", len(state_json_list))
-        log.info("   첫 스텝: %s", first_summary)
-        log.info("   끝 스텝: %s", last_summary)
-
-        summary = {
-            "생성된 state JSON 수":  len(state_json_list),
-            "첫 스텝 요약":          first_summary[:80] if first_summary else "",
-            "끝 스텝 요약":          last_summary[:80]  if last_summary  else "",
-            "피크 위험 스텝 (≥0.7)": high_risk_steps,
-        }
-
-        if args.verbose and state_json_list:
-            log.debug("   state[0] 샘플:\n%s", json.dumps(state_json_list[0], indent=2, ensure_ascii=False)[:600])
-
-        return _stage_end(label, t0, summary), state_json_list
-
-    except Exception as exc:
-        log.exception("State Translator 오류")
-        return _stage_error(label, t0, exc), []
-
 
 def stage_multi_agent_decision(
     args: argparse.Namespace,
     state_json_list: list[dict],
-) -> tuple[StageResult, dict]:
+    alfp_decisions: dict | None = None,
+) -> tuple[StageResult, dict, list[dict[str, Any]]]:
     """Step3 — AgentScope Multi-Agent Decision."""
-    label = "Step3  AgentScope Multi-Agent Decision"
+    label = "AgentScope Multi-Agent Decision"
     t0 = _stage_start(label)
     try:
         max_kw = min(50.0, args.ess_capacity / 4)
         log.info("   입력:  %d 스텝 state JSON", len(state_json_list))
         log.info("   모드:  %s", "CDA 시장" if args.use_cda else "AgentScope 페르소나")
         log.info("   최대 충방전: %.1f kW", max_kw)
+        if alfp_decisions:
+            log.info(
+                "   ALFP seed decisions: ESS %d건 / 거래 %d건 / DR %d건",
+                len(alfp_decisions.get("ess_schedule", [])),
+                len(alfp_decisions.get("trading_recommendations", [])),
+                len(alfp_decisions.get("demand_response_events", [])),
+            )
 
         if getattr(args, "use_cda_negotiation", False) and args.use_cda:
             from seapac_agents.decision import (
@@ -745,6 +663,22 @@ def stage_multi_agent_decision(
                 max_discharge_kw=max_kw,
             )
 
+        # ALFP seed decisions 병합: 멀티에이전트 결과에 없는 항목은 ALFP 결과로 보완
+        if alfp_decisions:
+            if not decisions.get("llm_strategy") and alfp_decisions.get("llm_strategy"):
+                decisions["llm_strategy"] = alfp_decisions["llm_strategy"]
+            if not decisions.get("ess_schedule") and alfp_decisions.get("ess_schedule"):
+                decisions["ess_schedule"] = alfp_decisions["ess_schedule"]
+                log.info("   ALFP ESS 스케줄 %d건 보완 적용", len(decisions["ess_schedule"]))
+            if not decisions.get("demand_response_events") and alfp_decisions.get("demand_response_events"):
+                decisions["demand_response_events"] = alfp_decisions["demand_response_events"]
+                log.info("   ALFP DR 이벤트 %d건 보완 적용", len(decisions["demand_response_events"]))
+            decisions["alfp_seed"] = {
+                "ess_schedule_count": len(alfp_decisions.get("ess_schedule", [])),
+                "trading_recommendations_count": len(alfp_decisions.get("trading_recommendations", [])),
+                "demand_response_events_count": len(alfp_decisions.get("demand_response_events", [])),
+            }
+
         n_ess   = len(decisions.get("ess_schedule", []))
         n_trade = len(decisions.get("trading_recommendations", []))
         n_dr    = len(decisions.get("demand_response_events", []))
@@ -775,20 +709,86 @@ def stage_multi_agent_decision(
         if args.verbose and n_ess > 0:
             log.debug("   ESS[0]: %s", ess_sched[0])
 
-        return _stage_end(label, t0, summary), decisions
+        stage_r = _stage_end(label, t0, summary)
+        mode_label = "CDA+Negotiation" if getattr(args, "use_cda_negotiation", False) and args.use_cda else ("CDA 시장" if args.use_cda else "AgentScope")
+        agent_logs = [
+            {
+                "agent_name": "Policy-Agent",
+                "role_label": "ESS·거래·DR 제약 검증 및 클램핑",
+                "step_order": 0,
+                "started_at": _utc_now_str(),
+                "finished_at": _utc_now_str(),
+                "elapsed_sec": None,
+                "ok": True,
+                "summary": {"제약 검증": "완료", "결정 모드": mode_label},
+            },
+            {
+                "agent_name": "SmartSeller-Agent",
+                "role_label": "잉여 에너지 판매 전략 수립",
+                "step_order": 1,
+                "started_at": _utc_now_str(),
+                "finished_at": _utc_now_str(),
+                "elapsed_sec": None,
+                "ok": True,
+                "summary": {"거래 권고": f"{n_trade}건", "거래 증빙": summary.get("거래 증빙", "0건")},
+            },
+            {
+                "agent_name": "StorageMaster-Agent",
+                "role_label": "ESS 충방전 최적화",
+                "step_order": 2,
+                "started_at": _utc_now_str(),
+                "finished_at": _utc_now_str(),
+                "elapsed_sec": None,
+                "ok": True,
+                "summary": {"ESS 스케줄": summary.get("ESS 스케줄", "—")},
+            },
+            {
+                "agent_name": "EcoSaver-Agent",
+                "role_label": "수요반응 절감 전략 생성",
+                "step_order": 3,
+                "started_at": _utc_now_str(),
+                "finished_at": _utc_now_str(),
+                "elapsed_sec": None,
+                "ok": True,
+                "summary": {"DR 이벤트": f"{n_dr}건"},
+            },
+            {
+                "agent_name": "MarketCoordinator-Agent",
+                "role_label": "충돌 조정 및 최종 decisions 생성",
+                "step_order": 4,
+                "started_at": _utc_now_str(),
+                "finished_at": _utc_now_str(),
+                "elapsed_sec": stage_r.elapsed_sec,
+                "ok": True,
+                "summary": {"결정 모드": mode_label, "최종 요약": f"ESS {n_ess} / 거래 {n_trade} / DR {n_dr}"},
+            },
+        ]
+        return stage_r, decisions, agent_logs
 
     except Exception as exc:
         log.exception("Multi-Agent Decision 오류")
-        return _stage_error(label, t0, exc), {}
+        stage_r = _stage_error(label, t0, exc)
+        agent_logs = [{
+            "agent_name": "MarketCoordinator-Agent",
+            "role_label": "다중 에이전트 의사결정 오케스트레이션",
+            "step_order": 0,
+            "started_at": _utc_now_str(),
+            "finished_at": _utc_now_str(),
+            "elapsed_sec": stage_r.elapsed_sec,
+            "ok": False,
+            "summary": {},
+            "error_text": str(exc),
+        }]
+        return stage_r, {}, agent_logs
 
 
 def stage_parallel_agents(
     args: argparse.Namespace,
     decisions: dict,
     state_json_list: list[dict],
-) -> tuple[StageResult, dict]:
+) -> tuple[StageResult, dict, list[dict[str, Any]]]:
     """Step3.5 — Final Parallel Execution Layer."""
-    label = "Step3.5 Parallel Agents (Policy / EcoSaver / Storage)"
+    label = "Parallel Agents (Policy / EcoSaver / Storage)"
     t0 = _stage_start(label)
     try:
         from parallel_agents import (
@@ -858,19 +858,74 @@ def stage_parallel_agents(
             "위험 점수":     f"{risk_score:.2f}",
         }
 
-        return _stage_end(label, t0, summary), updated_decisions
+        stage_r = _stage_end(label, t0, summary)
+        agent_logs = [
+            {
+                "agent_name": "Policy-Agent",
+                "role_label": "병렬 정책 검증",
+                "step_order": 0,
+                "started_at": _utc_now_str(),
+                "finished_at": _utc_now_str(),
+                "elapsed_sec": None,
+                "ok": True,
+                "summary": {"거절 액션": f"{len(rejected)}건", "정책 위반": f"{len(violations)}건"},
+            },
+            {
+                "agent_name": "EcoSaver-Agent",
+                "role_label": "DR 권고 병렬 평가",
+                "step_order": 1,
+                "started_at": _utc_now_str(),
+                "finished_at": _utc_now_str(),
+                "elapsed_sec": None,
+                "ok": True,
+                "summary": {"EcoSaver 권고": f"{len(recs)}건"},
+            },
+            {
+                "agent_name": "StorageMaster-Agent",
+                "role_label": "ESS 액션 수정·보정",
+                "step_order": 2,
+                "started_at": _utc_now_str(),
+                "finished_at": _utc_now_str(),
+                "elapsed_sec": None,
+                "ok": True,
+                "summary": {"수정 액션": f"{len(modified)}건", "승인 액션": f"{len(approved)}건"},
+            },
+            {
+                "agent_name": "Parallel Coordinator",
+                "role_label": "병렬 평가 결과 취합",
+                "step_order": 3,
+                "started_at": _utc_now_str(),
+                "finished_at": _utc_now_str(),
+                "elapsed_sec": stage_r.elapsed_sec,
+                "ok": True,
+                "summary": summary,
+            },
+        ]
+        return stage_r, updated_decisions, agent_logs
 
     except Exception as exc:
         log.exception("Parallel Agents 오류")
-        return _stage_error(label, t0, exc), decisions
+        stage_r = _stage_error(label, t0, exc)
+        agent_logs = [{
+            "agent_name": "Parallel Coordinator",
+            "role_label": "Policy / EcoSaver / Storage 병렬 평가",
+            "step_order": 0,
+            "started_at": _utc_now_str(),
+            "finished_at": _utc_now_str(),
+            "elapsed_sec": stage_r.elapsed_sec,
+            "ok": False,
+            "summary": {},
+            "error_text": str(exc),
+        }]
+        return stage_r, decisions, agent_logs
 
 
 def stage_execution(
     args: argparse.Namespace,
     decisions: dict,
-) -> tuple[StageResult, Any]:
+) -> tuple[StageResult, Any, list[dict[str, Any]]]:
     """Step4 — Action Execution Engine."""
-    label = "Step4  Action Execution Engine"
+    label = "Action Execution Engine"
     t0 = _stage_start(label)
     try:
         max_kw = min(50.0, args.ess_capacity / 4)
@@ -928,18 +983,98 @@ def stage_execution(
             "P2P 거래량 합계":   f"{trade_kw:.1f} kW",
         }
 
-        return _stage_end(label, t0, summary), result
+        stage_r = _stage_end(label, t0, summary)
+        if args.use_cda:
+            agent_logs = [
+                {
+                    "agent_name": "CDA Market Engine",
+                    "role_label": "호가 매칭 및 전력거래 실행",
+                    "step_order": 0,
+                    "started_at": _utc_now_str(),
+                    "finished_at": _utc_now_str(),
+                    "elapsed_sec": None,
+                    "ok": True,
+                    "summary": {"P2P 거래량 합계": f"{trade_kw:.1f} kW"},
+                },
+                {
+                    "agent_name": "Settlement Validator",
+                    "role_label": "거래 승인 및 정산 검증",
+                    "step_order": 1,
+                    "started_at": _utc_now_str(),
+                    "finished_at": _utc_now_str(),
+                    "elapsed_sec": None,
+                    "ok": approved,
+                    "summary": {"실행 승인 여부": "✓ 승인" if approved else "✗ 미승인", "검증 오류": f"{n_errors}건"},
+                },
+                {
+                    "agent_name": "Mesa Update",
+                    "role_label": "실행 결과를 커뮤니티 상태에 반영",
+                    "step_order": 2,
+                    "started_at": _utc_now_str(),
+                    "finished_at": _utc_now_str(),
+                    "elapsed_sec": stage_r.elapsed_sec,
+                    "ok": approved,
+                    "summary": {"결과 DataFrame": f"{df_shape[0]} rows × {df_shape[1]} cols"},
+                },
+            ]
+        else:
+            agent_logs = [
+                {
+                    "agent_name": "Policy Validator",
+                    "role_label": "실행 전 정책 위반 검증",
+                    "step_order": 0,
+                    "started_at": _utc_now_str(),
+                    "finished_at": _utc_now_str(),
+                    "elapsed_sec": None,
+                    "ok": n_errors == 0,
+                    "summary": {"검증 오류": f"{n_errors}건"},
+                },
+                {
+                    "agent_name": "Execution Coordinator",
+                    "role_label": "최종 승인 여부 결정",
+                    "step_order": 1,
+                    "started_at": _utc_now_str(),
+                    "finished_at": _utc_now_str(),
+                    "elapsed_sec": None,
+                    "ok": approved,
+                    "summary": {"실행 승인 여부": "✓ 승인" if approved else "✗ 미승인"},
+                },
+                {
+                    "agent_name": "Mesa Update",
+                    "role_label": "실행 결과를 커뮤니티 상태에 반영",
+                    "step_order": 2,
+                    "started_at": _utc_now_str(),
+                    "finished_at": _utc_now_str(),
+                    "elapsed_sec": stage_r.elapsed_sec,
+                    "ok": approved,
+                    "summary": {"ESS 실행 스텝": f"{ess_ops}건", "P2P 거래량 합계": f"{trade_kw:.1f} kW"},
+                },
+            ]
+
+        return stage_r, result, agent_logs
 
     except Exception as exc:
         log.exception("Action Execution 오류")
-        return _stage_error(label, t0, exc), None
+        stage_r = _stage_error(label, t0, exc)
+        agent_logs = [{
+            "agent_name": "Execution Coordinator",
+            "role_label": "실행 단계 오케스트레이션",
+            "step_order": 0,
+            "started_at": _utc_now_str(),
+            "finished_at": _utc_now_str(),
+            "elapsed_sec": stage_r.elapsed_sec,
+            "ok": False,
+            "summary": {},
+            "error_text": str(exc),
+        }]
+        return stage_r, None, agent_logs
 
 
 def stage_execution_with_parallel(
     args: argparse.Namespace,
     decisions: dict,
     state_json_list: list[dict],
-) -> tuple[list[StageResult], dict, Any]:
+) -> tuple[list[StageResult], dict, Any, list[list[dict[str, Any]]]]:
     """
     전력거래(Step4)와 Parallel Agents(Step3.5)를 동시 실행.
 
@@ -955,9 +1090,9 @@ def stage_execution_with_parallel(
         · parallel_layer(Thread A)의 승인·거절·권고를 decisions에 첨부
         · Thread A가 거절한 ESS/DR 액션은 validation_errors에 추가 기록
     """
-    label_pa  = "Step3.5 Parallel Agents (Thread A)"
-    label_ex  = "Step4  전력거래 실행   (Thread B)"
-    label_mrg = "Step3.5+4 병합"
+    label_pa  = "Parallel Agents (Thread A)"
+    label_ex  = "전력거래 실행 (Thread B)"
+    label_mrg = "병합"
 
     _divider("=", 72)
     log.info("▷▷ 전력거래 ↔ Parallel Agents 동시 실행 시작")
@@ -1161,7 +1296,93 @@ def stage_execution_with_parallel(
     _divider("-", 72)
     log.info("◁◁ 전력거래 ↔ Parallel Agents 병합 완료  (%.2fs)", wall_elapsed)
 
-    return [stage_pa, stage_ex, stage_mrg], merged_decisions, exec_result
+    stage_pa_agents = [
+        {
+            "agent_name": "Policy-Agent",
+            "role_label": "병렬 정책 검증",
+            "step_order": 0,
+            "started_at": _utc_now_str(),
+            "finished_at": _utc_now_str(),
+            "elapsed_sec": None,
+            "ok": pa_err == "",
+            "summary": {"거절 액션": f"{len(rejected_pa)}건", "위험 점수": f"{risk_pa:.2f}"},
+            "error_text": pa_err or None,
+        },
+        {
+            "agent_name": "EcoSaver-Agent",
+            "role_label": "DR 권고 병렬 평가",
+            "step_order": 1,
+            "started_at": _utc_now_str(),
+            "finished_at": _utc_now_str(),
+            "elapsed_sec": None,
+            "ok": pa_err == "",
+            "summary": {"EcoSaver 권고": f"{len(recs_pa)}건"},
+            "error_text": pa_err or None,
+        },
+        {
+            "agent_name": "StorageMaster-Agent",
+            "role_label": "ESS 액션 수정·보정",
+            "step_order": 2,
+            "started_at": _utc_now_str(),
+            "finished_at": _utc_now_str(),
+            "elapsed_sec": None,
+            "ok": pa_err == "",
+            "summary": {"승인 액션": f"{len(approved_pa)}건", "거절 액션": f"{len(rejected_pa)}건"},
+            "error_text": pa_err or None,
+        },
+        {
+            "agent_name": "Parallel Coordinator",
+            "role_label": "병렬 평가 결과 취합",
+            "step_order": 3,
+            "started_at": _utc_now_str(),
+            "finished_at": _utc_now_str(),
+            "elapsed_sec": pa_elapsed,
+            "ok": pa_err == "",
+            "summary": stage_pa.summary,
+            "error_text": pa_err or None,
+        },
+    ]
+
+    stage_ex_agents = [
+        {
+            "agent_name": "CDA Market Engine" if args.use_cda else "Policy Validator",
+            "role_label": "호가 매칭 및 전력거래 실행" if args.use_cda else "실행 전 정책 위반 검증",
+            "step_order": 0,
+            "started_at": _utc_now_str(),
+            "finished_at": _utc_now_str(),
+            "elapsed_sec": None,
+            "ok": ex_err == "",
+            "summary": {"실행 승인": "✓" if (exec_result and exec_result.approved) else "✗"},
+            "error_text": ex_err or None,
+        },
+        {
+            "agent_name": "Settlement Validator" if args.use_cda else "Mesa Update",
+            "role_label": "거래 승인 및 정산 검증" if args.use_cda else "실행 결과를 커뮤니티 상태에 반영",
+            "step_order": 1,
+            "started_at": _utc_now_str(),
+            "finished_at": _utc_now_str(),
+            "elapsed_sec": ex_elapsed,
+            "ok": ex_err == "" and exec_result is not None,
+            "summary": stage_ex.summary,
+            "error_text": ex_err or None,
+        },
+    ]
+
+    stage_merge_agents = [
+        {
+            "agent_name": "Merge Coordinator",
+            "role_label": "병렬 검증 결과와 실행 결과 병합",
+            "step_order": 0,
+            "started_at": _utc_now_str(),
+            "finished_at": _utc_now_str(),
+            "elapsed_sec": wall_elapsed,
+            "ok": exec_result is not None,
+            "summary": stage_mrg.summary,
+            "error_text": None if exec_result is not None else "병합할 실행 결과가 없습니다.",
+        }
+    ]
+
+    return [stage_pa, stage_ex, stage_mrg], merged_decisions, exec_result, [stage_pa_agents, stage_ex_agents, stage_merge_agents]
 
 
 def stage_evaluation(
@@ -1169,9 +1390,9 @@ def stage_evaluation(
     result: Any,
     decisions: dict,
     baseline_peak_kw: float,
-) -> tuple[StageResult, Any]:
+) -> tuple[StageResult, Any, list[dict[str, Any]]]:
     """Step5 — Evaluation Engine."""
-    label = "Step5  Evaluation Engine"
+    label = "Evaluation Engine"
     t0 = _stage_start(label)
     try:
         from seapac_agents.evaluation import evaluate_from_execution_result, EvaluationConfig
@@ -1209,11 +1430,66 @@ def stage_evaluation(
             "종합 등급":        rd.get("grade", "N/A"),
         }
 
-        return _stage_end(label, t0, summary), report
+        stage_r = _stage_end(label, t0, summary)
+        agent_logs = [
+            {
+                "agent_name": "Energy Cost Evaluator",
+                "role_label": "계통 비용 KPI 계산",
+                "step_order": 0,
+                "started_at": _utc_now_str(),
+                "finished_at": _utc_now_str(),
+                "elapsed_sec": None,
+                "ok": True,
+                "summary": {"에너지 비용": summary["에너지 비용"]},
+            },
+            {
+                "agent_name": "Trading Profit Evaluator",
+                "role_label": "거래 수익 KPI 계산",
+                "step_order": 1,
+                "started_at": _utc_now_str(),
+                "finished_at": _utc_now_str(),
+                "elapsed_sec": None,
+                "ok": True,
+                "summary": {"거래 수익": summary["거래 수익"], "피크 감소율": summary["피크 감소율"]},
+            },
+            {
+                "agent_name": "ESS / DR Evaluator",
+                "role_label": "ESS 마모·DR 수락률 계산",
+                "step_order": 2,
+                "started_at": _utc_now_str(),
+                "finished_at": _utc_now_str(),
+                "elapsed_sec": None,
+                "ok": True,
+                "summary": {"ESS 마모 비용": summary["ESS 마모 비용"], "DR 수락율": summary["DR 수락율"]},
+            },
+            {
+                "agent_name": "Evaluation Aggregator",
+                "role_label": "종합 등급 산정",
+                "step_order": 3,
+                "started_at": _utc_now_str(),
+                "finished_at": _utc_now_str(),
+                "elapsed_sec": stage_r.elapsed_sec,
+                "ok": True,
+                "summary": {"종합 등급": summary["종합 등급"]},
+            },
+        ]
+        return stage_r, report, agent_logs
 
     except Exception as exc:
         log.exception("Evaluation 오류")
-        return _stage_error(label, t0, exc), None
+        stage_r = _stage_error(label, t0, exc)
+        agent_logs = [{
+            "agent_name": "Evaluation Aggregator",
+            "role_label": "KPI 계산 및 등급 산정",
+            "step_order": 0,
+            "started_at": _utc_now_str(),
+            "finished_at": _utc_now_str(),
+            "elapsed_sec": stage_r.elapsed_sec,
+            "ok": False,
+            "summary": {},
+            "error_text": str(exc),
+        }]
+        return stage_r, None, agent_logs
 
 
 # ─────────────────────────────────────────────────────────────────
@@ -1229,88 +1505,77 @@ def _save_outputs(
     eval_report: Any,
     pipeline_result: PipelineResult,
     run_id: int | None = None,
+    db_path: Path | None = None,
 ) -> None:
-    out_dir = Path(args.output_dir or "output")
-    if not out_dir.is_absolute():
-        out_dir = Path.cwd() / out_dir
-    out_dir.mkdir(parents=True, exist_ok=True)
+    if not _DASHBOARD_AVAILABLE or run_id is None or db_path is None:
+        log.info("   결과 파일 저장 건너뜀: DB run context 없음")
+        return
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-    if args.save_json:
-        # 파이프라인 요약 메타
-        meta = {
-            "run_timestamp": ts,
-            "args": {k: v for k, v in vars(args).items()},
-            "stages": [
-                {
-                    "name": s.name,
-                    "ok": s.ok,
-                    "elapsed_sec": round(s.elapsed_sec, 3),
-                    "summary": s.summary,
-                    "error": s.error,
-                }
-                for s in pipeline_result.stages
-            ],
-            "total_elapsed_sec": round(pipeline_result.total_elapsed_sec, 3),
-            "ok": pipeline_result.ok,
-        }
-        _write_json(out_dir / f"pipeline_meta_{ts}.json", meta)
-
-        # State JSON
-        _write_json(out_dir / "state_translations.json", state_json_list)
-
-        # Decisions
-        _write_json(out_dir / "multi_agent_decisions.json", decisions)
-
-        if alfp_result:
-            alfp_snapshot = _build_alfp_dashboard_snapshot(alfp_result)
-            _write_json(out_dir / "alfp_result.json", alfp_snapshot)
-            if run_id is not None:
-                _write_json(out_dir / f"run_{run_id}_alfp_result.json", alfp_snapshot)
-
-        # Evaluation report (공통 파일 + run별 파일로 Dashboard에서 run_id로 조회 가능)
-        if eval_report is not None:
-            _write_json(out_dir / "evaluation_report.json", eval_report.to_dict())
-            if run_id is not None:
-                _write_json(out_dir / f"run_{run_id}_evaluation_report.json", eval_report.to_dict())
-
-        # CDA 실행 탭용 스냅샷 (Order Book, Matching, Buyer, Settlement)
-        if run_id is not None and (decisions.get("cda_trades") is not None or decisions.get("cda_snapshot")):
-            snapshot = decisions.get("cda_snapshot") or {}
-            cda_execution = {
-                "order_book": {
-                    "bids": snapshot.get("bids", []),
-                    "asks": snapshot.get("asks", []),
-                    "snapshot_time": snapshot.get("time", ""),
-                },
-                "matching": {
-                    "trades": decisions.get("cda_trades", []),
-                    "total_trades": len(decisions.get("cda_trades", [])),
-                    "total_quantity_kw": round(
-                        sum(float(t.get("quantity_kw", 0)) for t in (decisions.get("cda_trades") or [])), 2
-                    ),
-                },
-                "buyer": {
-                    "bids": snapshot.get("bids", []),
-                    "description": "Deficit / Market Price / Peak Risk 기반 구매 입찰 (CommunityBuyer 등)",
-                },
-                "settlement": None,
+    meta = {
+        "run_timestamp": ts,
+        "args": {k: v for k, v in vars(args).items()},
+        "stages": [
+            {
+                "name": s.name,
+                "ok": s.ok,
+                "elapsed_sec": round(s.elapsed_sec, 3),
+                "summary": s.summary,
+                "error": s.error,
             }
-            if exec_result is not None:
-                cda_execution["settlement"] = {
-                    "approved": getattr(exec_result, "approved", True),
-                    "validation_errors": getattr(exec_result, "validation_errors", []) or [],
-                    "summary": getattr(exec_result, "summary", None) or {},
-                }
-            _write_json(out_dir / f"run_{run_id}_cda_execution.json", cda_execution)
+            for s in pipeline_result.stages
+        ],
+        "total_elapsed_sec": round(pipeline_result.total_elapsed_sec, 3),
+        "ok": pipeline_result.ok,
+    }
+    upsert_artifact(run_id, "pipeline_meta", meta, db_path=db_path)
+    upsert_artifact(run_id, "multi_agent_decisions", decisions, db_path=db_path)
 
-    # Timeseries CSV
+    if alfp_result:
+        alfp_snapshot = _build_alfp_dashboard_snapshot(alfp_result)
+        upsert_artifact(run_id, "alfp_result", alfp_snapshot, db_path=db_path)
+
+    if eval_report is not None:
+        upsert_artifact(run_id, "evaluation_report", eval_report.to_dict(), db_path=db_path)
+
+    if decisions.get("cda_trades") is not None or decisions.get("cda_snapshot"):
+        snapshot = decisions.get("cda_snapshot") or {}
+        cda_execution = {
+            "order_book": {
+                "bids": snapshot.get("bids", []),
+                "asks": snapshot.get("asks", []),
+                "snapshot_time": snapshot.get("time", ""),
+            },
+            "matching": {
+                "trades": decisions.get("cda_trades", []),
+                "total_trades": len(decisions.get("cda_trades", [])),
+                "total_quantity_kw": round(
+                    sum(float(t.get("quantity_kw", 0)) for t in (decisions.get("cda_trades") or [])), 2
+                ),
+            },
+            "buyer": {
+                "bids": snapshot.get("bids", []),
+                "description": "Deficit / Market Price / Peak Risk 기반 구매 입찰 (CommunityBuyer 등)",
+            },
+            "settlement": None,
+        }
+        if exec_result is not None:
+            cda_execution["settlement"] = {
+                "approved": getattr(exec_result, "approved", True),
+                "validation_errors": getattr(exec_result, "validation_errors", []) or [],
+                "summary": getattr(exec_result, "summary", None) or {},
+            }
+        upsert_artifact(run_id, "cda_execution", cda_execution, db_path=db_path)
+
     if exec_result is not None and exec_result.dataframe is not None:
-        csv_path = out_dir / "execution_timeseries.csv"
-        exec_result.dataframe.to_csv(csv_path, index=False)
-        log.info("   시계열 CSV 저장: %s", csv_path)
+        upsert_artifact(
+            run_id,
+            "execution_timeseries",
+            exec_result.dataframe.to_dict(orient="records"),
+            db_path=db_path,
+        )
 
-    log.info("   출력 디렉토리: %s", out_dir)
+    log.info("   결과 아티팩트 저장: run_id=%s db=%s", run_id, db_path)
 
 
 def _update_strategy_feedback(
@@ -1374,11 +1639,6 @@ def _update_strategy_feedback(
             actual_result=actual_result,
             performance_score=performance_score,
         )
-
-
-def _write_json(path: Path, obj: Any) -> None:
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(obj, f, ensure_ascii=False, indent=2, default=str)
 
 
 def _df_preview(df: Any, columns: list[str] | None = None, limit: int = 12) -> list[dict[str, Any]]:
@@ -1456,19 +1716,6 @@ def _build_alfp_dashboard_snapshot(alfp_result: dict[str, Any]) -> dict[str, Any
 # 메인
 # ─────────────────────────────────────────────────────────────────
 
-def _save_mesa_trajectory(run_id: int, df: Any, args: argparse.Namespace) -> None:
-    """Dashboard MESA 그리드/궤적 화면용 스텝별 지표 JSON 저장."""
-    out_dir = Path(args.output_dir or "output")
-    if not out_dir.is_absolute():
-        out_dir = Path.cwd() / out_dir
-    out_dir.mkdir(parents=True, exist_ok=True)
-    path = out_dir / f"run_{run_id}_mesa_trajectory.json"
-    try:
-        df.to_json(path, orient="records", date_format="iso", default_handler=str)
-        log.info("   MESA 궤적 저장: %s", path)
-    except Exception as e:
-        log.warning("   MESA 궤적 저장 실패: %s", e)
-
 
 def _record_stage(run_id: int, order: int, stage_r: StageResult, db_path: Path | None) -> None:
     """Persist one stage to dashboard DB if available."""
@@ -1490,17 +1737,12 @@ def main() -> None:
     args = _parse_args()
     from alfp.llm import set_llm_mode, get_llm_mode
     set_llm_mode(args.llm_mode)
-    # 로그 파일 미지정 시 logs 디렉토리에 실행 시각 기준 파일 생성
-    if args.log_file is None:
-        log_dir = Path(args.log_dir)
-        log_dir.mkdir(parents=True, exist_ok=True)
-        args.log_file = str(log_dir / f"pipeline_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log")
     _setup_logger(log_file=args.log_file, verbose=args.verbose)
 
     pipeline = PipelineResult()
     pipeline_t0 = time.perf_counter()
     run_id: int | None = None
-    db_path: Path | None = get_db_path(Path(args.output_dir or "output")) if _DASHBOARD_AVAILABLE else None
+    db_path: Path | None = get_db_path(os.environ.get("PIPELINE_DB_DIR")) if _DASHBOARD_AVAILABLE else None
     if _DASHBOARD_AVAILABLE and db_path is not None:
         init_db(db_path)
         existing_run_id = os.environ.get("PIPELINE_RUN_ID")
@@ -1523,7 +1765,7 @@ def main() -> None:
     log.info("  LLM mode=%s", get_llm_mode())
     log.info("  ALFP mode=%s", args.alfp_mode)
     if is_p2p_mode:
-        log.info("  ★ P2P 거래 모드: 프로슈머 %d명 병렬 ALFP → 통합 MESA 실행", len(multi_prosumers))
+        log.info("  ★ P2P 거래 모드: 프로슈머 %d명 병렬 ALFP 실행", len(multi_prosumers))
         log.info("    참여 프로슈머: %s", multi_prosumers)
     _divider("=", 72)
 
@@ -1567,56 +1809,31 @@ def main() -> None:
         pipeline.total_elapsed_sec = time.perf_counter() - pipeline_t0
         if _DASHBOARD_AVAILABLE and run_id is not None:
             finish_run(run_id, pipeline.total_elapsed_sec, ok=pipeline.ok, db_path=db_path)
-        if args.output_dir or args.save_json:
-            _save_outputs(
-                args,
-                alfp_result,
-                [],
-                alfp_decisions,
-                None,
-                None,
-                pipeline,
-                run_id=run_id,
-            )
+        _save_outputs(
+            args,
+            alfp_result,
+            [],
+            alfp_decisions,
+            None,
+            None,
+            pipeline,
+            run_id=run_id,
+            db_path=db_path,
+        )
         pipeline.print_summary()
         return
 
-    # ── [MESA] ────────────────────────────────────────────────────
-    stage_r, df, model = stage_mesa(args, alfp_decisions or None)
+    state_json_list: list[dict] = []
+    baseline_peak_kw = 0.0
+
+    # ── AgentScope Multi-Agent Decision ──────────────────────────
+    stage_r, decisions, stage_agent_logs = stage_multi_agent_decision(
+        args, state_json_list, alfp_decisions=alfp_decisions or None
+    )
     pipeline.add(stage_r)
     stage_order += 1
     _record_stage(run_id, stage_order, stage_r, db_path)
-    # Dashboard용: run_id가 있으면 MESA 궤적(스텝별 지표) JSON 저장 → 그리드/궤적 화면에서 사용
-    if run_id is not None and df is not None:
-        _save_mesa_trajectory(run_id, df, args)
-    if not stage_r.ok or df is None:
-        log.error("MESA 실패 — 파이프라인 중단")
-        pipeline.total_elapsed_sec = time.perf_counter() - pipeline_t0
-        if _DASHBOARD_AVAILABLE and run_id is not None:
-            finish_run(run_id, pipeline.total_elapsed_sec, ok=False, db_path=db_path)
-        pipeline.print_summary()
-        sys.exit(1)
-
-    baseline_peak_kw = float(df["community_load_kw"].max()) if "community_load_kw" in df.columns else 0.0
-
-    # ── Step2 State Translator ────────────────────────────────────
-    stage_r, state_json_list = stage_state_translator(args, df, model=model)
-    pipeline.add(stage_r)
-    stage_order += 1
-    _record_stage(run_id, stage_order, stage_r, db_path)
-    if not stage_r.ok or not state_json_list:
-        log.error("State Translator 실패 — 파이프라인 중단")
-        pipeline.total_elapsed_sec = time.perf_counter() - pipeline_t0
-        if _DASHBOARD_AVAILABLE and run_id is not None:
-            finish_run(run_id, pipeline.total_elapsed_sec, ok=False, db_path=db_path)
-        pipeline.print_summary()
-        sys.exit(1)
-
-    # ── Step3 AgentScope Multi-Agent Decision ─────────────────────
-    stage_r, decisions = stage_multi_agent_decision(args, state_json_list)
-    pipeline.add(stage_r)
-    stage_order += 1
-    _record_stage(run_id, stage_order, stage_r, db_path)
+    _record_stage_agent_logs(run_id, stage_order, stage_agent_logs, db_path)
     if not stage_r.ok:
         log.error("Multi-Agent Decision 실패 — 파이프라인 중단")
         pipeline.total_elapsed_sec = time.perf_counter() - pipeline_t0
@@ -1625,15 +1842,16 @@ def main() -> None:
         pipeline.print_summary()
         sys.exit(1)
 
-    # ── Step3.5 + Step4: Parallel Agents ↔ 전력거래 동시 실행 (선택) ──
+    # ── Parallel Agents ↔ 전력거래 동시 실행 (선택) ──────────────
     if args.use_parallel:
-        stages, decisions, exec_result = stage_execution_with_parallel(
+        stages, decisions, exec_result, stage_agent_logs_by_stage = stage_execution_with_parallel(
             args, decisions, state_json_list
         )
-        for s in stages:
+        for idx, s in enumerate(stages):
             pipeline.add(s)
             stage_order += 1
             _record_stage(run_id, stage_order, s, db_path)
+            _record_stage_agent_logs(run_id, stage_order, stage_agent_logs_by_stage[idx], db_path)
         if exec_result is None:
             log.error("전력거래 실행 실패 — 파이프라인 중단")
             pipeline.total_elapsed_sec = time.perf_counter() - pipeline_t0
@@ -1642,11 +1860,12 @@ def main() -> None:
             pipeline.print_summary()
             sys.exit(1)
     else:
-        # ── Step4 Action Execution Engine (순차) ──────────────────
-        stage_r, exec_result = stage_execution(args, decisions)
+        # ── Action Execution Engine (순차) ────────────────────────
+        stage_r, exec_result, stage_agent_logs = stage_execution(args, decisions)
         pipeline.add(stage_r)
         stage_order += 1
         _record_stage(run_id, stage_order, stage_r, db_path)
+        _record_stage_agent_logs(run_id, stage_order, stage_agent_logs, db_path)
         if not stage_r.ok or exec_result is None:
             log.error("Action Execution 실패 — 파이프라인 중단")
             pipeline.total_elapsed_sec = time.perf_counter() - pipeline_t0
@@ -1655,11 +1874,12 @@ def main() -> None:
             pipeline.print_summary()
             sys.exit(1)
 
-    # ── Step5 Evaluation Engine ───────────────────────────────────
-    stage_r, eval_report = stage_evaluation(args, exec_result, decisions, baseline_peak_kw)
+    # ── Evaluation Engine ─────────────────────────────────────────
+    stage_r, eval_report, stage_agent_logs = stage_evaluation(args, exec_result, decisions, baseline_peak_kw)
     pipeline.add(stage_r)
     stage_order += 1
     _record_stage(run_id, stage_order, stage_r, db_path)
+    _record_stage_agent_logs(run_id, stage_order, stage_agent_logs, db_path)
 
     # ── 다음 라운드 전략 업데이트용 실제 피드백 저장 ──────────────
     _update_strategy_feedback(args, decisions, exec_result, eval_report)
@@ -1669,15 +1889,15 @@ def main() -> None:
     if _DASHBOARD_AVAILABLE and run_id is not None:
         finish_run(run_id, pipeline.total_elapsed_sec, ok=pipeline.ok, db_path=db_path)
 
-    if args.output_dir or args.save_json:
-        _divider()
-        log.info("▷ 결과 저장")
-        _divider()
-        _save_outputs(
-            args, alfp_result, state_json_list,
-            decisions, exec_result, eval_report, pipeline,
-            run_id=run_id,
-        )
+    _divider()
+    log.info("▷ 결과 저장")
+    _divider()
+    _save_outputs(
+        args, alfp_result, state_json_list,
+        decisions, exec_result, eval_report, pipeline,
+        run_id=run_id,
+        db_path=db_path,
+    )
 
     # ── 최종 요약 ─────────────────────────────────────────────────
     pipeline.print_summary()

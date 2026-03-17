@@ -72,7 +72,7 @@ def run_policy_agent(
 
         if atype == "ess":
             subtype = action.get("subtype", "idle")
-            power = float(action.get("power_kw", 0))
+            power = float(action.get("power_kw") or 0)
             if subtype == "charge":
                 if power > cfg.max_charge_kw:
                     modified["power_kw"] = cfg.max_charge_kw
@@ -108,9 +108,9 @@ def run_policy_agent(
             continue
 
         if atype == "market_sell":
-            vol = float(action.get("volume_kwh", 0) or action.get("surplus_kw", 0) * 0.25)
-            surplus_kw = float(action.get("surplus_kw", vol * 4))
-            price = float(action.get("bid_price", 0))
+            vol = float((action.get("volume_kwh") or 0) or (action.get("surplus_kw") or 0) * 0.25)
+            surplus_kw = float(action.get("surplus_kw") or vol * 4)
+            price = float(action.get("bid_price") or 0)
             if surplus_kw < cfg.min_trade_kw:
                 out.rejected_actions.append(action_id)
                 violations.append(f"[{action_id}] Trade volume {surplus_kw} kW < min {cfg.min_trade_kw} kW")
@@ -131,7 +131,7 @@ def run_policy_agent(
             continue
 
         if atype == "demand_response":
-            red = float(action.get("recommended_reduction_kw", 0))
+            red = float(action.get("recommended_reduction_kw") or 0)
             if red < 0:
                 out.rejected_actions.append(action_id)
                 violations.append(f"[{action_id}] DR reduction cannot be negative")

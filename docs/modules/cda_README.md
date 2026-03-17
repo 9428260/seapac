@@ -21,7 +21,7 @@
 
 ```bash
 PYTHONPATH=. python seapac_agents/run_agentic_pipeline.py --use-cda
-PYTHONPATH=. python seapac_agents/run_agentic_pipeline.py --use-cda --steps 96 --save-json --output-dir output
+PYTHONPATH=. python seapac_agents/run_agentic_pipeline.py --use-cda --steps 96
 ```
 
 - `--use-cda` 미지정: 기존 MarketCoordinator + seapac_agents.execution 사용  

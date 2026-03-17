@@ -1,16 +1,15 @@
 """
 DecisionAgent - 예측 결과 기반 운영 의사결정 + LLM 상세 추천
-LLM이 ESS 전략·에너지 거래·DR 이벤트에 대한 운영 가이드를 생성합니다.
+deepagents + MCP skills 또는 규칙 기반 로직으로 ESS/거래/DR 운영 전략을 생성합니다.
 """
 
-import numpy as np
+import json
 import pandas as pd
-from langchain_core.messages import HumanMessage, SystemMessage
-from langchain_core.output_parsers import JsonOutputParser
 
 from alfp.agents.state import ALFPState
-from alfp.config import get_skills_config, get_system_prompt, get_user_prompt_template
-from alfp.llm import get_llm, is_llm_enabled
+from alfp.config import get_skills_config, get_system_prompt
+from alfp.deepagents import invoke_deepagents_decision_agent
+from alfp.llm import is_llm_enabled
 from alfp.skills.ess_optimization import ESSOptimizationSkill
 from alfp.skills.tariff_analysis import TariffAnalysisSkill
 
@@ -129,6 +128,69 @@ def _demand_response(net_load: pd.Series, timestamps: pd.Series, peak_threshold:
     ]
 
 
+def _build_decision_context(
+    state: ALFPState,
+    nl_df: pd.DataFrame,
+    load_df: pd.DataFrame,
+    pv_df: pd.DataFrame,
+    feature_df: pd.DataFrame | None,
+    peak_threshold: float,
+) -> dict:
+    context = {
+        "prosumer_id": (state.get("forecast_plan") or {}).get("prosumer_id", state.get("prosumer_id", "Unknown")),
+        "prosumer_type": (state.get("forecast_plan") or {}).get("prosumer_type", "Unknown"),
+        "operating_mode": state.get("operating_mode", "day_ahead"),
+        "execution_mode": state.get("execution_mode", "full"),
+        "forecast_plan": state.get("forecast_plan") or {},
+        "validation_metrics": state.get("validation_metrics") or {},
+        "peak_threshold": peak_threshold,
+        "net_load_forecast": nl_df.to_dict(orient="records"),
+        "load_forecast": load_df.to_dict(orient="records"),
+        "pv_forecast": pv_df.to_dict(orient="records"),
+        "feature_df": [],
+    }
+    if feature_df is not None and not feature_df.empty:
+        cols = [col for col in ["timestamp", "price_buy", "price_sell"] if col in feature_df.columns]
+        if cols:
+            context["feature_df"] = feature_df[cols].drop_duplicates("timestamp").to_dict(orient="records")
+    return context
+
+
+def _deepagent_prompt(context: dict, peak_threshold: float) -> str:
+    prosumer_type = context.get("prosumer_type", "Unknown")
+    mode = context.get("operating_mode", "day_ahead")
+    metrics = context.get("validation_metrics") or {}
+    kpi = metrics.get("kpi") or {}
+    return f"""
+다음 전력 운영 맥락에 대해 MCP-backed decision skills를 사용해 의사결정을 수행하세요.
+
+[프로슈머]
+- ID: {context.get('prosumer_id', 'Unknown')}
+- 타입: {prosumer_type}
+
+[운영 모드]
+- operating_mode: {mode}
+- execution_mode: {context.get('execution_mode', 'full')}
+
+[검증 KPI]
+- MAPE_pass: {kpi.get('MAPE_pass')}
+- peak_acc_pass: {kpi.get('peak_acc_pass')}
+- peak_threshold_kw: {peak_threshold:.2f}
+
+필수 작업:
+1. 여러 ESS/거래/DR 조합안을 동시에 생성
+2. 수익, 리스크, 정책 위반 가능성, 배터리 열화 비용 비교
+3. short horizon, day ahead, 이상상황 대응 모드 구분
+4. 프로슈머 타입별 전략 차별화
+5. 가장 설명 가능한 최종 전략 채택
+
+반드시 MCP skills를 사용해서 후보를 생성/비교하고, 최종 응답에는 선택 후보와 운영 가이드를 포함하세요.
+
+[JSON Context]
+{json.dumps(context, ensure_ascii=False)}
+""".strip()
+
+
 def decision_agent(state: ALFPState) -> ALFPState:
     """
     DecisionAgent 노드 함수.
@@ -191,46 +253,59 @@ def decision_agent(state: ALFPState) -> ALFPState:
         log.append(f"  에너지 거래 잉여: {len(trading_recs)}건")
         log.append(f"  DR 이벤트: {len(dr_events)}건")
 
-        # ── LLM 전략 수립 ─────────────────────────────────────────
-        load_mape = metrics.get("load", {}).get("MAPE", 0)
-        nl_mape = metrics.get("net_load", {}).get("MAPE", 0)
-
-        prompt_data = {
-            "prosumer_type": plan.get("prosumer_type", "Unknown"),
-            "prosumer_id": plan.get("prosumer_id", "Unknown"),
-            "nl_mean": float(net_load_series.mean()),
-            "nl_max": float(net_load_series.max()),
-            "nl_min": float(net_load_series.min()),
-            "peak_threshold": peak_threshold,
-            "total_steps": len(ess_schedule),
-            "charge_steps": n_charge,
-            "discharge_steps": n_discharge,
-            "idle_steps": n_idle,
-            "bess_kwh_cap": bess_kwh_cap,
-            "surplus_events": len(trading_recs),
-            "total_surplus": sum(r["surplus_kw"] for r in trading_recs),
-            "dr_count": len(dr_events),
-            "load_mape": load_mape,
-            "nl_mape": nl_mape,
-            "base_cost_krw": cost_saving["base_cost_krw"],
-            "adjusted_cost_krw": cost_saving["adjusted_cost_krw"],
-            "saving_krw": cost_saving["saving_krw"],
-            "saving_pct": cost_saving["saving_pct"],
-        }
-
         if is_llm_enabled("alfp_decision"):
-            llm_temperature = get_skills_config().get("decision_agent", {}).get("llm_temperature", 0.2)
-            llm = get_llm(temperature=llm_temperature, stage="alfp_decision")
-            log.append("  GPT-4o 운영 전략 수립 중...")
+            context = _build_decision_context(state, nl_df, load_df, pv_df, feature_df, peak_threshold)
             system_prompt = get_system_prompt("decision")
-            user_template = get_user_prompt_template("decision")
-            response = llm.invoke([
-                SystemMessage(content=system_prompt),
-                HumanMessage(content=user_template.format(**prompt_data)),
-            ])
-            llm_strategy = JsonOutputParser().invoke(response.content)
-            log.append(f"  LLM 경보 수준: {llm_strategy.get('alert_level', 'N/A')}")
-            log.append(f"  LLM 종합 추천: {llm_strategy.get('overall_recommendation', '')[:80]}...")
+            user_prompt = _deepagent_prompt(context, peak_threshold)
+            log.append("  deepagents + MCP skills 기반 운영 전략 수립 중...")
+            deep_plan = invoke_deepagents_decision_agent(
+                system_prompt=system_prompt,
+                user_prompt=user_prompt,
+                stage="alfp_decision",
+            )
+            selected = deep_plan.get("selected_candidate") or {}
+            if selected:
+                ess_schedule = selected.get("ess_schedule") or []
+                ess_summary = selected.get("ess_summary") or {}
+                trading_recs = selected.get("trading_recommendations") or []
+                dr_events = selected.get("demand_response_events") or []
+                cost_saving = selected.get("tariff_saving") or cost_saving
+                decisions = {
+                    "ess_schedule": ess_schedule,
+                    "ess_summary": ess_summary,
+                    "trading_recommendations": trading_recs,
+                    "trading_summary": selected.get("trading_summary") or {
+                        "total_surplus_events": len(trading_recs),
+                        "total_surplus_kw": round(sum(r["surplus_kw"] for r in trading_recs), 2) if trading_recs else 0.0,
+                    },
+                    "demand_response_events": dr_events,
+                    "dr_summary": selected.get("dr_summary") or {
+                        "peak_threshold_kw": round(peak_threshold, 2),
+                        "dr_event_count": len(dr_events),
+                    },
+                    "tariff_saving": cost_saving,
+                    "llm_strategy": {
+                        "ess_strategy": deep_plan.get("ess_strategy", ""),
+                        "trading_strategy": deep_plan.get("trading_strategy", ""),
+                        "dr_strategy": deep_plan.get("dr_strategy", ""),
+                        "overall_recommendation": deep_plan.get("overall_recommendation", ""),
+                        "priority_actions": deep_plan.get("priority_actions", []),
+                        "expected_savings": deep_plan.get("expected_savings", ""),
+                        "alert_level": deep_plan.get("alert_level", "정상"),
+                    },
+                    "candidate_comparisons": deep_plan.get("candidate_comparisons", []),
+                    "strategy_candidates": deep_plan.get("candidate_portfolios", []),
+                    "selected_candidate_id": deep_plan.get("selected_candidate_id"),
+                    "scenario_mode": deep_plan.get("scenario_mode"),
+                    "mode_guidance": deep_plan.get("mode_guidance", []),
+                    "selected_candidate": selected,
+                }
+                log.append(f"  deepagents 선택 후보: {deep_plan.get('selected_candidate_id')}")
+                log.append(f"  경보 수준: {deep_plan.get('alert_level', '정상')}")
+                log.append(f"  종합 추천: {deep_plan.get('overall_recommendation', '')[:80]}...")
+                log.append("[DecisionAgent] 완료")
+                return {**state, "decisions": decisions, "messages": log, "errors": errors}
+            llm_strategy = {}
         else:
             log.append("  LLM 비활성화 상태 - 규칙 기반 운영 의사결정만 생성")
             llm_strategy = {}
@@ -251,6 +326,7 @@ def decision_agent(state: ALFPState) -> ALFPState:
         "dr_summary": {"peak_threshold_kw": round(peak_threshold, 2), "dr_event_count": len(dr_events)},
         "tariff_saving": cost_saving,
         "llm_strategy": llm_strategy,
+        "strategy_candidates": [],
     }
 
     log.append("[DecisionAgent] 완료")

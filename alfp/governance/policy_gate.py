@@ -9,7 +9,6 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-# Optional: use parallel_agents when available
 try:
     from parallel_agents.contracts import decisions_to_candidate_bundle
     from parallel_agents.policy_agent import PolicyConfig, run_policy_agent
@@ -21,11 +20,12 @@ except ImportError:
 @dataclass
 class PolicyGateResult:
     """Policy Gate 결과 (PRD §4.3)."""
-    status: str  # "APPROVED" | "REJECTED" | "REPLAN_REQUIRED"
+    status: str
     approved_actions: list[str] = field(default_factory=list)
     rejected_actions: list[str] = field(default_factory=list)
     policy_violation_report: list[str] = field(default_factory=list)
     risk_score: float = 0.0
+    recommended_candidate_id: str = ""
     details: dict = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -35,15 +35,14 @@ class PolicyGateResult:
             "rejected_actions": self.rejected_actions,
             "policy_violation_report": self.policy_violation_report,
             "risk_score": self.risk_score,
+            "recommended_candidate_id": self.recommended_candidate_id,
             "details": self.details,
         }
 
 
 def _site_state_from_alfp(state: dict[str, Any]) -> dict:
-    """ALFP state에서 policy agent용 site_state 구성."""
     decisions = state.get("decisions") or {}
     ess = (decisions.get("ess_schedule") or [])
-    # 마지막 ESS 스텝의 soc 사용 (또는 기본값)
     soc_kwh = 0.0
     if ess:
         last = ess[-1]
@@ -60,25 +59,16 @@ def _site_state_from_alfp(state: dict[str, Any]) -> dict:
 def run_policy_gate(
     state: dict[str, Any],
     policy_config: Any = None,
-    reject_threshold: float = 0.6,
-    replan_threshold: float = 0.4,
+    reject_threshold: float = 0.65,
+    replan_threshold: float = 0.35,
 ) -> PolicyGateResult:
     """
     Policy + Approval Gate 실행.
-
-    - parallel_agents 있으면 decisions → candidate_bundle → run_policy_agent 호출.
-    - 없으면 decisions만 검사해 APPROVED 반환 (규칙 기반 최소 검사 가능).
-
-    Args:
-        state: ALFPState (decisions, forecast_plan 등)
-        policy_config: PolicyConfig (None이면 기본값)
-        reject_threshold: risk_score >= 이 값이면 REJECTED
-        replan_threshold: risk_score >= 이 값이면 REPLAN_REQUIRED (그 미만이면 APPROVED)
-
-    Returns:
-        PolicyGateResult (status = APPROVED | REJECTED | REPLAN_REQUIRED)
     """
     decisions = state.get("decisions") or {}
+    selected = decisions.get("selected_candidate") or {}
+    selected_id = decisions.get("selected_candidate_id") or selected.get("candidate_id", "")
+    critic = state.get("critic_output") or {}
     site_state = _site_state_from_alfp(state)
 
     if _HAS_PARALLEL_AGENTS:
@@ -90,7 +80,7 @@ def run_policy_gate(
         approved = list(out.approved_actions)
         rejected = list(out.rejected_actions)
         violations = list(out.policy_violation_report)
-        risk = out.risk_score
+        risk = float(out.risk_score)
     else:
         approved = []
         rejected = []
@@ -99,22 +89,46 @@ def run_policy_gate(
         for i, row in enumerate(decisions.get("ess_schedule") or []):
             aid = f"ess_{i}"
             pw = float(row.get("power_kw", 0))
+            soc = float(row.get("soc_kwh", 0))
             if pw < 0:
                 rejected.append(aid)
                 violations.append(f"[{aid}] ESS power cannot be negative")
+            elif soc < 0:
+                rejected.append(aid)
+                violations.append(f"[{aid}] ESS SoC cannot be negative")
             else:
                 approved.append(aid)
-        for i in range(len(decisions.get("trading_recommendations") or [])):
-            approved.append(f"sell_{i}")
-        for i in range(len(decisions.get("demand_response_events") or [])):
-            approved.append(f"dr_{i}")
-        if rejected:
-            risk = 0.5
+        approved.extend(f"sell_{i}" for i in range(len(decisions.get("trading_recommendations") or [])))
+        approved.extend(f"dr_{i}" for i in range(len(decisions.get("demand_response_events") or [])))
 
-    # Status 결정
-    if risk >= reject_threshold or (rejected and len(rejected) >= len(approved)):
+    policy_probability = float(selected.get("policy_violation_probability", 0.0) or 0.0)
+    candidate_risk = float(selected.get("risk_score", 0.0) or 0.0)
+    degradation = float(selected.get("battery_degradation_cost_krw", 0.0) or 0.0)
+    scenario_mode = decisions.get("scenario_mode", "day_ahead")
+    prosumer_type = (state.get("forecast_plan") or {}).get("prosumer_type", "")
+
+    risk = max(risk, policy_probability * 0.6 + candidate_risk * 0.4)
+    if degradation > 180:
+        risk += 0.08
+        violations.append("Battery degradation cost is too high for current policy tolerance")
+    if scenario_mode == "anomaly_response" and selected.get("trading_variant") == "aggressive":
+        risk += 0.12
+        violations.append("Aggressive trading is restricted during anomaly response mode")
+    if prosumer_type == "Residential" and selected.get("dr_variant") == "high":
+        risk += 0.08
+        violations.append("High-intensity DR is not acceptable for residential comfort policy")
+    if critic.get("revised_candidate_id") and critic.get("revised_candidate_id") != selected_id:
+        risk += 0.05
+        violations.append(
+            f"Critic found a safer alternative candidate: {critic.get('revised_candidate_id')}"
+        )
+
+    risk = round(min(risk, 0.99), 2)
+    recommended_candidate_id = str(critic.get("revised_candidate_id", "") or selected_id)
+
+    if risk >= reject_threshold or (rejected and len(rejected) >= max(len(approved), 1)):
         status = "REJECTED"
-    elif risk >= replan_threshold or len(violations) > 2:
+    elif risk >= replan_threshold or len(violations) >= 2 or recommended_candidate_id != selected_id:
         status = "REPLAN_REQUIRED"
     else:
         status = "APPROVED"
@@ -125,5 +139,13 @@ def run_policy_gate(
         rejected_actions=rejected,
         policy_violation_report=violations,
         risk_score=risk,
-        details={"site_state_keys": list(site_state.keys())},
+        recommended_candidate_id=recommended_candidate_id,
+        details={
+            "site_state_keys": list(site_state.keys()),
+            "selected_candidate_id": selected_id,
+            "scenario_mode": scenario_mode,
+            "policy_violation_probability": policy_probability,
+            "candidate_risk_score": candidate_risk,
+            "battery_degradation_cost_krw": degradation,
+        },
     )

@@ -43,7 +43,7 @@ def _build_decisions_lookups(
 
     Returns:
         ess_by_step: step -> {action, power_kw, soc_kwh, net_load_kw}
-        trading_by_step: step -> [ {surplus_kw, action}, ... ]
+        trading_by_step: step -> [ {surplus_kw, action, bid_price}, ... ]
         dr_by_step: step -> {net_load_kw, recommended_reduction_kw, action}
     """
     ess_by_step: dict[int, dict] = {}
@@ -91,6 +91,7 @@ def _build_decisions_lookups(
             trading_by_step.setdefault(step, []).append({
                 "surplus_kw": float(item.get("surplus_kw", 0.0)),
                 "action": item.get("action", "sell_p2p"),
+                "bid_price": float(item.get("bid_price", 0.0)),
             })
             break
 
@@ -140,6 +141,13 @@ def _avg_forecast_mape(model: "ALFPSimulationModel") -> float:
         return 0.0
     mapes = [a.forecast_mape for a in prosumers if a.forecast_mape > 0]
     return float(np.mean(mapes)) if mapes else 0.0
+
+
+def _avg_price_buy(model: "ALFPSimulationModel") -> float:
+    """전체 프로슈머 평균 계통 구매단가 (원/kWh)."""
+    prosumers = list(model.agents_by_type.get(ProsumerAgent) or [])
+    prices = [a.current_price_buy for a in prosumers if getattr(a, "current_price_buy", None) is not None]
+    return float(np.mean(prices)) if prices else 0.0
 
 
 def _ess_soc(model: "ALFPSimulationModel") -> float:
@@ -282,6 +290,7 @@ class ALFPSimulationModel(mesa.Model):
                 "community_load_kw":  _community_load,
                 "community_pv_kw":    _community_pv,
                 "community_net_kw":   _community_net_load,
+                "avg_price_buy_krw_per_kwh": _avg_price_buy,
                 "avg_forecast_mape":  _avg_forecast_mape,
                 "ess_soc_pct":        _ess_soc,
                 "ess_power_kw":       _ess_power,
@@ -397,6 +406,8 @@ class ALFPSimulationModel(mesa.Model):
 
         if self.phase >= 4 and mkt_agents:
             mkt = mkt_agents[0]
+            planned_p2p_kwh = round(mkt.total_planned_p2p_sell_kwh, 2)
+            actual_p2p_kwh = round(mkt.total_matched_kwh, 2)
             result.update({
                 "total_trades":           mkt.total_trades,
                 "total_matched_kwh":      round(mkt.total_matched_kwh, 2),
@@ -404,6 +415,10 @@ class ALFPSimulationModel(mesa.Model):
                 "seller_revenue_krw":     round(mkt.total_seller_revenue_krw, 0),
                 "buyer_saving_krw":       round(mkt.total_buyer_saving_krw, 0),
                 "community_saving_krw":   round(mkt.total_community_saving_krw, 0),
+                "planned_p2p_sell_kwh":   planned_p2p_kwh,
+                "planned_grid_sell_kwh":  round(mkt.total_planned_grid_sell_kwh, 2),
+                "blocked_surplus_kwh":    round(mkt.total_blocked_surplus_kwh, 2),
+                "p2p_execution_ratio_pct": round((actual_p2p_kwh / planned_p2p_kwh * 100.0), 1) if planned_p2p_kwh > 0 else 0.0,
             })
 
         return result

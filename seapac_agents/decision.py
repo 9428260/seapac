@@ -25,6 +25,7 @@ Pipeline:
 from __future__ import annotations
 
 import asyncio
+import json
 from pathlib import Path
 
 import agentscope
@@ -85,6 +86,29 @@ def _safe_float(value, default: float = 0.0) -> float:
         return float(value)
     except (TypeError, ValueError):
         return float(default)
+
+
+def _strip_json_code_fence(text: str) -> str:
+    """```json ... ``` 형태가 오면 본문만 추출."""
+    raw = (text or "").strip()
+    if "```" not in raw:
+        return raw
+    for part in raw.split("```"):
+        chunk = part.strip()
+        if not chunk:
+            continue
+        if chunk.startswith("json"):
+            return chunk[4:].strip()
+        if chunk.startswith("{") or chunk.startswith("["):
+            return chunk
+    return raw
+
+
+def _llm_enabled_for_market_agents() -> bool:
+    """시장/거래 관련 Agent LLM 사용 가능 여부."""
+    from alfp.llm import is_llm_enabled
+
+    return is_llm_enabled("cda_strategy")
 
 
 # ─────────────────────────────────────────────────────────────────
@@ -197,22 +221,17 @@ class SmartSellerAgentAS(AgentBase):
     sys_prompt를 통해 수익 극대화 목표와 전략이 주입됩니다.
     """
 
-    def __init__(self, peak_risk_price_ratio: float = 0.90):
+    def __init__(self, peak_risk_price_ratio: float = 0.90, use_llm: bool | None = None):
         super().__init__()
         self.name = "SmartSeller-Agent"
         self.sys_prompt = _PROMPTS["persona_smart_seller"]
         self.peak_risk_price_ratio = peak_risk_price_ratio
+        self.use_llm = _llm_enabled_for_market_agents() if use_llm is None else bool(use_llm)
 
     async def observe(self, msg: Msg | list[Msg] | None) -> None:
         pass
 
-    async def reply(self, msg: Msg) -> Msg:
-        """
-        State JSON을 분석하여 최적 입찰가/수량을 결정.
-
-        msg.metadata['state'] 에서 State Translator JSON을 읽습니다.
-        """
-        state = (msg.metadata or {}).get("state", {})
+    def _rule_based_proposal(self, state: dict) -> dict:
         cs = state.get("community_state", {})
         ms = state.get("market_state", {})
 
@@ -224,41 +243,95 @@ class SmartSellerAgentAS(AgentBase):
         time_str = state.get("time", "")
 
         if surplus <= 0:
-            proposal = {
+            return {
                 "action": "hold",
                 "bid_price": 0.0,
                 "bid_quantity_kw": 0.0,
                 "surplus_kw": 0.0,
                 "reason": "잉여 에너지 없음 — 판매 보류",
             }
+
+        if peak_risk == "HIGH":
+            bid_price = round(p2p_max * self.peak_risk_price_ratio, 1)
+        elif peak_risk == "MEDIUM":
+            bid_price = round((p2p_min + p2p_max) / 2, 1)
         else:
-            if peak_risk == "HIGH":
-                bid_price = round(p2p_max * self.peak_risk_price_ratio, 1)
-            elif peak_risk == "MEDIUM":
-                bid_price = round((p2p_min + p2p_max) / 2, 1)
-            else:
-                bid_price = p2p_min
+            bid_price = p2p_min
 
-            if bid_price < grid_price:
-                action = "sell_p2p"
-            else:
-                action = "sell_grid"
-                bid_price = round(grid_price * 0.95, 1)
+        if bid_price < grid_price:
+            action = "sell_p2p"
+        else:
+            action = "sell_grid"
+            bid_price = round(grid_price * 0.95, 1)
 
-            proposal = {
-                "action": action,
-                "bid_price": bid_price,
-                "bid_quantity_kw": surplus,
-                "surplus_kw": surplus,
-                "timestamp": time_str,
-                "reason": f"잉여 {surplus:.1f}kW, 피크위험={peak_risk} → {action} @{bid_price} 원/kWh",
-            }
+        return {
+            "action": action,
+            "bid_price": bid_price,
+            "bid_quantity_kw": surplus,
+            "surplus_kw": surplus,
+            "timestamp": time_str,
+            "reason": f"잉여 {surplus:.1f}kW, 피크위험={peak_risk} → {action} @{bid_price} 원/kWh",
+        }
+
+    def _llm_proposal(self, state: dict, msg: Msg) -> dict:
+        from langchain_core.messages import HumanMessage, SystemMessage
+        from alfp.llm import get_llm
+
+        cs = state.get("community_state", {})
+        ms = state.get("market_state", {})
+        alfp_context = (msg.metadata or {}).get("alfp_context") or {}
+        constraints = (msg.metadata or {}).get("constraints") or (msg.metadata or {}).get("policy_constraints") or {}
+        system = f"""{self.sys_prompt}
+
+Return JSON only:
+{{
+  "action": "sell_p2p" | "sell_grid" | "hold",
+  "bid_price": number,
+  "bid_quantity_kw": number,
+  "surplus_kw": number,
+  "timestamp": string,
+  "reason": string
+}}
+
+Use the policy constraints and keep quantity within available surplus."""
+        user = (
+            f"State JSON:\n{json.dumps(state, ensure_ascii=False)}\n\n"
+            f"ALFP context:\n{json.dumps(alfp_context, ensure_ascii=False)}\n\n"
+            f"Policy constraints:\n{json.dumps(constraints, ensure_ascii=False)}\n\n"
+            f"Community summary: surplus={cs.get('surplus_energy', 0)}, peak_risk={cs.get('peak_risk', 'LOW')}, "
+            f"grid_price={ms.get('grid_price', 0)}\n"
+            "Output JSON only."
+        )
+        llm = get_llm(temperature=0.2, stage="cda_strategy")
+        resp = llm.invoke([SystemMessage(content=system), HumanMessage(content=user)])
+        text = _strip_json_code_fence(resp.content if hasattr(resp, "content") else str(resp))
+        data = json.loads(text)
+        return {
+            "action": str(data.get("action", "hold")),
+            "bid_price": _safe_float(data.get("bid_price", 0.0), 0.0),
+            "bid_quantity_kw": _safe_float(data.get("bid_quantity_kw", 0.0), 0.0),
+            "surplus_kw": _safe_float(data.get("surplus_kw", data.get("bid_quantity_kw", 0.0)), 0.0),
+            "timestamp": str(data.get("timestamp", state.get("time", ""))),
+            "reason": str(data.get("reason", "")),
+        }
+
+    async def reply(self, msg: Msg) -> Msg:
+        """
+        State JSON을 분석하여 최적 입찰가/수량을 결정.
+
+        msg.metadata['state'] 에서 State Translator JSON을 읽습니다.
+        """
+        state = (msg.metadata or {}).get("state", {})
+        try:
+            proposal = self._llm_proposal(state, msg) if self.use_llm else self._rule_based_proposal(state)
+        except Exception:
+            proposal = self._rule_based_proposal(state)
 
         return Msg(
             name=self.name,
             content=f"[{self.name}] {proposal['reason']}",
             role="assistant",
-            metadata={"proposal": proposal},
+            metadata={"proposal": proposal, "llm_used": self.use_llm},
         )
 
 
@@ -278,21 +351,19 @@ class StorageMasterAgentAS(AgentBase):
         self,
         price_charge_threshold: float = 85.0,
         price_discharge_threshold: float = 115.0,
+        use_llm: bool | None = None,
     ):
         super().__init__()
         self.name = "StorageMaster-Agent"
         self.sys_prompt = _PROMPTS["persona_storage_master"]
         self.price_charge_threshold = price_charge_threshold
         self.price_discharge_threshold = price_discharge_threshold
+        self.use_llm = _llm_enabled_for_market_agents() if use_llm is None else bool(use_llm)
 
     async def observe(self, msg: Msg | list[Msg] | None) -> None:
         pass
 
-    async def reply(self, msg: Msg) -> Msg:
-        """
-        State JSON으로부터 ESS 충방전 결정.
-        """
-        state = (msg.metadata or {}).get("state", {})
+    def _rule_based_proposal(self, state: dict) -> dict:
         cs = state.get("community_state", {})
         ms = state.get("market_state", {})
         es = state.get("ess_state", {})
@@ -302,63 +373,105 @@ class StorageMasterAgentAS(AgentBase):
         avail_discharge = float(es.get("available_discharge") or 0.0)
 
         if soc_pct is None or capacity is None:
-            proposal = {"action": "idle", "power_kw": 0.0, "soc_pct": None, "reason": "ESS 미설치"}
-        else:
-            soc_pct = float(soc_pct)
-            capacity = float(capacity)
-            grid_price = float(ms.get("grid_price") or 100.0)
-            surplus = float(cs.get("surplus_energy", 0.0))
-            peak_risk = cs.get("peak_risk", "LOW")
+            return {"action": "idle", "power_kw": 0.0, "soc_pct": None, "reason": "ESS 미설치"}
 
-            # 최대 ESS 기준 (Policy가 최종 클램핑)
-            max_kw = capacity / 4
+        soc_pct = float(soc_pct)
+        capacity = float(capacity)
+        grid_price = float(ms.get("grid_price") or 100.0)
+        surplus = float(cs.get("surplus_energy", 0.0))
+        peak_risk = cs.get("peak_risk", "LOW")
 
-            if peak_risk == "HIGH" and soc_pct > 15:
-                power = min(max_kw, avail_discharge / 0.25)
-                proposal = {
-                    "action": "discharge",
-                    "power_kw": round(power, 2),
-                    "soc_pct": soc_pct,
-                    "reason": f"피크 위험 HIGH → 방전 {power:.1f}kW",
-                }
-            elif surplus > 1.0 and soc_pct < 90:
-                power = min(max_kw, surplus)
-                proposal = {
-                    "action": "charge",
-                    "power_kw": round(power, 2),
-                    "soc_pct": soc_pct,
-                    "reason": f"잉여 PV {surplus:.1f}kW 흡수 충전",
-                }
-            elif grid_price <= self.price_charge_threshold and soc_pct < 90:
-                avail_kwh = (0.95 - soc_pct / 100) * capacity
-                power = min(max_kw, avail_kwh / 0.25)
-                proposal = {
-                    "action": "charge",
-                    "power_kw": round(power, 2),
-                    "soc_pct": soc_pct,
-                    "reason": f"TOU 저가 {grid_price} 원/kWh → 충전",
-                }
-            elif grid_price >= self.price_discharge_threshold and soc_pct > 15:
-                power = min(max_kw, avail_discharge / 0.25)
-                proposal = {
-                    "action": "discharge",
-                    "power_kw": round(power, 2),
-                    "soc_pct": soc_pct,
-                    "reason": f"TOU 고가 {grid_price} 원/kWh → 방전",
-                }
-            else:
-                proposal = {
-                    "action": "idle",
-                    "power_kw": 0.0,
-                    "soc_pct": soc_pct,
-                    "reason": "대기 (조건 미충족)",
-                }
+        max_kw = capacity / 4
+
+        if peak_risk == "HIGH" and soc_pct > 15:
+            power = min(max_kw, avail_discharge / 0.25)
+            return {
+                "action": "discharge",
+                "power_kw": round(power, 2),
+                "soc_pct": soc_pct,
+                "reason": f"피크 위험 HIGH → 방전 {power:.1f}kW",
+            }
+        if surplus > 1.0 and soc_pct < 90:
+            power = min(max_kw, surplus)
+            return {
+                "action": "charge",
+                "power_kw": round(power, 2),
+                "soc_pct": soc_pct,
+                "reason": f"잉여 PV {surplus:.1f}kW 흡수 충전",
+            }
+        if grid_price <= self.price_charge_threshold and soc_pct < 90:
+            avail_kwh = (0.95 - soc_pct / 100) * capacity
+            power = min(max_kw, avail_kwh / 0.25)
+            return {
+                "action": "charge",
+                "power_kw": round(power, 2),
+                "soc_pct": soc_pct,
+                "reason": f"TOU 저가 {grid_price} 원/kWh → 충전",
+            }
+        if grid_price >= self.price_discharge_threshold and soc_pct > 15:
+            power = min(max_kw, avail_discharge / 0.25)
+            return {
+                "action": "discharge",
+                "power_kw": round(power, 2),
+                "soc_pct": soc_pct,
+                "reason": f"TOU 고가 {grid_price} 원/kWh → 방전",
+            }
+        return {
+            "action": "idle",
+            "power_kw": 0.0,
+            "soc_pct": soc_pct,
+            "reason": "대기 (조건 미충족)",
+        }
+
+    def _llm_proposal(self, state: dict, msg: Msg) -> dict:
+        from langchain_core.messages import HumanMessage, SystemMessage
+        from alfp.llm import get_llm
+
+        alfp_context = (msg.metadata or {}).get("alfp_context") or {}
+        constraints = (msg.metadata or {}).get("constraints") or (msg.metadata or {}).get("policy_constraints") or {}
+        system = f"""{self.sys_prompt}
+
+Return JSON only:
+{{
+  "action": "charge" | "discharge" | "idle",
+  "power_kw": number,
+  "soc_pct": number | null,
+  "reason": string
+}}
+
+Prefer safe ESS operation and respect policy constraints."""
+        user = (
+            f"State JSON:\n{json.dumps(state, ensure_ascii=False)}\n\n"
+            f"ALFP context:\n{json.dumps(alfp_context, ensure_ascii=False)}\n\n"
+            f"Policy constraints:\n{json.dumps(constraints, ensure_ascii=False)}\n\n"
+            "Output JSON only."
+        )
+        llm = get_llm(temperature=0.2, stage="cda_strategy")
+        resp = llm.invoke([SystemMessage(content=system), HumanMessage(content=user)])
+        text = _strip_json_code_fence(resp.content if hasattr(resp, "content") else str(resp))
+        data = json.loads(text)
+        return {
+            "action": str(data.get("action", "idle")),
+            "power_kw": _safe_float(data.get("power_kw", 0.0), 0.0),
+            "soc_pct": data.get("soc_pct"),
+            "reason": str(data.get("reason", "")),
+        }
+
+    async def reply(self, msg: Msg) -> Msg:
+        """
+        State JSON으로부터 ESS 충방전 결정.
+        """
+        state = (msg.metadata or {}).get("state", {})
+        try:
+            proposal = self._llm_proposal(state, msg) if self.use_llm else self._rule_based_proposal(state)
+        except Exception:
+            proposal = self._rule_based_proposal(state)
 
         return Msg(
             name=self.name,
             content=f"[{self.name}] {proposal['reason']}",
             role="assistant",
-            metadata={"proposal": proposal},
+            metadata={"proposal": proposal, "llm_used": self.use_llm},
         )
 
 
@@ -374,28 +487,24 @@ class EcoSaverAgentAS(AgentBase):
     sys_prompt를 통해 소비 절감 및 DR 권고 페르소나가 주입됩니다.
     """
 
-    def __init__(self, peak_threshold_kw: float = 500.0, reduction_factor: float = 0.30):
+    def __init__(self, peak_threshold_kw: float = 500.0, reduction_factor: float = 0.30, use_llm: bool | None = None):
         super().__init__()
         self.name = "EcoSaver-Agent"
         self.sys_prompt = _PROMPTS["persona_eco_saver"]
         self.peak_threshold_kw = peak_threshold_kw
         self.reduction_factor = reduction_factor
+        self.use_llm = _llm_enabled_for_market_agents() if use_llm is None else bool(use_llm)
 
     async def observe(self, msg: Msg | list[Msg] | None) -> None:
         pass
 
-    async def reply(self, msg: Msg) -> Msg:
-        """
-        피크 초과 상황에서 DR 이벤트 생성.
-        """
-        state = (msg.metadata or {}).get("state", {})
+    def _rule_based_proposal(self, state: dict) -> dict:
         cs = state.get("community_state", {})
         total_load = float(cs.get("total_load", 0.0))
         peak_risk = cs.get("peak_risk", "LOW")
         time_str = state.get("time", "")
 
         dr_events = []
-
         if total_load > self.peak_threshold_kw:
             excess = total_load - self.peak_threshold_kw
             reduction = round(excess * self.reduction_factor, 2)
@@ -415,15 +524,60 @@ class EcoSaverAgentAS(AgentBase):
                 "action": "demand_response",
                 "reason": "피크 위험 MEDIUM → 예방적 5% 절감 권고",
             })
+        return {"dr_events": dr_events}
 
-        n = len(dr_events)
+    def _llm_proposal(self, state: dict, msg: Msg) -> dict:
+        from langchain_core.messages import HumanMessage, SystemMessage
+        from alfp.llm import get_llm
+
+        alfp_context = (msg.metadata or {}).get("alfp_context") or {}
+        constraints = (msg.metadata or {}).get("constraints") or (msg.metadata or {}).get("policy_constraints") or {}
+        system = f"""{self.sys_prompt}
+
+Return JSON only:
+{{
+  "dr_events": [
+    {{
+      "timestamp": string,
+      "net_load_kw": number,
+      "recommended_reduction_kw": number,
+      "action": "demand_response",
+      "reason": string
+    }}
+  ]
+}}
+
+If DR is not needed, return {{"dr_events": []}}."""
+        user = (
+            f"State JSON:\n{json.dumps(state, ensure_ascii=False)}\n\n"
+            f"ALFP context:\n{json.dumps(alfp_context, ensure_ascii=False)}\n\n"
+            f"Policy constraints:\n{json.dumps(constraints, ensure_ascii=False)}\n\n"
+            "Output JSON only."
+        )
+        llm = get_llm(temperature=0.2, stage="cda_strategy")
+        resp = llm.invoke([SystemMessage(content=system), HumanMessage(content=user)])
+        text = _strip_json_code_fence(resp.content if hasattr(resp, "content") else str(resp))
+        data = json.loads(text)
+        return {"dr_events": list(data.get("dr_events") or [])}
+
+    async def reply(self, msg: Msg) -> Msg:
+        """
+        피크 초과 상황에서 DR 이벤트 생성.
+        """
+        state = (msg.metadata or {}).get("state", {})
+        try:
+            proposal = self._llm_proposal(state, msg) if self.use_llm else self._rule_based_proposal(state)
+        except Exception:
+            proposal = self._rule_based_proposal(state)
+
+        n = len(proposal.get("dr_events") or [])
         content = f"[{self.name}] DR 이벤트 {n}건 생성" if n else f"[{self.name}] DR 불필요"
 
         return Msg(
             name=self.name,
             content=content,
             role="assistant",
-            metadata={"proposal": {"dr_events": dr_events}},
+            metadata={"proposal": proposal, "llm_used": self.use_llm},
         )
 
 

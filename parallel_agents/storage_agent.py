@@ -85,7 +85,7 @@ def _ess_operation_manager(
     for action in ess_actions:
         aid = action.get("action_id", "")
         subtype = action.get("subtype", "idle")
-        power = float(action.get("power_kw", 0))
+        power = float(action.get("power_kw") or 0)
         modified = dict(action)
 
         if subtype == "charge":

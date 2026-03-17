@@ -5,6 +5,7 @@ Schema:
   - pipeline_run: one row per full pipeline execution
   - pipeline_stage: one row per architecture step (ALFP, MESA, Step2, ...)
   - alfp_agent_step: per-agent step log within ALFP stage (Langchain DeepAgent 단계)
+  - pipeline_agent_step: per-agent step log for non-ALFP stages
 """
 
 from __future__ import annotations
@@ -16,7 +17,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-_DEFAULT_DB_DIR = Path(__file__).resolve().parent.parent / "output"
+_DEFAULT_DB_DIR = Path(__file__).resolve().parent.parent / "alfp_store"
 _DB_FILENAME = "pipeline_runs.db"
 
 
@@ -93,6 +94,35 @@ def init_db(db_path: Path | None = None) -> None:
                 FOREIGN KEY (run_id) REFERENCES pipeline_run(id)
             );
             CREATE INDEX IF NOT EXISTS ix_alfp_domain_run_stage ON alfp_domain_step(run_id, stage_order);
+            CREATE TABLE IF NOT EXISTS pipeline_agent_step (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                run_id INTEGER NOT NULL,
+                stage_order INTEGER NOT NULL,
+                agent_name TEXT NOT NULL,
+                role_label TEXT,
+                step_order INTEGER NOT NULL,
+                started_at TEXT NOT NULL,
+                finished_at TEXT,
+                elapsed_sec REAL,
+                ok INTEGER NOT NULL DEFAULT 1,
+                summary_json TEXT,
+                error_text TEXT,
+                FOREIGN KEY (run_id) REFERENCES pipeline_run(id)
+            );
+            CREATE INDEX IF NOT EXISTS ix_pipeline_agent_run_stage ON pipeline_agent_step(run_id, stage_order);
+            CREATE TABLE IF NOT EXISTS pipeline_artifact (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                run_id INTEGER NOT NULL,
+                artifact_key TEXT NOT NULL,
+                artifact_type TEXT NOT NULL DEFAULT 'json',
+                payload_json TEXT,
+                created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL,
+                FOREIGN KEY (run_id) REFERENCES pipeline_run(id),
+                UNIQUE (run_id, artifact_key)
+            );
+            CREATE INDEX IF NOT EXISTS ix_pipeline_artifact_run_key
+            ON pipeline_artifact (run_id, artifact_key);
         """)
         try:
             conn.execute("ALTER TABLE pipeline_run ADD COLUMN measure_date TEXT")
@@ -252,6 +282,48 @@ def add_agent_step(
         conn.close()
 
 
+def add_pipeline_agent_step(
+    run_id: int,
+    stage_order: int,
+    agent_name: str,
+    step_order: int,
+    started_at: str,
+    finished_at: str | None = None,
+    elapsed_sec: float | None = None,
+    ok: bool = True,
+    summary: dict[str, Any] | None = None,
+    error_text: str | None = None,
+    role_label: str | None = None,
+    db_path: Path | None = None,
+) -> None:
+    """Append one per-agent step log for non-ALFP stages."""
+    path = db_path or get_db_path()
+    conn = _connect(path)
+    try:
+        summary_json = json.dumps(summary or {}, ensure_ascii=False) if summary else None
+        conn.execute(
+            """INSERT INTO pipeline_agent_step
+               (run_id, stage_order, agent_name, role_label, step_order, started_at, finished_at, elapsed_sec, ok, summary_json, error_text)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (
+                run_id,
+                stage_order,
+                agent_name,
+                role_label,
+                step_order,
+                started_at,
+                finished_at,
+                elapsed_sec,
+                1 if ok else 0,
+                summary_json,
+                error_text,
+            ),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
 def get_alfp_domain_steps(
     run_id: int,
     stage_order: int = 1,
@@ -330,6 +402,45 @@ def get_alfp_agent_steps(
         conn.close()
 
 
+def get_pipeline_agent_steps(
+    run_id: int,
+    stage_order: int,
+    db_path: Path | None = None,
+) -> list[dict[str, Any]]:
+    """Return per-agent step logs for non-ALFP stages, ordered by step_order."""
+    path = db_path or get_db_path()
+    if not path.exists():
+        return []
+    conn = _connect(path)
+    try:
+        rows = conn.execute(
+            """SELECT id, run_id, stage_order, agent_name, role_label, step_order, started_at, finished_at,
+                      elapsed_sec, ok, summary_json, error_text
+               FROM pipeline_agent_step WHERE run_id = ? AND stage_order = ?
+               ORDER BY step_order, id""",
+            (run_id, stage_order),
+        ).fetchall()
+        return [
+            {
+                "id": r["id"],
+                "run_id": r["run_id"],
+                "stage_order": r["stage_order"],
+                "agent_name": r["agent_name"],
+                "role_label": r["role_label"],
+                "step_order": r["step_order"],
+                "started_at": r["started_at"],
+                "finished_at": r["finished_at"],
+                "elapsed_sec": r["elapsed_sec"],
+                "ok": bool(r["ok"]),
+                "summary": json.loads(r["summary_json"]) if r["summary_json"] else {},
+                "error_text": r["error_text"],
+            }
+            for r in rows
+        ]
+    finally:
+        conn.close()
+
+
 def finish_run(
     run_id: int,
     total_elapsed_sec: float,
@@ -350,6 +461,70 @@ def finish_run(
             (now, status, total_elapsed_sec, error_message, run_id),
         )
         conn.commit()
+    finally:
+        conn.close()
+
+
+def upsert_artifact(
+    run_id: int,
+    artifact_key: str,
+    payload: Any,
+    artifact_type: str = "json",
+    db_path: Path | None = None,
+) -> None:
+    """Create or replace a run-scoped artifact payload."""
+    path = db_path or get_db_path()
+    conn = _connect(path)
+    try:
+        now = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+        payload_json = json.dumps(payload, ensure_ascii=False, default=str)
+        conn.execute(
+            """
+            INSERT INTO pipeline_artifact (run_id, artifact_key, artifact_type, payload_json, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?)
+            ON CONFLICT(run_id, artifact_key)
+            DO UPDATE SET
+                artifact_type = excluded.artifact_type,
+                payload_json = excluded.payload_json,
+                updated_at = excluded.updated_at
+            """,
+            (run_id, artifact_key, artifact_type, payload_json, now, now),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def get_artifact(
+    run_id: int,
+    artifact_key: str,
+    db_path: Path | None = None,
+) -> dict[str, Any] | None:
+    """Fetch one run-scoped artifact."""
+    path = db_path or get_db_path()
+    if not path.exists():
+        return None
+    conn = _connect(path)
+    try:
+        row = conn.execute(
+            """
+            SELECT id, run_id, artifact_key, artifact_type, payload_json, created_at, updated_at
+            FROM pipeline_artifact
+            WHERE run_id = ? AND artifact_key = ?
+            """,
+            (run_id, artifact_key),
+        ).fetchone()
+        if row is None:
+            return None
+        return {
+            "id": row["id"],
+            "run_id": row["run_id"],
+            "artifact_key": row["artifact_key"],
+            "artifact_type": row["artifact_type"],
+            "payload": json.loads(row["payload_json"]) if row["payload_json"] else None,
+            "created_at": row["created_at"],
+            "updated_at": row["updated_at"],
+        }
     finally:
         conn.close()
 

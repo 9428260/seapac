@@ -70,7 +70,7 @@ class ProsumerAgent(mesa.Agent):
         self.anomaly_detected: bool = False
         self.feature_count: int = 0
         self.validation_passed: bool = True
-        self.decision_action: str = "none"     # 'charge', 'discharge', 'sell', 'none'
+        self.decision_action: str = "none"     # 'charge', 'discharge', 'sell', 'sell_grid', 'demand_response', 'none'
 
         # ── 에너지 균형 ─────────────────────────────────────
         self.net_load_kw: float = 0.0          # load - pv
@@ -276,7 +276,11 @@ class ProsumerAgent(mesa.Agent):
         dr_by_step = getattr(self.model, "_dr_by_step", None) or {}
 
         if step in trading_by_step and trading_by_step[step]:
-            return "sell"  # ALFP 추천: 이 스텝에 P2P 판매
+            actions = {str(item.get("action", "")).strip() for item in trading_by_step[step]}
+            if "sell_p2p" in actions:
+                return "sell"
+            if "sell_grid" in actions:
+                return "sell_grid"
         if step in dr_by_step:
             return "demand_response"  # ALFP 추천: 수요반응
         return self._make_decision()

@@ -32,7 +32,7 @@ class ALFPState(TypedDict, total=False):
     # ── ForecastPlannerAgent ──────────────────────────────
     selected_model: str            # "lgbm" | "xgboost"
     model_config: dict             # 모델 하이퍼파라미터
-    forecast_plan: dict            # 계획 요약
+    forecast_plan: dict            # 계획 요약 + deep planning trace
 
     # ── LoadForecastAgent ─────────────────────────────────
     load_forecast: Any             # 예측 결과 pd.DataFrame
@@ -49,7 +49,7 @@ class ALFPState(TypedDict, total=False):
     validation_metrics: dict       # MAE, RMSE, MAPE, PeakError
 
     # ── DecisionAgent ─────────────────────────────────────
-    decisions: dict                # ESS / 거래 / DR 추천
+    decisions: dict                # ESS / 거래 / DR 추천 + 후보 포트폴리오 비교
 
     # ── Governance (PRD §4.1–4.3) ─────────────────────────
     evidence: dict                 # Evidence Curator 출력 (의사결정 근거)
@@ -61,6 +61,7 @@ class ALFPState(TypedDict, total=False):
 
     # ── Strategy Memory (PRD §4.5) ───────────────────────
     strategy_memory_entry: dict    # 이번 런 저장 entry 요약
+    memory_retrieval: dict         # 유사 사례 / best practice / 실패 패턴 retrieval 결과
 
     # ── 공통 로그 ─────────────────────────────────────────
     messages: list                 # 에이전트별 실행 로그
