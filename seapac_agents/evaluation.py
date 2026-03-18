@@ -16,6 +16,7 @@ KPIs (PRD):
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -287,6 +288,7 @@ class EvaluationReport:
     kpis: dict = field(default_factory=dict)
     summary_text: str = ""
     raw_summary: dict = field(default_factory=dict)
+    llm_analysis: dict = field(default_factory=dict)
 
     def to_dict(self) -> dict:
         return {
@@ -295,6 +297,7 @@ class EvaluationReport:
             "grade": self.grade,
             "kpis": self.kpis,
             "summary_text": self.summary_text,
+            "llm_analysis": self.llm_analysis,
         }
 
     def print_report(self) -> None:
@@ -374,6 +377,37 @@ def run_evaluation(
         f"  ─────────────────────────────────────────",
         f"  운영 가치 (거래+ESS-마모): {value_added:,.0f} 원   →   평가 등급: {grade}",
     ]
+
+    llm_analysis: dict[str, Any] = {}
+    try:
+        from langchain_core.messages import HumanMessage, SystemMessage
+        from alfp.llm import is_llm_enabled, get_llm
+
+        if is_llm_enabled("evaluation_summary"):
+            system = """당신은 에너지 운영 평가 보조 분석기입니다.
+KPI와 등급을 해석해 운영자가 읽기 쉬운 한국어 요약과 개선 제안을 작성하세요.
+JSON only:
+{"executive_summary": string, "strength": string, "risk": string, "next_action": string}"""
+            user = (
+                f"grade={grade}\n"
+                f"kpis={json.dumps(kpis, ensure_ascii=False)}\n"
+                f"execution_summary={json.dumps(execution_summary, ensure_ascii=False)}\n"
+                "Output JSON only."
+            )
+            llm = get_llm(temperature=0.1, stage="evaluation_summary")
+            resp = llm.invoke([SystemMessage(content=system), HumanMessage(content=user)])
+            raw = resp.content if hasattr(resp, "content") else str(resp)
+            llm_analysis = json.loads(raw.strip().removeprefix('```json').removesuffix('```').strip())
+            if llm_analysis.get("executive_summary"):
+                lines.extend([
+                    "  ─────────────────────────────────────────",
+                    f"  [LLM Summary] {llm_analysis.get('executive_summary', '')}",
+                    f"  [LLM Strength] {llm_analysis.get('strength', '')}",
+                    f"  [LLM Risk] {llm_analysis.get('risk', '')}",
+                    f"  [LLM Next] {llm_analysis.get('next_action', '')}",
+                ])
+    except Exception:
+        llm_analysis = {}
     summary_text = "\n".join(lines)
 
     return EvaluationReport(
@@ -383,6 +417,7 @@ def run_evaluation(
         kpis=kpis,
         summary_text=summary_text,
         raw_summary=execution_summary,
+        llm_analysis=llm_analysis,
     )
 
 

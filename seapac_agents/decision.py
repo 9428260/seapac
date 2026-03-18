@@ -15,10 +15,10 @@ AgentScope 페르소나 주입 방식:
   - 각 에이전트는 AgentBase를 상속하며 __init__에서 self.sys_prompt를 설정
   - sys_prompt는 에이전트의 목표·역할·제약을 자연어로 기술한 Role 페르소나
   - 에이전트 간 통신은 Msg(name, content, role, metadata) 객체로 수행
-  - MsgHub를 통해 State Translator 출력을 전체 에이전트에 브로드캐스트
+  - MsgHub를 통해 입력 상태 JSON을 전체 에이전트에 브로드캐스트
 
 Pipeline:
-  State JSON (Step 2) → MsgHub broadcast → [Policy, Seller, Storage, EcoSaver] 제안
+  Input State / Forecast payload → MsgHub broadcast → [Policy, Seller, Storage, EcoSaver] 제안
   → MarketCoordinator 조율 → decisions dict (Step 4 입력)
 """
 
@@ -111,6 +111,12 @@ def _llm_enabled_for_market_agents() -> bool:
     return is_llm_enabled("cda_strategy")
 
 
+def _llm_enabled_for_stage(stage: str) -> bool:
+    from alfp.llm import is_llm_enabled
+
+    return is_llm_enabled(stage)
+
+
 # ─────────────────────────────────────────────────────────────────
 # Policy-Agent
 # ─────────────────────────────────────────────────────────────────
@@ -142,6 +148,7 @@ class PolicyAgentAS(AgentBase):
         self.min_trade_kw = min_trade_kw
         self.dr_reduction_factor = dr_reduction_factor
         self.violations: list[str] = []
+        self.use_llm = _llm_enabled_for_stage("agentscope_policy")
 
     async def observe(self, msg: Msg | list[Msg] | None) -> None:
         pass
@@ -156,11 +163,40 @@ class PolicyAgentAS(AgentBase):
             "min_trade_kw": self.min_trade_kw,
             "dr_reduction_factor": self.dr_reduction_factor,
         }
+        llm_policy_note = ""
+        if self.use_llm:
+            try:
+                from langchain_core.messages import HumanMessage, SystemMessage
+                from alfp.llm import get_llm
+
+                state = (msg.metadata or {}).get("state") or {}
+                system = """당신은 에너지 커뮤니티 운영의 Policy-Agent 보조 분석기입니다.
+현재 상태와 정책 제약을 보고, 이번 스텝에서 특히 주의할 리스크와 우선순위를 한국어 2문장 이내로 요약하세요.
+JSON only:
+{"policy_note": string, "priority": string}"""
+                user = (
+                    f"State JSON:\n{json.dumps(state, ensure_ascii=False)}\n\n"
+                    f"Constraints:\n{json.dumps(constraints, ensure_ascii=False)}\n\n"
+                    "Output JSON only."
+                )
+                llm = get_llm(temperature=0.1, stage="agentscope_policy")
+                resp = llm.invoke([SystemMessage(content=system), HumanMessage(content=user)])
+                data = json.loads(_strip_json_code_fence(resp.content if hasattr(resp, "content") else str(resp)))
+                note = str(data.get("policy_note", "")).strip()
+                priority = str(data.get("priority", "")).strip()
+                llm_policy_note = " / ".join(v for v in [priority, note] if v)
+            except Exception:
+                llm_policy_note = ""
         return Msg(
             name=self.name,
             content=f"[{self.name}] 제약 조건 설정 완료",
             role="assistant",
-            metadata={"constraints": constraints, "violations": []},
+            metadata={
+                "constraints": constraints,
+                "violations": [],
+                "llm_used": bool(llm_policy_note),
+                "llm_policy_note": llm_policy_note,
+            },
         )
 
     def validate_ess(self, proposal: dict) -> tuple[dict, list[str]]:
@@ -319,7 +355,7 @@ Use the policy constraints and keep quantity within available surplus."""
         """
         State JSON을 분석하여 최적 입찰가/수량을 결정.
 
-        msg.metadata['state'] 에서 State Translator JSON을 읽습니다.
+        msg.metadata['state'] 에서 입력 상태 JSON을 읽습니다.
         """
         state = (msg.metadata or {}).get("state", {})
         try:
@@ -603,6 +639,7 @@ class MarketCoordinatorAgentAS(AgentBase):
         self.name = "MarketCoordinator-Agent"
         self.sys_prompt = _PROMPTS["persona_market_coordinator"]
         self.policy = policy_agent
+        self.use_llm = _llm_enabled_for_stage("agentscope_coordinator")
 
     async def observe(self, msg: Msg | list[Msg] | None) -> None:
         pass
@@ -610,6 +647,7 @@ class MarketCoordinatorAgentAS(AgentBase):
     async def reply(
         self,
         msg: Msg,
+        policy_msg: Msg | None = None,
         seller_msg: Msg | None = None,
         storage_msg: Msg | None = None,
         eco_msg: Msg | None = None,
@@ -736,6 +774,37 @@ class MarketCoordinatorAgentAS(AgentBase):
             ),
         }
 
+        if self.use_llm:
+            try:
+                from langchain_core.messages import HumanMessage, SystemMessage
+                from alfp.llm import get_llm
+
+                policy_note = (policy_msg.metadata or {}).get("llm_policy_note", "") if policy_msg else ""
+                system = """당신은 에너지 커뮤니티 MarketCoordinator 보조 분석기입니다.
+최종 decisions와 입력 상태를 보고 이번 스텝의 조정 이유를 짧게 설명하세요.
+JSON only:
+{"coordination_summary": string, "market_rationale": string, "risk_note": string}"""
+                user = (
+                    f"State JSON:\n{json.dumps(state, ensure_ascii=False)}\n\n"
+                    f"Policy note:\n{policy_note}\n\n"
+                    f"Seller proposal:\n{json.dumps(seller_proposal, ensure_ascii=False)}\n\n"
+                    f"Storage proposal:\n{json.dumps(storage_proposal, ensure_ascii=False)}\n\n"
+                    f"DR proposals:\n{json.dumps(dr_proposals, ensure_ascii=False)}\n\n"
+                    f"Final decisions:\n{json.dumps(decisions, ensure_ascii=False)}\n\n"
+                    "Output JSON only."
+                )
+                llm = get_llm(temperature=0.1, stage="agentscope_coordinator")
+                resp = llm.invoke([SystemMessage(content=system), HumanMessage(content=user)])
+                data = json.loads(_strip_json_code_fence(resp.content if hasattr(resp, "content") else str(resp)))
+                decisions["llm_coordinator_review"] = {
+                    "coordination_summary": str(data.get("coordination_summary", "")).strip(),
+                    "market_rationale": str(data.get("market_rationale", "")).strip(),
+                    "risk_note": str(data.get("risk_note", "")).strip(),
+                    "policy_note": policy_note,
+                }
+            except Exception:
+                pass
+
         return Msg(
             name=self.name,
             content=decisions["coordinator_notes"],
@@ -847,6 +916,7 @@ async def _run_single_step_async(
 
         final_msg = await coordinator.reply(
             state_msg,
+            policy_msg=policy_msg,
             seller_msg=seller_msg,
             storage_msg=storage_msg,
             eco_msg=eco_msg,
@@ -870,10 +940,10 @@ def run_agentscope_decision(
     """
     AgentScope 기반 Multi-Agent Decision Engine — 단일 스텝.
 
-    PRD Step 3: State Translator JSON → 5개 에이전트 → decisions
+    PRD Step 3: 입력 상태 JSON → 5개 에이전트 → decisions
 
     Args:
-        state_json: Step 2 State Translator 출력
+        state_json: Forecast / State 기반 입력 JSON
         peak_threshold_kw: EcoSaver 피크 임계값
         price_charge_threshold: StorageMaster TOU 충전 단가 기준 (원/kWh)
         price_discharge_threshold: StorageMaster TOU 방전 단가 기준 (원/kWh)
@@ -933,6 +1003,7 @@ def run_agentscope_decision_series(
         trading_recommendations: list[dict] = []
         trading_evidence: list[dict] = []
         demand_response_events: list[dict] = []
+        llm_coordinator_reviews: list[dict] = []
 
         for state in state_json_list:
             d = await _run_single_step_async(
@@ -942,6 +1013,8 @@ def run_agentscope_decision_series(
             trading_recommendations.extend(d.get("trading_recommendations", []))
             trading_evidence.extend(d.get("trading_evidence", []))
             demand_response_events.extend(d.get("demand_response_events", []))
+            if d.get("llm_coordinator_review"):
+                llm_coordinator_reviews.append(d["llm_coordinator_review"])
 
         decisions = {
             "ess_schedule": ess_schedule,
@@ -956,6 +1029,7 @@ def run_agentscope_decision_series(
                 ),
             },
             "dr_summary": {"dr_event_count": len(demand_response_events)},
+            "llm_coordinator_reviews": llm_coordinator_reviews,
         }
         # Self-Critic Agent: LLM이 자기 전략을 반박하도록 설계
         from seapac_agents.self_critic import run_self_critic, SelfCriticOutput

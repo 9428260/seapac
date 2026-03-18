@@ -16,6 +16,7 @@ Supported actions (PRD):
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -189,6 +190,63 @@ class ExecutionResult:
     model: ALFPSimulationModel | None = None
 
 
+def _strip_json_code_fence(text: str) -> str:
+    raw = (text or "").strip()
+    if "```" not in raw:
+        return raw
+    for part in raw.split("```"):
+        chunk = part.strip()
+        if not chunk:
+            continue
+        if chunk.startswith("json"):
+            return chunk[4:].strip()
+        if chunk.startswith("{") or chunk.startswith("["):
+            return chunk
+    return raw
+
+
+def _build_execution_llm_review(
+    decisions: dict,
+    summary: dict,
+    validation_errors: list[str],
+    simulation_approval_errors: list[str],
+) -> dict:
+    try:
+        from langchain_core.messages import HumanMessage, SystemMessage
+        from alfp.llm import is_llm_enabled, get_llm
+
+        if not is_llm_enabled("execution_summary"):
+            return {}
+
+        system = """당신은 전력거래 실행/정산 단계 보조 분석기입니다.
+실행 결과 요약과 승인 상태를 보고 운영자가 바로 읽을 수 있게 한국어로 짧게 정리하세요.
+JSON only:
+{"execution_summary": string, "trade_execution_note": string, "approval_rationale": string, "follow_up_action": string}"""
+        compact = {
+            "execution_approved": summary.get("execution_approved"),
+            "validation_approved": summary.get("validation_approved"),
+            "simulation_approved": summary.get("simulation_approved"),
+            "peak_load_kw": summary.get("peak_load_kw"),
+            "final_soc_pct": summary.get("final_soc_pct"),
+            "total_trades": summary.get("total_trades"),
+            "total_matched_kwh": summary.get("total_matched_kwh"),
+            "community_saving_krw": summary.get("community_saving_krw"),
+        }
+        user = (
+            f"decisions={json.dumps({'ess_schedule_count': len(decisions.get('ess_schedule') or []), 'trading_recommendations_count': len(decisions.get('trading_recommendations') or []), 'demand_response_events_count': len(decisions.get('demand_response_events') or [])}, ensure_ascii=False)}\n"
+            f"summary={json.dumps(compact, ensure_ascii=False)}\n"
+            f"validation_errors={json.dumps(validation_errors[:10], ensure_ascii=False)}\n"
+            f"simulation_approval_errors={json.dumps(simulation_approval_errors[:10], ensure_ascii=False)}\n"
+            "Output JSON only."
+        )
+        llm = get_llm(temperature=0.1, stage="execution_summary")
+        resp = llm.invoke([SystemMessage(content=system), HumanMessage(content=user)])
+        text = resp.content if hasattr(resp, "content") else str(resp)
+        return json.loads(_strip_json_code_fence(text))
+    except Exception:
+        return {}
+
+
 def approve_after_simulation(
     summary: dict,
     *,
@@ -292,8 +350,15 @@ def run_execution(
     approved = policy_approved and sim_approved
     summary["validation_approved"] = policy_approved
     summary["simulation_approved"] = sim_approved
+    summary["execution_approved"] = approved
     summary["validation_errors_count"] = len(validation_errors)
     summary["simulation_approval_errors_count"] = len(simulation_approval_errors)
+    summary["llm_execution_review"] = _build_execution_llm_review(
+        decisions,
+        summary,
+        validation_errors,
+        simulation_approval_errors,
+    )
 
     return ExecutionResult(
         summary=summary,

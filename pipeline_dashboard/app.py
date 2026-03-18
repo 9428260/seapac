@@ -421,7 +421,7 @@ def _default_timeline_agents(label: str, summary: dict | None, status: str) -> l
     if "MESA" in label:
         return [_timeline_agent_item(name="ALFPSimulationModel", role="커뮤니티 상태 시뮬레이션", status=status, summary_lines=_summary_to_lines(summary, limit=3))]
     if "State Translator" in label:
-        return [_timeline_agent_item(name="State Translator", role="Mesa 상태를 LLM 입력 포맷으로 변환", status=status, summary_lines=_summary_to_lines(summary, limit=3))]
+        return [_timeline_agent_item(name="State Input Adapter", role="Forecast / State 입력을 에이전트 소비 형식으로 정리", status=status, summary_lines=_summary_to_lines(summary, limit=3))]
     if "병합" in label:
         return [_timeline_agent_item(name="Merge Coordinator", role="병렬 검증 결과와 실행 결과 병합", status=status, summary_lines=_summary_to_lines(summary, limit=3))]
     if "Evaluation" in label:

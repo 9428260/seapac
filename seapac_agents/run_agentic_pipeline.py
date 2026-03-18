@@ -28,7 +28,7 @@ from pipeline_dashboard.db import create_run, get_db_path, init_db, upsert_artif
 
 
 def _parse_args() -> argparse.Namespace:
-    p = argparse.ArgumentParser(description="SEAPAC Agentic Pipeline (Step 2~5)")
+    p = argparse.ArgumentParser(description="SEAPAC Agentic Pipeline (Step 3~5 중심)")
     p.add_argument("--data-path", default="data/train_2026_seoul.pkl", help="Mesa 학습 데이터 경로")
     p.add_argument("--llm-mode", default=os.environ.get("SEAPAC_LLM_MODE", "all"), choices=["off", "forecast", "forecast_plan", "core", "market", "plan", "all"], help="통합 LLM 모드")
     p.add_argument("--steps", type=int, default=96, help="시뮬레이션 스텝 수 (기본 96 = 24h)")

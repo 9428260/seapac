@@ -7,6 +7,7 @@ Has veto authority on device feasibility.
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -41,6 +42,7 @@ class StorageAgentOutput:
     rejected_actions: list[str] = field(default_factory=list)
     modified_actions: list[dict] = field(default_factory=list)
     approved_actions_detail: list[dict] = field(default_factory=list)
+    llm_review: dict = field(default_factory=dict)
 
 
 def _pv_operation_manager(site_state: dict, export_limit_kw: float = 999.0) -> PVManagerOutput:
@@ -153,5 +155,27 @@ def run_storage_agent(
         if a.get("type") in ("market_sell", "demand_response"):
             out.approved_actions.append(a.get("action_id", ""))
             out.approved_actions_detail.append(dict(a))
+
+    try:
+        from langchain_core.messages import HumanMessage, SystemMessage
+        from alfp.llm import is_llm_enabled, get_llm
+
+        if is_llm_enabled("parallel_storage"):
+            system = """당신은 Storage 병렬 심사 보조 분석기입니다.
+현재 ESS/PV 상태와 심사 결과를 보고 설비 관점의 핵심 판단을 한국어로 짧게 요약하세요.
+JSON only:
+{"summary": string, "soc_outlook": string, "device_risk": string}"""
+            user = (
+                f"site_state={json.dumps(site_state, ensure_ascii=False)}\n"
+                f"candidate_actions={json.dumps(candidate_actions, ensure_ascii=False)}\n"
+                f"storage_result={json.dumps({'approved_actions': out.approved_actions, 'rejected_actions': out.rejected_actions, 'soc_projection': out.ess.soc_projection, 'degradation_estimate': out.ess.degradation_estimate, 'pv_surplus_availability_kw': out.pv.pv_surplus_availability_kw}, ensure_ascii=False)}\n"
+                "Output JSON only."
+            )
+            llm = get_llm(temperature=0.1, stage="parallel_storage")
+            resp = llm.invoke([SystemMessage(content=system), HumanMessage(content=user)])
+            text = resp.content if hasattr(resp, "content") else str(resp)
+            out.llm_review = json.loads(text.strip().removeprefix("```json").removesuffix("```").strip())
+    except Exception:
+        out.llm_review = {}
 
     return out

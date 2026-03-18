@@ -907,7 +907,7 @@
     {% endfor %}
   </div>
 
-  {# Tab 3: State Translator, AgentScope Multi-Agent Decision, Step3.5+4 병합 #}
+  {# Tab 3: Forecast/State 입력, AgentScope Multi-Agent Decision, Step3.5+4 병합 #}
   <div id="tab-3" class="detail-panel {% if _ct == '3' %}active{% endif %}">
     {# Agent 실행 요약 — seapac_agents/decision.py 5개 에이전트 #}
     {% if agentscope_agent_summary %}
@@ -962,7 +962,7 @@
     {% else %}
     <div class="agentscope-summary-section">
       <h4 class="agentscope-summary-title">Agent 실행 요약</h4>
-      <p class="agentscope-summary-desc">이 Run에는 Step3 AgentScope Multi-Agent Decision 단계가 없습니다. 파이프라인 실행 시 State Translator → Step3(5개 에이전트) → Step3.5 병합 순으로 실행되며, 여기서 Policy-Agent, SmartSeller-Agent, StorageMaster-Agent, EcoSaver-Agent, MarketCoordinator-Agent 실행 요약이 표시됩니다.</p>
+      <p class="agentscope-summary-desc">이 Run에는 Step3 AgentScope Multi-Agent Decision 단계가 없습니다. 현재 파이프라인은 Forecast / State 입력 → Step3(5개 에이전트) → Step3.5 병합 순으로 해석하는 것이 맞으며, 여기서 Policy-Agent, SmartSeller-Agent, StorageMaster-Agent, EcoSaver-Agent, MarketCoordinator-Agent 실행 요약이 표시됩니다.</p>
     </div>
     {% endif %}
 

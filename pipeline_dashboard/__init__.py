@@ -4,9 +4,9 @@ Pipeline Dashboard — DB and UI for SEAPAC pipeline stage results.
 Architecture steps stored:
   1. ALFP decision
   2. MESA Simulation Engine
-  3. Step2 State Translator
+  3. Forecast / State input or optional state shaping
   4. Step3 AgentScope Multi-Agent Decision
-  5. Step4 Action Execution Engine
+  5. Step4 Action Execution / Settlement
   6. Step5 Evaluation Engine
   7. MESA next simulation step
   8. Parallel Agents

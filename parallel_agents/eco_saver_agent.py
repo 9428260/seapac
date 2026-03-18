@@ -7,6 +7,7 @@ Advisory only: no veto authority.
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field
 
 
@@ -17,6 +18,7 @@ class EcoSaverOutput:
     estimated_savings_krw: list[float] = field(default_factory=list)
     acceptance_probability: list[float] = field(default_factory=list)
     notification_payload: list[dict] = field(default_factory=list)
+    llm_review: dict = field(default_factory=dict)
 
 
 def run_eco_saver_agent(
@@ -86,5 +88,28 @@ def run_eco_saver_agent(
         out.estimated_savings_krw = out.estimated_savings_krw[:max_rec]
         out.acceptance_probability = out.acceptance_probability[:max_rec]
         out.notification_payload = out.notification_payload[:max_rec]
+
+    try:
+        from langchain_core.messages import HumanMessage, SystemMessage
+        from alfp.llm import is_llm_enabled, get_llm
+
+        if is_llm_enabled("parallel_eco"):
+            system = """당신은 Eco Saver 병렬 심사 보조 분석기입니다.
+현재 상태와 생성된 권고를 보고 주민 안내용 톤과 핵심 메시지를 한국어로 짧게 정리하세요.
+JSON only:
+{"summary": string, "user_message": string, "engagement_note": string}"""
+            user = (
+                f"site_state={json.dumps(site_state, ensure_ascii=False)}\n"
+                f"candidate_actions={json.dumps(candidate_actions, ensure_ascii=False)}\n"
+                f"recommendations={json.dumps(out.recommendations, ensure_ascii=False)}\n"
+                f"notification_payload={json.dumps(out.notification_payload, ensure_ascii=False)}\n"
+                "Output JSON only."
+            )
+            llm = get_llm(temperature=0.2, stage="parallel_eco")
+            resp = llm.invoke([SystemMessage(content=system), HumanMessage(content=user)])
+            text = resp.content if hasattr(resp, "content") else str(resp)
+            out.llm_review = json.loads(text.strip().removeprefix("```json").removesuffix("```").strip())
+    except Exception:
+        out.llm_review = {}
 
     return out

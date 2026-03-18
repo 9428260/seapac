@@ -35,6 +35,18 @@ from alfp.governance import curate_evidence, run_critic_agent, run_policy_gate
 from alfp.governance.evidence_curator import EvidenceCuratorOutput
 from alfp.simulation_sandbox import run_simulation_sandbox
 
+MAX_PLAN_REPLANS = 2
+
+
+def _get_max_plan_retries(state: ALFPState) -> int:
+    configured = state.get("max_plan_retries")
+    if configured is None:
+        return MAX_PLAN_REPLANS
+    try:
+        return min(int(configured), MAX_PLAN_REPLANS)
+    except (TypeError, ValueError):
+        return MAX_PLAN_REPLANS
+
 
 def data_loader_node(state: ALFPState) -> ALFPState:
     """데이터 로드 노드. 영구 메모리 로드 후 데이터 로드."""
@@ -60,7 +72,7 @@ def data_loader_node(state: ALFPState) -> ALFPState:
         "raw_data": raw_data,
         "persistent_memory": persistent,
         "plan_retry_count": state.get("plan_retry_count", 0),
-        "max_plan_retries": state.get("max_plan_retries", 2),
+        "max_plan_retries": _get_max_plan_retries(state),
         "messages": log,
     }
 
@@ -75,7 +87,7 @@ def _route_after_validation(state: ALFPState) -> str:
     mape_ok = kpi.get("MAPE_pass", True)
     peak_ok = kpi.get("peak_acc_pass", True)
     retry = state.get("plan_retry_count", 0)
-    max_retries = state.get("max_plan_retries", 2)
+    max_retries = _get_max_plan_retries(state)
 
     if (not mape_ok or not peak_ok) and retry < max_retries:
         return "replan"
@@ -92,11 +104,13 @@ def _route_after_validation_or_finish(state: ALFPState) -> str:
 def replan_node(state: ALFPState) -> ALFPState:
     """재계획 진입 노드. 재시도 횟수 증가 후 ForecastPlanner로 이동."""
     log = state.get("messages", [])
-    retry = state.get("plan_retry_count", 0) + 1
-    log.append(f"[Replan] 검증 KPI 미달 → 재계획 시도 ({retry}/{state.get('max_plan_retries', 2)})")
+    max_retries = _get_max_plan_retries(state)
+    retry = min(state.get("plan_retry_count", 0) + 1, max_retries)
+    log.append(f"[Replan] 재계획 시도 ({retry}/{max_retries})")
     return {
         **state,
         "plan_retry_count": retry,
+        "max_plan_retries": max_retries,
         "messages": log,
     }
 
@@ -169,7 +183,7 @@ def _route_after_policy_gate(state: ALFPState) -> str:
         return "simulation_sandbox"
     if status == "REPLAN_REQUIRED":
         retry = state.get("plan_retry_count", 0)
-        max_retries = state.get("max_plan_retries", 2)
+        max_retries = _get_max_plan_retries(state)
         if retry < max_retries:
             return "replan"
         return "save_memory"  # 재시도 소진 시에도 저장 후 종료
@@ -181,7 +195,7 @@ def _route_after_sandbox(state: ALFPState) -> str:
     result = state.get("simulation_result") or {}
     if result.get("replan_required"):
         retry = state.get("plan_retry_count", 0)
-        max_retries = state.get("max_plan_retries", 2)
+        max_retries = _get_max_plan_retries(state)
         if retry < max_retries:
             return "replan"
     return "save_memory"
@@ -563,7 +577,7 @@ def run_pipeline(
         "messages": [],
         "errors": [],
         "plan_retry_count": 0,
-        "max_plan_retries": 2,
+        "max_plan_retries": MAX_PLAN_REPLANS,
     }
     if run_id is not None and db_path and str(db_path).strip():
         _path_for_ctx = Path(db_path) if not isinstance(db_path, Path) else Path(db_path)

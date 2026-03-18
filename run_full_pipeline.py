@@ -179,6 +179,61 @@ class PipelineResult:
 # 유틸리티
 # ─────────────────────────────────────────────────────────────────
 
+def _llm_status_label(enabled: bool) -> str:
+    return "사용" if enabled else "미사용"
+
+
+def _has_llm_content(payload: Any) -> bool:
+    if isinstance(payload, dict):
+        return any(v not in (None, "", [], {}) for v in payload.values())
+    if isinstance(payload, list):
+        return any(_has_llm_content(item) for item in payload)
+    return payload not in (None, "")
+
+
+def _decision_llm_summary(decisions: dict) -> tuple[bool, dict[str, str]]:
+    coordinator_reviews = decisions.get("llm_coordinator_reviews") or []
+    self_critic = decisions.get("self_critic_output") or {}
+    strategy_logs = decisions.get("strategy_reasoning_logs") or []
+    enabled = bool(coordinator_reviews or strategy_logs or _has_llm_content(self_critic))
+    details: dict[str, str] = {"LLM 연계": _llm_status_label(enabled)}
+    if coordinator_reviews:
+        details["LLM 조정 리뷰"] = f"{len(coordinator_reviews)}건"
+    if _has_llm_content(self_critic):
+        details["Self-Critic"] = "사용"
+    return enabled, details
+
+
+def _parallel_llm_summary(parallel_layer: dict) -> tuple[bool, dict[str, str]]:
+    reviews = parallel_layer.get("llm_agent_reviews") or {}
+    merge = parallel_layer.get("llm_merge_summary") or {}
+    used_agents = [name for name, review in reviews.items() if _has_llm_content(review)]
+    enabled = bool(used_agents or _has_llm_content(merge))
+    details: dict[str, str] = {"LLM 연계": _llm_status_label(enabled)}
+    if used_agents:
+        details["LLM 심사 에이전트"] = ", ".join(sorted(used_agents))
+    if merge.get("summary"):
+        details["LLM 병합 요약"] = str(merge["summary"])
+    return enabled, details
+
+
+def _execution_llm_summary(exec_result: Any) -> tuple[bool, dict[str, str]]:
+    review = ((getattr(exec_result, "summary", None) or {}).get("llm_execution_review") or {}) if exec_result is not None else {}
+    enabled = _has_llm_content(review)
+    details: dict[str, str] = {"LLM 연계": _llm_status_label(enabled)}
+    if review.get("execution_summary"):
+        details["LLM 실행 요약"] = str(review["execution_summary"])
+    return enabled, details
+
+
+def _evaluation_llm_summary(report_dict: dict[str, Any]) -> tuple[bool, dict[str, str]]:
+    analysis = report_dict.get("llm_analysis") or {}
+    enabled = _has_llm_content(analysis)
+    details: dict[str, str] = {"LLM 연계": _llm_status_label(enabled)}
+    if analysis.get("executive_summary"):
+        details["LLM 평가 요약"] = str(analysis["executive_summary"])
+    return enabled, details
+
 def _divider(char: str = "─", width: int = 72) -> None:
     log.info(char * width)
 
@@ -698,6 +753,7 @@ def stage_multi_agent_decision(
             "DR 이벤트":      f"{n_dr}건",
             "결정 모드":      "CDA+Negotiation" if getattr(args, "use_cda_negotiation", False) and args.use_cda else ("CDA 시장" if args.use_cda else "AgentScope"),
         }
+        summary.update(_decision_llm_summary(decisions)[1])
         if decisions.get("trading_evidence"):
             summary["trading_evidence"] = decisions["trading_evidence"]
             summary["거래 증빙"] = f"{len(decisions.get('trading_evidence') or [])}건"
@@ -832,6 +888,7 @@ def stage_parallel_agents(
         recs       = pl.get("recommendations") or []
         violations = pl.get("policy_violation_report") or []
         risk_score = pl.get("risk_score", 0.0)
+        llm_merge_summary = (pl.get("llm_merge_summary") or {}).get("summary", "")
 
         log.info("   [출력] 승인 %d건 / 거절 %d건 / 수정 %d건",
                  len(approved), len(rejected), len(modified))
@@ -857,6 +914,7 @@ def stage_parallel_agents(
             "정책 위반":     f"{len(violations)}건",
             "위험 점수":     f"{risk_score:.2f}",
         }
+        summary.update(_parallel_llm_summary(pl)[1])
 
         stage_r = _stage_end(label, t0, summary)
         agent_logs = [
@@ -868,7 +926,11 @@ def stage_parallel_agents(
                 "finished_at": _utc_now_str(),
                 "elapsed_sec": None,
                 "ok": True,
-                "summary": {"거절 액션": f"{len(rejected)}건", "정책 위반": f"{len(violations)}건"},
+                "summary": {
+                    "거절 액션": f"{len(rejected)}건",
+                    "정책 위반": f"{len(violations)}건",
+                    "LLM 연계": _llm_status_label(_has_llm_content((pl.get("llm_agent_reviews") or {}).get("policy") or {})),
+                },
             },
             {
                 "agent_name": "EcoSaver-Agent",
@@ -878,7 +940,10 @@ def stage_parallel_agents(
                 "finished_at": _utc_now_str(),
                 "elapsed_sec": None,
                 "ok": True,
-                "summary": {"EcoSaver 권고": f"{len(recs)}건"},
+                "summary": {
+                    "EcoSaver 권고": f"{len(recs)}건",
+                    "LLM 연계": _llm_status_label(_has_llm_content((pl.get("llm_agent_reviews") or {}).get("eco_saver") or {})),
+                },
             },
             {
                 "agent_name": "StorageMaster-Agent",
@@ -888,7 +953,11 @@ def stage_parallel_agents(
                 "finished_at": _utc_now_str(),
                 "elapsed_sec": None,
                 "ok": True,
-                "summary": {"수정 액션": f"{len(modified)}건", "승인 액션": f"{len(approved)}건"},
+                "summary": {
+                    "수정 액션": f"{len(modified)}건",
+                    "승인 액션": f"{len(approved)}건",
+                    "LLM 연계": _llm_status_label(_has_llm_content((pl.get("llm_agent_reviews") or {}).get("storage") or {})),
+                },
             },
             {
                 "agent_name": "Parallel Coordinator",
@@ -982,6 +1051,7 @@ def stage_execution(
             "ESS 실행 스텝":    f"{ess_ops}건",
             "P2P 거래량 합계":   f"{trade_kw:.1f} kW",
         }
+        summary.update(_execution_llm_summary(result)[1])
 
         stage_r = _stage_end(label, t0, summary)
         if args.use_cda:
@@ -994,7 +1064,10 @@ def stage_execution(
                     "finished_at": _utc_now_str(),
                     "elapsed_sec": None,
                     "ok": True,
-                    "summary": {"P2P 거래량 합계": f"{trade_kw:.1f} kW"},
+                    "summary": {
+                        "P2P 거래량 합계": f"{trade_kw:.1f} kW",
+                        "LLM 연계": summary["LLM 연계"],
+                    },
                 },
                 {
                     "agent_name": "Settlement Validator",
@@ -1004,7 +1077,11 @@ def stage_execution(
                     "finished_at": _utc_now_str(),
                     "elapsed_sec": None,
                     "ok": approved,
-                    "summary": {"실행 승인 여부": "✓ 승인" if approved else "✗ 미승인", "검증 오류": f"{n_errors}건"},
+                    "summary": {
+                        "실행 승인 여부": "✓ 승인" if approved else "✗ 미승인",
+                        "검증 오류": f"{n_errors}건",
+                        "LLM 연계": summary["LLM 연계"],
+                    },
                 },
                 {
                     "agent_name": "Mesa Update",
@@ -1027,7 +1104,7 @@ def stage_execution(
                     "finished_at": _utc_now_str(),
                     "elapsed_sec": None,
                     "ok": n_errors == 0,
-                    "summary": {"검증 오류": f"{n_errors}건"},
+                    "summary": {"검증 오류": f"{n_errors}건", "LLM 연계": summary["LLM 연계"]},
                 },
                 {
                     "agent_name": "Execution Coordinator",
@@ -1037,7 +1114,7 @@ def stage_execution(
                     "finished_at": _utc_now_str(),
                     "elapsed_sec": None,
                     "ok": approved,
-                    "summary": {"실행 승인 여부": "✓ 승인" if approved else "✗ 미승인"},
+                    "summary": {"실행 승인 여부": "✓ 승인" if approved else "✗ 미승인", "LLM 연계": summary["LLM 연계"]},
                 },
                 {
                     "agent_name": "Mesa Update",
@@ -1228,6 +1305,30 @@ def stage_execution_with_parallel(
     merged_decisions = dict(pa_updated)  # Thread A의 승인된 decisions 기반
     merged_decisions["parallel_layer"] = pl_meta
 
+    try:
+        from langchain_core.messages import HumanMessage, SystemMessage
+        from alfp.llm import is_llm_enabled, get_llm
+
+        if is_llm_enabled("execution_merge"):
+            system = """당신은 병렬 검증 결과와 전력거래 실행 결과를 병합하는 운영 보조 분석기입니다.
+Thread A와 Thread B의 결과를 보고 병합 판단을 한국어로 짧게 요약하세요.
+JSON only:
+{"summary": string, "merge_rationale": string, "operator_note": string}"""
+            user = (
+                f"parallel_layer={json.dumps({'approved_actions': pl_meta.get('approved_actions') or [], 'rejected_actions': pl_meta.get('rejected_actions') or [], 'risk_score': pl_meta.get('risk_score'), 'recommendations': pl_meta.get('recommendations') or []}, ensure_ascii=False)}\n"
+                f"execution_summary={json.dumps((exec_result.summary if exec_result is not None else {}), ensure_ascii=False)}\n"
+                "Output JSON only."
+            )
+            llm = get_llm(temperature=0.1, stage="execution_merge")
+            resp = llm.invoke([SystemMessage(content=system), HumanMessage(content=user)])
+            raw = resp.content if hasattr(resp, "content") else str(resp)
+            llm_merge = json.loads(raw.strip().removeprefix("```json").removesuffix("```").strip())
+            merged_decisions["parallel_layer"]["llm_merge_review"] = llm_merge
+        else:
+            llm_merge = {}
+    except Exception:
+        llm_merge = {}
+
     # Thread A가 거절한 액션을 exec_result validation_errors에 추가 기록
     if exec_result is not None:
         rejected = pl_meta.get("rejected_actions") or []
@@ -1248,6 +1349,8 @@ def stage_execution_with_parallel(
     rejected_pa = pl_meta.get("rejected_actions") or []
     recs_pa     = pl_meta.get("recommendations") or []
     risk_pa     = pl_meta.get("risk_score", 0.0)
+    pa_llm_summary = _parallel_llm_summary(pl_meta)[1]
+    ex_llm_summary = _execution_llm_summary(exec_result)[1]
 
     stage_pa = StageResult(
         name=label_pa,
@@ -1260,6 +1363,7 @@ def stage_execution_with_parallel(
             "거절 액션":      f"{len(rejected_pa)}건",
             "EcoSaver 권고":  f"{len(recs_pa)}건",
             "위험 점수":      f"{risk_pa:.2f}",
+            **pa_llm_summary,
         },
     )
 
@@ -1280,6 +1384,7 @@ def stage_execution_with_parallel(
             "실행 승인":       "✓" if (exec_result and exec_result.approved) else "✗",
             "DataFrame":      f"{df_shape[0]} rows × {df_shape[1]} cols",
             "P2P 거래량 합계": f"{trade_kw_ex:.1f} kW",
+            **ex_llm_summary,
         },
     )
 
@@ -1290,6 +1395,7 @@ def stage_execution_with_parallel(
         summary={
             "병렬 벽시계 총합": f"{wall_elapsed:.2f}s  (A:{pa_elapsed:.2f}s / B:{ex_elapsed:.2f}s)",
             "순차 대비 절감":   f"~{max(pa_elapsed, ex_elapsed) - wall_elapsed:.2f}s",
+            **({"LLM 병합 요약": llm_merge.get("summary", "")} if llm_merge.get("summary") else {}),
         },
     )
 
@@ -1305,7 +1411,11 @@ def stage_execution_with_parallel(
             "finished_at": _utc_now_str(),
             "elapsed_sec": None,
             "ok": pa_err == "",
-            "summary": {"거절 액션": f"{len(rejected_pa)}건", "위험 점수": f"{risk_pa:.2f}"},
+            "summary": {
+                "거절 액션": f"{len(rejected_pa)}건",
+                "위험 점수": f"{risk_pa:.2f}",
+                "LLM 연계": _llm_status_label(_has_llm_content((pl_meta.get("llm_agent_reviews") or {}).get("policy") or {})),
+            },
             "error_text": pa_err or None,
         },
         {
@@ -1316,7 +1426,10 @@ def stage_execution_with_parallel(
             "finished_at": _utc_now_str(),
             "elapsed_sec": None,
             "ok": pa_err == "",
-            "summary": {"EcoSaver 권고": f"{len(recs_pa)}건"},
+            "summary": {
+                "EcoSaver 권고": f"{len(recs_pa)}건",
+                "LLM 연계": _llm_status_label(_has_llm_content((pl_meta.get("llm_agent_reviews") or {}).get("eco_saver") or {})),
+            },
             "error_text": pa_err or None,
         },
         {
@@ -1327,7 +1440,11 @@ def stage_execution_with_parallel(
             "finished_at": _utc_now_str(),
             "elapsed_sec": None,
             "ok": pa_err == "",
-            "summary": {"승인 액션": f"{len(approved_pa)}건", "거절 액션": f"{len(rejected_pa)}건"},
+            "summary": {
+                "승인 액션": f"{len(approved_pa)}건",
+                "거절 액션": f"{len(rejected_pa)}건",
+                "LLM 연계": _llm_status_label(_has_llm_content((pl_meta.get("llm_agent_reviews") or {}).get("storage") or {})),
+            },
             "error_text": pa_err or None,
         },
         {
@@ -1352,7 +1469,7 @@ def stage_execution_with_parallel(
             "finished_at": _utc_now_str(),
             "elapsed_sec": None,
             "ok": ex_err == "",
-            "summary": {"실행 승인": "✓" if (exec_result and exec_result.approved) else "✗"},
+            "summary": {"실행 승인": "✓" if (exec_result and exec_result.approved) else "✗", "LLM 연계": ex_llm_summary["LLM 연계"]},
             "error_text": ex_err or None,
         },
         {
@@ -1429,6 +1546,7 @@ def stage_evaluation(
             "DR 수락율":       f"{user_acceptance.get('acceptance_rate_pct', 0):.0f} %",
             "종합 등급":        rd.get("grade", "N/A"),
         }
+        summary.update(_evaluation_llm_summary(rd)[1])
 
         stage_r = _stage_end(label, t0, summary)
         agent_logs = [
@@ -1440,7 +1558,7 @@ def stage_evaluation(
                 "finished_at": _utc_now_str(),
                 "elapsed_sec": None,
                 "ok": True,
-                "summary": {"에너지 비용": summary["에너지 비용"]},
+                "summary": {"에너지 비용": summary["에너지 비용"], "LLM 연계": summary["LLM 연계"]},
             },
             {
                 "agent_name": "Trading Profit Evaluator",
@@ -1450,7 +1568,7 @@ def stage_evaluation(
                 "finished_at": _utc_now_str(),
                 "elapsed_sec": None,
                 "ok": True,
-                "summary": {"거래 수익": summary["거래 수익"], "피크 감소율": summary["피크 감소율"]},
+                "summary": {"거래 수익": summary["거래 수익"], "피크 감소율": summary["피크 감소율"], "LLM 연계": summary["LLM 연계"]},
             },
             {
                 "agent_name": "ESS / DR Evaluator",
@@ -1460,7 +1578,7 @@ def stage_evaluation(
                 "finished_at": _utc_now_str(),
                 "elapsed_sec": None,
                 "ok": True,
-                "summary": {"ESS 마모 비용": summary["ESS 마모 비용"], "DR 수락율": summary["DR 수락율"]},
+                "summary": {"ESS 마모 비용": summary["ESS 마모 비용"], "DR 수락율": summary["DR 수락율"], "LLM 연계": summary["LLM 연계"]},
             },
             {
                 "agent_name": "Evaluation Aggregator",
@@ -1470,7 +1588,7 @@ def stage_evaluation(
                 "finished_at": _utc_now_str(),
                 "elapsed_sec": stage_r.elapsed_sec,
                 "ok": True,
-                "summary": {"종합 등급": summary["종합 등급"]},
+                "summary": {"종합 등급": summary["종합 등급"], "LLM 연계": summary["LLM 연계"]},
             },
         ]
         return stage_r, report, agent_logs

@@ -8,6 +8,7 @@ applies veto rules (Policy + Storage), and produces final executable action bund
 from __future__ import annotations
 
 import asyncio
+import json
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -30,6 +31,8 @@ class OrchestratorOutput:
     notification_payload: list[dict] = field(default_factory=list)
     evaluated_steps: int = 0
     step_summaries: list[dict] = field(default_factory=list)
+    llm_agent_reviews: dict = field(default_factory=dict)
+    llm_merge_summary: dict = field(default_factory=dict)
 
 
 def _run_policy_sync(site_state: dict, candidate_actions: list[dict], config: PolicyConfig | None) -> PolicyAgentOutput:
@@ -141,6 +144,35 @@ def _merge_results(
     modified = list(policy_out.modified_actions) + list(storage_out.modified_actions)
     recommendations = list(eco_out.recommendations)
     notification_payload = list(eco_out.notification_payload)
+    llm_agent_reviews = {
+        "policy": dict(getattr(policy_out, "llm_review", {}) or {}),
+        "eco_saver": dict(getattr(eco_out, "llm_review", {}) or {}),
+        "storage": dict(getattr(storage_out, "llm_review", {}) or {}),
+    }
+
+    llm_merge_summary: dict[str, Any] = {}
+    try:
+        from langchain_core.messages import HumanMessage, SystemMessage
+        from alfp.llm import is_llm_enabled, get_llm
+
+        if is_llm_enabled("execution_merge"):
+            system = """당신은 병렬 실행 오케스트레이터 보조 분석기입니다.
+Policy, Storage, Eco Saver 결과를 합친 최종 승인 판단을 한국어로 짧게 요약하세요.
+JSON only:
+{"summary": string, "approval_rationale": string, "operator_note": string}"""
+            user = (
+                f"candidate_actions={json.dumps(candidate_actions, ensure_ascii=False)}\n"
+                f"llm_agent_reviews={json.dumps(llm_agent_reviews, ensure_ascii=False)}\n"
+                f"final_approved_ids={json.dumps(list(final_approved_ids), ensure_ascii=False)}\n"
+                f"final_rejected_ids={json.dumps(final_rejected, ensure_ascii=False)}\n"
+                "Output JSON only."
+            )
+            llm = get_llm(temperature=0.1, stage="execution_merge")
+            resp = llm.invoke([SystemMessage(content=system), HumanMessage(content=user)])
+            text = resp.content if hasattr(resp, "content") else str(resp)
+            llm_merge_summary = json.loads(text.strip().removeprefix("```json").removesuffix("```").strip())
+    except Exception:
+        llm_merge_summary = {}
 
     return OrchestratorOutput(
         approved_actions=list(final_approved_ids),
@@ -153,6 +185,8 @@ def _merge_results(
         notification_payload=notification_payload,
         evaluated_steps=1,
         step_summaries=[],
+        llm_agent_reviews=llm_agent_reviews,
+        llm_merge_summary=llm_merge_summary,
     )
 
 
@@ -223,8 +257,11 @@ def _run_stepwise_evaluation(
             "approved_actions": len(out.approved_actions),
             "rejected_actions": len(out.rejected_actions),
             "risk_score": out.risk_score,
+            "llm_merge_summary": out.llm_merge_summary,
         })
         aggregate.risk_score = max(aggregate.risk_score, out.risk_score)
+        if out.llm_agent_reviews:
+            aggregate.llm_agent_reviews[str(step_bundle.get("step_index"))] = out.llm_agent_reviews
 
         for action_id in out.approved_actions:
             if action_id and action_id not in approved_order:
@@ -235,6 +272,11 @@ def _run_stepwise_evaluation(
 
     aggregate.approved_actions = approved_order
     aggregate.rejected_actions = rejected_order
+    if aggregate.step_summaries:
+        aggregate.llm_merge_summary = {
+            "summary": f"{len(aggregate.step_summaries)}개 step에 대해 병렬 심사 완료",
+            "approval_rationale": "step별 veto 결과를 집계한 최종 승인 목록",
+        }
     return aggregate
 
 
@@ -319,5 +361,7 @@ def run_parallel_evaluation_and_convert(
         "notification_payload": out.notification_payload,
         "evaluated_steps": out.evaluated_steps,
         "step_summaries": out.step_summaries,
+        "llm_agent_reviews": out.llm_agent_reviews,
+        "llm_merge_summary": out.llm_merge_summary,
     }
     return orchestrator_output_to_decisions(output_dict, decisions)

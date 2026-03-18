@@ -237,5 +237,7 @@ def orchestrator_output_to_decisions(
         "notification_payload": output.get("notification_payload"),
         "evaluated_steps": output.get("evaluated_steps"),
         "step_summaries": output.get("step_summaries"),
+        "llm_agent_reviews": output.get("llm_agent_reviews"),
+        "llm_merge_summary": output.get("llm_merge_summary"),
     }
     return result

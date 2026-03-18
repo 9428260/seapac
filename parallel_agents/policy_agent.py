@@ -7,6 +7,7 @@ Has veto authority: rejected actions are not executed.
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -35,6 +36,7 @@ class PolicyAgentOutput:
     approved_actions_detail: list[dict] = field(default_factory=list)  # full dict per approved action
     policy_violation_report: list[str] = field(default_factory=list)
     risk_score: float = 0.0  # 0.0 = safe, 1.0 = high risk
+    llm_review: dict = field(default_factory=dict)
 
 
 def run_policy_agent(
@@ -153,4 +155,25 @@ def run_policy_agent(
     out.policy_violation_report = violations
     n = len(candidate_actions)
     out.risk_score = min(1.0, risk_accum + (len(out.rejected_actions) / max(1, n)) * 0.5)
+    try:
+        from langchain_core.messages import HumanMessage, SystemMessage
+        from alfp.llm import is_llm_enabled, get_llm
+
+        if is_llm_enabled("parallel_policy"):
+            system = """당신은 병렬 실행 레이어의 Policy 심사 보조 분석기입니다.
+입력 상태와 정책 심사 결과를 보고 핵심 위험과 승인 판단을 한국어로 짧게 요약하세요.
+JSON only:
+{"summary": string, "top_risk": string, "recommended_follow_up": string}"""
+            user = (
+                f"site_state={json.dumps(site_state, ensure_ascii=False)}\n"
+                f"candidate_actions={json.dumps(candidate_actions, ensure_ascii=False)}\n"
+                f"policy_output={json.dumps({'approved_actions': out.approved_actions, 'rejected_actions': out.rejected_actions, 'modified_actions': out.modified_actions, 'policy_violation_report': out.policy_violation_report, 'risk_score': out.risk_score}, ensure_ascii=False)}\n"
+                "Output JSON only."
+            )
+            llm = get_llm(temperature=0.1, stage="parallel_policy")
+            resp = llm.invoke([SystemMessage(content=system), HumanMessage(content=user)])
+            text = resp.content if hasattr(resp, "content") else str(resp)
+            out.llm_review = json.loads(text.strip().removeprefix("```json").removesuffix("```").strip())
+    except Exception:
+        out.llm_review = {}
     return out
